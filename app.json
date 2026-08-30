@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "AgriLens AI",
+    "slug": "agrilens-ai",
+    "version": "1.0.0",
+    "icon": "./assets/icon.png",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1B4332"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "AgriLens AI needs access to your photos to analyze crop leaf health.",
+          "cameraPermission": "AgriLens AI needs camera access to capture leaf images."
+        }
+      ]
+    ]
+  }
+}
