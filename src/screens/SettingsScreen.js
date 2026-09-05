@@ -1,19 +1,22 @@
 // src/screens/SettingsScreen.js
 import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Alert, Modal, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
-import { LANGUAGES, LANGUAGE_LABELS } from '../utils/translations';
+import { useLanguage } from '../context/LanguageContext';
 
-export default function SettingsScreen({ language = 'English', onChangeLanguage = () => {} }) {
+export default function SettingsScreen() {
+  const { language, setLanguage, languages, languageLabels } = useLanguage();
+
   const [notifications, setNotifications] = useState(true);
   const [offlineMode, setOfflineMode] = useState(true);
   const [cameraQuality, setCameraQuality] = useState('High');
+  const [languagePickerVisible, setLanguagePickerVisible] = useState(false);
 
-  function cycleLanguage() {
-    const idx = LANGUAGES.indexOf(language);
-    onChangeLanguage(LANGUAGES[(idx + 1) % LANGUAGES.length]);
+  function selectLanguage(lang) {
+    setLanguage(lang);
+    setLanguagePickerVisible(false);
   }
 
   function cycleCameraQuality() {
@@ -38,15 +41,15 @@ export default function SettingsScreen({ language = 'English', onChangeLanguage 
       <ScrollView contentContainerStyle={styles.body}>
         <Text style={styles.sectionLabel}>PREFERENCES</Text>
         <View style={styles.card}>
-          <TouchableOpacity style={styles.row} onPress={cycleLanguage} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.row} onPress={() => setLanguagePickerVisible(true)} activeOpacity={0.7}>
             <View style={styles.rowLeft}>
               <Ionicons name="globe-outline" size={18} color={colors.primary} />
               <Text style={styles.rowLabel}>Language</Text>
             </View>
-                      <View style={styles.rowRight}>
-            <Text style={styles.rowValue}>{LANGUAGE_LABELS[language]}</Text>
-            <Ionicons name="chevron-down" size={16} color={colors.textLight} />
-          </View>
+            <View style={styles.rowRight}>
+              <Text style={styles.rowValue}>{languageLabels[language]}</Text>
+              <Ionicons name="chevron-down" size={16} color={colors.textLight} />
+            </View>
           </TouchableOpacity>
 
           <View style={styles.divider} />
@@ -105,6 +108,39 @@ export default function SettingsScreen({ language = 'English', onChangeLanguage 
           <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <Modal
+        visible={languagePickerVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setLanguagePickerVisible(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setLanguagePickerVisible(false)}>
+          <Pressable style={styles.modalSheet} onPress={() => {}}>
+            <Text style={styles.modalTitle}>Select Language</Text>
+            {languages.map((lang) => (
+              <TouchableOpacity
+                key={lang}
+                style={styles.modalOption}
+                onPress={() => selectLanguage(lang)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    styles.modalOptionText,
+                    lang === language && styles.modalOptionTextActive,
+                  ]}
+                >
+                  {languageLabels[lang]}
+                </Text>
+                {lang === language && (
+                  <Ionicons name="checkmark" size={20} color={colors.primary} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -131,4 +167,33 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   logoutText: { color: colors.danger, fontWeight: '800', fontSize: 15 },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  modalSheet: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 32,
+  },
+  modalTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: colors.textDark,
+    marginBottom: 8,
+  },
+  modalOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  modalOptionText: { fontSize: 15, color: colors.textDark },
+  modalOptionTextActive: { color: colors.primary, fontWeight: '700' },
 });

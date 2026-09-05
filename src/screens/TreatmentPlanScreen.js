@@ -4,29 +4,21 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, severityColor } from '../theme/colors';
-
-const ACTIONS = [
-  'Remove and destroy affected lower leaves.',
-  'Apply chemical or copper-based fungicide.',
-  'Improve air circulation by pruning and staking.',
-  'Monitor crops daily for disease progression.',
-];
-
-const ORGANICS = [
-  {
-    name: 'Baking Soda Spray',
-    desc: 'Mix 1 tbsp baking soda with 1 tsp liquid soap in 1 gallon of water. Spray weekly.',
-  },
-  {
-    name: 'Neem Oil Solution',
-    desc: 'Prevents fungal spore germination. Apply in cool evening hours to prevent leaf burn.',
-  },
-];
+import { useLanguage } from '../context/LanguageContext';
 
 export default function TreatmentPlanScreen({ route, navigation }) {
-  const disease = route?.params?.disease ?? 'Early Blight';
+  const { t } = useLanguage();
+
+  const disease = route?.params?.disease ?? t('defaultDisease');
   const severity = route?.params?.severity ?? 65;
-  const cropLabel = route?.params?.cropLabel ?? 'Tomato';
+  const cropLabel = route?.params?.cropLabel ?? t('defaultCrop');
+
+  const ACTIONS = [t('action1'), t('action2'), t('action3'), t('action4')];
+
+  const ORGANICS = [
+    { name: t('organicBakingSodaName'), desc: t('organicBakingSodaDesc') },
+    { name: t('organicNeemName'), desc: t('organicNeemDesc') },
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -34,7 +26,7 @@ export default function TreatmentPlanScreen({ route, navigation }) {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Treatment Plan</Text>
+        <Text style={styles.headerTitle}>{t('treatmentPlan')}</Text>
         <View style={styles.cropPill}>
           <Text style={styles.cropPillText}>{cropLabel}</Text>
         </View>
@@ -49,12 +41,12 @@ export default function TreatmentPlanScreen({ route, navigation }) {
             <Text style={styles.diseaseName}>{disease}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 2 }}>
               <View style={[styles.severityDot, { backgroundColor: severityColor('moderate') }]} />
-              <Text style={styles.severityText}>Moderate Severity ({severity}%)</Text>
+              <Text style={styles.severityText}>{t('moderateSeverity')} ({severity}%)</Text>
             </View>
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Recommended Actions</Text>
+        <Text style={styles.sectionTitle}>{t('recommendedActions')}</Text>
         <View style={styles.card}>
           {ACTIONS.map((action, i) => (
             <View key={i} style={styles.actionRow}>
@@ -64,7 +56,7 @@ export default function TreatmentPlanScreen({ route, navigation }) {
           ))}
         </View>
 
-        <Text style={styles.sectionTitle}>Organic Alternatives</Text>
+        <Text style={styles.sectionTitle}>{t('organicAlternatives')}</Text>
         <View style={styles.card}>
           {ORGANICS.map((item, i) => (
             <View key={i} style={i > 0 ? { marginTop: 16 } : undefined}>
@@ -75,7 +67,7 @@ export default function TreatmentPlanScreen({ route, navigation }) {
         </View>
 
         <TouchableOpacity style={styles.reminderBtn} activeOpacity={0.85}>
-          <Text style={styles.reminderBtnText}>Schedule Reminder</Text>
+          <Text style={styles.reminderBtnText}>{t('scheduleReminder')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

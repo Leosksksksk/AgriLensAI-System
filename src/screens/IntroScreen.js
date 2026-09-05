@@ -3,9 +3,11 @@ import { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
-
+import { useLanguage } from '../context/LanguageContext';
 
 export default function IntroScreen({ navigation }) {
+  const { t, hasSelectedLanguage, isLoading } = useLanguage();
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scanAnim = useRef(new Animated.Value(0)).current;
 
@@ -33,11 +35,12 @@ export default function IntroScreen({ navigation }) {
     ).start();
 
     const timer = setTimeout(() => {
-      navigation.replace('Login');
+      if (isLoading) return; // wait for AsyncStorage check to finish before routing
+      navigation.replace(hasSelectedLanguage ? 'Login' : 'LanguageSelect');
     }, 3200);
 
     return () => clearTimeout(timer);
-  }, [navigation, fadeAnim, scanAnim]);
+  }, [navigation, fadeAnim, scanAnim, hasSelectedLanguage, isLoading]);
 
   const scanTranslateY = scanAnim.interpolate({
     inputRange: [0, 1],
@@ -49,7 +52,7 @@ export default function IntroScreen({ navigation }) {
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         <View style={styles.phoneBody}>
           <View style={styles.phoneNotch} />
-          
+
           <View style={styles.phoneScreen}>
             <View style={styles.plantContainer}>
               <Ionicons name="leaf" size={60} color="#4CD964" />
@@ -64,8 +67,8 @@ export default function IntroScreen({ navigation }) {
           </View>
         </View>
 
-        <Text style={styles.appName}>AgriLens AI</Text>
-        <Text style={styles.tagline}>Scanning Crop Health...</Text>
+        <Text style={styles.appName}>{t('appName')}</Text>
+        <Text style={styles.tagline}>{t('scanningCropHealth')}</Text>
       </Animated.View>
     </View>
   );

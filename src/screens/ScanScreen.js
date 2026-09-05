@@ -1,19 +1,26 @@
 // src/screens/ScanScreen.js
-import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ScrollView } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import NetInfo from '@react-native-community/netinfo';
+import * as FileSystem from 'expo-file-system/legacy';
+import { decode } from 'base64-arraybuffer';
+import { supabase } from '../../supabaseClient';
 import { colors } from '../theme/colors';
-import { t, LANGUAGE_LABELS } from '../utils/translations';
+import { useLanguage } from '../context/LanguageContext';
 
-export default function ScanScreen({ navigation, language = 'English' }) {
+export default function ScanScreen({ navigation }) {
+  const { language, languageLabels, t } = useLanguage();
+
   const [permission, requestPermission] = useCameraPermissions();
   const [showCamera, setShowCamera] = useState(false);
   const [imageUri, setImageUri] = useState(null);
   const [isOnline, setIsOnline] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const cameraRef = useRef(null);
 
   useEffect(() => {
     const unsub = NetInfo.addEventListener((state) => setIsOnline(!!state.isConnected));
@@ -31,15 +38,75 @@ export default function ScanScreen({ navigation, language = 'English' }) {
     setShowCamera(true);
   }
 
+  // Helper function to handle the Supabase storage upload and database sync
+  async function uploadAndSyncToSupabase(uri) {
+    try {
+      setUploading(true);
+
+      // 1. Read file as Base64 using a plain string literal
+      const base64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: 'base64',
+      });
+      const arrayBuffer = decode(base64);
+
+      // 2. Define unique filename
+      const filename = `agrilens_scan_${Date.now()}.jpg`;
+
+      // 3. Upload to Supabase 'scans' bucket
+      const { error: storageError } = await supabase.storage
+        .from('scans')
+        .upload(filename, arrayBuffer, { contentType: 'image/jpeg' });
+
+      if (storageError) throw storageError;
+
+      // 4. Get public URL of the uploaded image
+      const { data: publicUrlData } = supabase.storage
+        .from('scans')
+        .getPublicUrl(filename);
+
+      const publicUrl = publicUrlData.publicUrl;
+
+      // 5. Insert record into 'scan_results' table, tagged with the signed-in farmer
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        throw new Error('No active session. Please log in again.');
+      }
+
+      const { error: dbError } = await supabase
+        .from('scan_results')
+        .insert([{ image_url: publicUrl, status: 'Pending AI Analysis', farmer_id: user.id }]);
+
+      if (dbError) throw dbError;
+
+      // Set image URI for local preview and proceed
+      setImageUri(publicUrl);
+      Alert.alert('Synced!', 'Image successfully saved to Supabase bucket and database.');
+
+    } catch (error) {
+      console.error('Supabase Sync Error:', error);
+      Alert.alert('Upload Failed', error.message);
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function handleUploadPhoto() {
     const res = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!res.granted) {
       Alert.alert('Photo library permission needed', 'Enable photo access to select a leaf photo.');
       return;
     }
-    const picked = await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
+    const picked = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.7,
+      allowsEditing: true,
+    });
+
     if (!picked.canceled && picked.assets?.length) {
-      setImageUri(picked.assets[0].uri);
+      const selectedUri = picked.assets[0].uri;
+      setImageUri(selectedUri);
+      await uploadAndSyncToSupabase(selectedUri);
     }
   }
 
@@ -48,26 +115,40 @@ export default function ScanScreen({ navigation, language = 'English' }) {
       Alert.alert('No photo yet', 'Take or upload a leaf photo first.');
       return;
     }
-    // Runs 100% on-device — navigate to results with mock/derived diagnosis.
     navigation.navigate('Results', { imageUri });
   }
 
   if (showCamera) {
     return (
       <View style={{ flex: 1, backgroundColor: '#000' }}>
-        <CameraView style={{ flex: 1 }} facing="back" />
+        <CameraView style={{ flex: 1 }} facing="back" ref={cameraRef} />
         <View style={styles.cameraControls}>
           <TouchableOpacity style={styles.cameraCancelBtn} onPress={() => setShowCamera(false)}>
             <Text style={styles.cameraCancelText}>Cancel</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.captureBtn}
-            onPress={() => {
-              setShowCamera(false);
-              setImageUri('captured-leaf-placeholder');
+            disabled={uploading}
+            onPress={async () => {
+              if (cameraRef.current) {
+                try {
+                  const photo = await cameraRef.current.takePictureAsync({ quality: 0.7 });
+                  setShowCamera(false);
+                  if (photo?.uri) {
+                    await uploadAndSyncToSupabase(photo.uri);
+                  }
+                } catch (err) {
+                  console.error('Capture error:', err);
+                  setShowCamera(false);
+                }
+              }
             }}
           >
-            <View style={styles.captureInner} />
+            {uploading ? (
+              <ActivityIndicator size="small" color={colors.white} />
+            ) : (
+              <View style={styles.captureInner} />
+            )}
           </TouchableOpacity>
           <View style={{ width: 70 }} />
         </View>
@@ -78,9 +159,9 @@ export default function ScanScreen({ navigation, language = 'English' }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('appName', language)}</Text>
-                <TouchableOpacity style={styles.langPill}>
-          <Text style={styles.langPillText}>{LANGUAGE_LABELS[language]}</Text>
+        <Text style={styles.headerTitle}>{t('appName')}</Text>
+        <TouchableOpacity style={styles.langPill}>
+          <Text style={styles.langPillText}>{languageLabels[language]}</Text>
         </TouchableOpacity>
       </View>
 
@@ -88,12 +169,12 @@ export default function ScanScreen({ navigation, language = 'English' }) {
         <View style={styles.viewfinder}>
           {!isOnline && (
             <View style={styles.offlineBadge}>
-              <Text style={styles.offlineBadgeText}>{t('noInternet', language)}</Text>
+              <Text style={styles.offlineBadgeText}>{t('noInternet')}</Text>
             </View>
           )}
           {imageUri ? (
             <Image
-              source={imageUri === 'captured-leaf-placeholder' ? undefined : { uri: imageUri }}
+              source={{ uri: imageUri }}
               style={styles.previewImage}
             />
           ) : (
@@ -102,27 +183,27 @@ export default function ScanScreen({ navigation, language = 'English' }) {
               <View style={styles.cornerTR} />
               <View style={styles.cornerBL} />
               <View style={styles.cornerBR} />
-              <Text style={styles.viewfinderHint}>{t('pointCamera', language)}</Text>
+              <Text style={styles.viewfinderHint}>{t('pointCamera')}</Text>
             </>
           )}
         </View>
 
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={handleUploadPhoto}>
-            <Text style={styles.outlineBtnText}>{t('uploadPhoto', language)}</Text>
+          <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={handleUploadPhoto} disabled={uploading}>
+            <Text style={styles.outlineBtnText}>{uploading ? 'Uploading...' : t('uploadPhoto')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.filledBtn} activeOpacity={0.85} onPress={handleTakePhoto}>
-            <Text style={styles.filledBtnText}>{t('takePhoto', language)}</Text>
+          <TouchableOpacity style={styles.filledBtn} activeOpacity={0.85} onPress={handleTakePhoto} disabled={uploading}>
+            <Text style={styles.filledBtnText}>{t('takePhoto')}</Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.scanBtn} activeOpacity={0.85} onPress={handleAnalyze}>
-          <Text style={styles.scanBtnText}>{t('scanLeafBtn', language)}</Text>
+          <Text style={styles.scanBtnText}>{t('scanLeafBtn')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.analyzeBtn} activeOpacity={0.85} onPress={handleAnalyze}>
           <Ionicons name="sparkles" size={16} color={colors.white} style={{ marginRight: 8 }} />
-          <Text style={styles.analyzeBtnText}>{t('analyzeOffline', language)}</Text>
+          <Text style={styles.analyzeBtnText}>{t('analyzeOffline')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

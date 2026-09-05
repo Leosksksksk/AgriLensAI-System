@@ -1,28 +1,99 @@
 // src/screens/SyncScreen.js
-import { useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import NetInfo from '@react-native-community/netinfo';
 import { colors } from '../theme/colors';
+import { supabase } from '../../supabaseClient';
+import { useLanguage } from '../context/LanguageContext';
 
-const QUEUE = [
-  { title: 'Scan – Tomato Leaf', time: '2 minutes ago' },
-  { title: 'Scan – Rice Plant', time: '15 minutes ago' },
-  { title: 'Weather Check', time: '1 hour ago' },
-];
+function timeAgo(dateString) {
+  const diffMs = Date.now() - new Date(dateString).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+}
 
 export default function SyncScreen() {
+  const { t } = useLanguage();
+
   const [syncing, setSyncing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [pendingRecords, setPendingRecords] = useState([]);
+  const [isOnline, setIsOnline] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [lastSyncedAt, setLastSyncedAt] = useState(null);
+
   const spin = useRef(new Animated.Value(0)).current;
 
-  function handleSync() {
+  useEffect(() => {
+    const unsub = NetInfo.addEventListener((state) => setIsOnline(!!state.isConnected));
+    return unsub;
+  }, []);
+
+  const fetchPendingRecords = useCallback(async () => {
+    setErrorMsg(null);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setPendingRecords([]);
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('scan_results')
+      .select('id, image_url, status, created_at')
+      .eq('status', 'Pending AI Analysis')
+      .eq('farmer_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      setErrorMsg(error.message);
+      return [];
+    }
+    setPendingRecords(data ?? []);
+    return data ?? [];
+  }, []);
+
+  // Load once on mount
+  useEffect(() => {
+    fetchPendingRecords();
+  }, [fetchPendingRecords]);
+
+  async function handleSync() {
+    if (!isOnline) {
+      setErrorMsg('No internet connection. Connect and try again.');
+      return;
+    }
+
     setSyncing(true);
+    setErrorMsg(null);
     spin.setValue(0);
-    Animated.loop(Animated.timing(spin, { toValue: 1, duration: 900, useNativeDriver: true })).start();
-    setTimeout(() => {
-      spin.stopAnimation();
+    const loop = Animated.loop(
+      Animated.timing(spin, { toValue: 1, duration: 900, useNativeDriver: true })
+    );
+    loop.start();
+
+    try {
+      await fetchPendingRecords();
+      setLastSyncedAt(new Date().toISOString());
+    } catch (e) {
+      setErrorMsg(e.message ?? 'Sync failed.');
+    } finally {
+      loop.stop();
       setSyncing(false);
-    }, 1800);
+    }
+  }
+
+  async function handlePullToRefresh() {
+    setRefreshing(true);
+    await fetchPendingRecords();
+    setRefreshing(false);
   }
 
   const rotate = spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
@@ -30,7 +101,7 @@ export default function SyncScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Sync</Text>
+        <Text style={styles.headerTitle}>{t('sync')}</Text>
         <TouchableOpacity style={styles.syncIcon} onPress={handleSync} disabled={syncing}>
           <Animated.View style={{ transform: [{ rotate }] }}>
             <Ionicons name="refresh" size={20} color={colors.white} />
@@ -38,26 +109,64 @@ export default function SyncScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.body}>
-        <View style={styles.queueCard}>
-          <Text style={styles.queueTitle}>Offline Data</Text>
-          <Text style={styles.queueSubtitle}>{QUEUE.length} records waiting to sync</Text>
+      <ScrollView
+        contentContainerStyle={styles.body}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handlePullToRefresh} />
+        }
+      >
+        {!isOnline && (
+          <View style={styles.offlineBanner}>
+            <Ionicons name="cloud-offline-outline" size={16} color={colors.danger} />
+            <Text style={styles.offlineBannerText}>{t('noInternet')}</Text>
+          </View>
+        )}
 
-          {QUEUE.map((item, i) => (
-            <View key={i} style={styles.queueRow}>
-              <View style={styles.clockIconWrap}>
-                <Ionicons name="time-outline" size={16} color={colors.warning} />
+        {errorMsg && (
+          <View style={styles.errorBanner}>
+            <Text style={styles.errorBannerText}>{errorMsg}</Text>
+          </View>
+        )}
+
+        <View style={styles.queueCard}>
+          <Text style={styles.queueTitle}>{t('offlineData')}</Text>
+          <Text style={styles.queueSubtitle}>
+            {pendingRecords.length} {t('recordsWaiting')}
+          </Text>
+
+          {pendingRecords.length === 0 ? (
+            <Text style={styles.emptyText}>
+              {syncing || refreshing ? '...' : 'All caught up — nothing pending.'}
+            </Text>
+          ) : (
+            pendingRecords.map((item) => (
+              <View key={item.id} style={styles.queueRow}>
+                <View style={styles.clockIconWrap}>
+                  <Ionicons name="time-outline" size={16} color={colors.warning} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.queueItemTitle}>Scan #{item.id}</Text>
+                  <Text style={styles.queueItemStatus}>{item.status}</Text>
+                </View>
+                <Text style={styles.queueItemTime}>{timeAgo(item.created_at)}</Text>
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.queueItemTitle}>{item.title}</Text>
-              </View>
-              <Text style={styles.queueItemTime}>{item.time}</Text>
-            </View>
-          ))}
+            ))
+          )}
         </View>
 
-        <TouchableOpacity style={styles.syncBtn} activeOpacity={0.85} onPress={handleSync} disabled={syncing}>
-          <Text style={styles.syncBtnText}>{syncing ? 'Syncing…' : 'Sync Now'}</Text>
+        {lastSyncedAt && (
+          <Text style={styles.lastSyncedText}>
+            Last synced: {new Date(lastSyncedAt).toLocaleTimeString()}
+          </Text>
+        )}
+
+        <TouchableOpacity
+          style={[styles.syncBtn, (!isOnline || syncing) && styles.syncBtnDisabled]}
+          activeOpacity={0.85}
+          onPress={handleSync}
+          disabled={syncing || !isOnline}
+        >
+          <Text style={styles.syncBtnText}>{syncing ? t('syncing') : t('syncNow')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -85,16 +194,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   body: { padding: 20, paddingBottom: 40 },
+  offlineBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: colors.dangerBg,
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 14,
+  },
+  offlineBannerText: { color: colors.danger, fontSize: 12, fontWeight: '700' },
+  errorBanner: {
+    backgroundColor: colors.dangerBg,
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 14,
+  },
+  errorBannerText: { color: colors.danger, fontSize: 12 },
   queueCard: {
     backgroundColor: colors.warningBg,
     borderRadius: 14,
     padding: 18,
     borderLeftWidth: 4,
     borderLeftColor: colors.warning,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   queueTitle: { fontWeight: '800', fontSize: 16, color: colors.textDark, marginBottom: 2 },
   queueSubtitle: { fontSize: 13, color: colors.textMuted, marginBottom: 16 },
+  emptyText: { fontSize: 13, color: colors.textMuted, fontStyle: 'italic' },
   queueRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   clockIconWrap: {
     width: 30,
@@ -106,7 +233,10 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   queueItemTitle: { fontWeight: '700', color: colors.textDark, fontSize: 13 },
+  queueItemStatus: { fontSize: 11, color: colors.textMuted, marginTop: 1 },
   queueItemTime: { fontSize: 11, color: colors.textLight },
+  lastSyncedText: { fontSize: 11, color: colors.textLight, textAlign: 'center', marginBottom: 14 },
   syncBtn: { backgroundColor: colors.primary, borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
+  syncBtnDisabled: { opacity: 0.5 },
   syncBtnText: { color: colors.white, fontWeight: '800', fontSize: 15 },
 });

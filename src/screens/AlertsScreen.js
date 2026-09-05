@@ -2,51 +2,58 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme/colors';
+import { useLanguage } from '../context/LanguageContext';
 
-const ALERT_TYPES = {
-  'HIGH RISK': { bg: colors.dangerBg, border: colors.danger, tag: colors.danger },
+const ALERT_TYPE_STYLES = {
+  HIGH_RISK: { bg: colors.dangerBg, border: colors.danger, tag: colors.danger },
   WARNING: { bg: colors.warningBg, border: colors.warning, tag: colors.warning },
   INFO: { bg: colors.infoBg, border: colors.info, tag: colors.info },
   REMINDER: { bg: colors.okBg, border: colors.ok, tag: colors.ok },
 };
 
-const ALERTS = [
-  {
-    type: 'HIGH RISK',
-    time: '10m ago',
-    title: 'Extreme Heat Warning',
-    desc: 'Temperatures exceeding 35°C increase early blight risk. Water early in the morning.',
-  },
-  {
-    type: 'WARNING',
-    time: '2h ago',
-    title: 'Early Blight Nearby',
-    desc: '5 farms in your barangay reported early blight on tomatoes. Protect your crops.',
-  },
-  {
-    type: 'INFO',
-    time: '1d ago',
-    title: 'Pending Offline Scans',
-    desc: 'You have 3 records waiting to sync. Connect to internet to sync now.',
-  },
-  {
-    type: 'REMINDER',
-    time: '2d ago',
-    title: 'Apply Fungicide Today',
-    desc: 'Scheduled treatment for your tomato crops in Barangay Bogo.',
-  },
-];
-
 export default function AlertsScreen() {
+  const { t } = useLanguage();
+
+  const ALERTS = [
+    {
+      type: 'HIGH_RISK',
+      tagKey: 'highRisk',
+      time: '10m ago',
+      titleKey: 'alertHeatTitle',
+      descKey: 'alertHeatDesc',
+    },
+    {
+      type: 'WARNING',
+      tagKey: 'tagWarning',
+      time: '2h ago',
+      titleKey: 'alertBlightTitle',
+      descKey: 'alertBlightDesc',
+    },
+    {
+      type: 'INFO',
+      tagKey: 'tagInfo',
+      time: '1d ago',
+      titleKey: 'alertPendingTitle',
+      descKey: 'alertPendingDesc',
+    },
+    {
+      type: 'REMINDER',
+      tagKey: 'tagReminder',
+      time: '2d ago',
+      titleKey: 'alertFungicideTitle',
+      descKey: 'alertFungicideDesc',
+    },
+  ];
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Alerts</Text>
+        <Text style={styles.headerTitle}>{t('alerts')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.body}>
         {ALERTS.map((alert, i) => {
-          const style = ALERT_TYPES[alert.type];
+          const style = ALERT_TYPE_STYLES[alert.type];
           return (
             <View
               key={i}
@@ -54,12 +61,12 @@ export default function AlertsScreen() {
             >
               <View style={styles.cardTopRow}>
                 <View style={[styles.tag, { backgroundColor: style.tag }]}>
-                  <Text style={styles.tagText}>{alert.type}</Text>
+                  <Text style={styles.tagText}>{t(alert.tagKey)}</Text>
                 </View>
                 <Text style={styles.time}>{alert.time}</Text>
               </View>
-              <Text style={styles.title}>{alert.title}</Text>
-              <Text style={styles.desc}>{alert.desc}</Text>
+              <Text style={styles.title}>{t(alert.titleKey)}</Text>
+              <Text style={styles.desc}>{t(alert.descKey)}</Text>
             </View>
           );
         })}

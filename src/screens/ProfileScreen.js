@@ -4,19 +4,29 @@ import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
+import { useLanguage } from '../context/LanguageContext';
 
-const ALL_CROPS = ['Tomato Leaf', 'Rice Plant', 'Corn Stalk', 'Eggplant Leaf', 'Banana', 'Mango'];
+const ALL_CROPS = [
+  { id: 'tomato', labelKey: 'cropTomato' },
+  { id: 'rice', labelKey: 'cropRice' },
+  { id: 'corn', labelKey: 'cropCorn' },
+  { id: 'eggplant', labelKey: 'cropEggplant' },
+  { id: 'banana', labelKey: 'cropBanana' },
+  { id: 'mango', labelKey: 'cropMango' },
+];
 
 export default function ProfileScreen() {
+  const { t } = useLanguage();
+
   const [fullName, setFullName] = useState('Junrel Alipogpog');
-  const [phone, setPhone] = useState('+63 917 123 4567');
+  const [phone, setPhone] = useState('+63 9xx xxx xxxx');
   const [barangay, setBarangay] = useState('Bogo City Cebu');
   const [farmSize, setFarmSize] = useState('2.5 hectares');
-  const [selectedCrops, setSelectedCrops] = useState(['Tomato Leaf', 'Rice Plant', 'Corn Stalk', 'Eggplant Leaf']);
+  const [selectedCropIds, setSelectedCropIds] = useState(['tomato', 'rice', 'corn', 'eggplant']);
 
-  function toggleCrop(crop) {
-    setSelectedCrops((prev) =>
-      prev.includes(crop) ? prev.filter((c) => c !== crop) : [...prev, crop]
+  function toggleCrop(cropId) {
+    setSelectedCropIds((prev) =>
+      prev.includes(cropId) ? prev.filter((c) => c !== cropId) : [...prev, cropId]
     );
   }
 
@@ -27,38 +37,38 @@ export default function ProfileScreen() {
           <View style={styles.avatar}>
             <Ionicons name="person" size={30} color={colors.white} />
           </View>
-          <Text style={styles.name}>Junrel Alipogpog</Text>
-          <Text style={styles.subLabel}>FARM · Bogo City</Text>
+          <Text style={styles.name}>{fullName}</Text>
+          <Text style={styles.subLabel}>{t('farmLabel')} · {barangay}</Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Personal Information</Text>
+          <Text style={styles.cardTitle}>{t('personalInfo')}</Text>
 
-          <Text style={styles.fieldLabel}>Full Name</Text>
+          <Text style={styles.fieldLabel}>{t('fullName')}</Text>
           <TextInput style={styles.input} value={fullName} onChangeText={setFullName} />
 
-          <Text style={styles.fieldLabel}>Phone Number</Text>
+          <Text style={styles.fieldLabel}>{t('phoneNumber')}</Text>
           <TextInput style={styles.input} value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
 
-          <Text style={styles.fieldLabel}>Barangay</Text>
+          <Text style={styles.fieldLabel}>{t('barangay')}</Text>
           <TextInput style={styles.input} value={barangay} onChangeText={setBarangay} />
 
-          <Text style={styles.fieldLabel}>Farm Size</Text>
+          <Text style={styles.fieldLabel}>{t('farmSize')}</Text>
           <TextInput style={styles.input} value={farmSize} onChangeText={setFarmSize} />
         </View>
 
-        <Text style={styles.sectionTitle}>Crop Types</Text>
+        <Text style={styles.sectionTitle}>{t('cropTypes')}</Text>
         <View style={styles.chipRow}>
           {ALL_CROPS.map((crop) => {
-            const active = selectedCrops.includes(crop);
+            const active = selectedCropIds.includes(crop.id);
             return (
               <TouchableOpacity
-                key={crop}
+                key={crop.id}
                 style={[styles.chip, active && styles.chipActive]}
-                onPress={() => toggleCrop(crop)}
+                onPress={() => toggleCrop(crop.id)}
                 activeOpacity={0.8}
               >
-                <Text style={[styles.chipText, active && styles.chipTextActive]}>{crop}</Text>
+                <Text style={[styles.chipText, active && styles.chipTextActive]}>{t(crop.labelKey)}</Text>
               </TouchableOpacity>
             );
           })}

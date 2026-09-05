@@ -4,35 +4,26 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
-
-const STEPS = [
-  {
-    icon: 'camera-outline',
-    title: '1. Scan your leaf',
-    desc: "Position your crop's leaf in the camera viewfinder.",
-  },
-  {
-    icon: 'sparkles-outline',
-    title: '2. Get instant diagnosis',
-    desc: 'Our offline AI analyzes severity immediately without internet.',
-  },
-  {
-    icon: 'book-outline',
-    title: '3. Follow treatment guide',
-    desc: 'Apply recommended actions and organic solutions.',
-  },
-];
+import { useLanguage } from '../context/LanguageContext';
 
 export default function OnboardingScreen({ navigation }) {
+  const { t } = useLanguage();
+
+  const STEPS = [
+    { icon: 'camera-outline', titleKey: 'step1Title', descKey: 'step1Desc' },
+    { icon: 'sparkles-outline', titleKey: 'step2Title', descKey: 'step2Desc' },
+    { icon: 'book-outline', titleKey: 'step3Title', descKey: 'step3Desc' },
+  ];
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>LeafScan</Text>
+        <Text style={styles.headerTitle}>{t('appName')}</Text>
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.heading}>How it works</Text>
-        <Text style={styles.subheading}>Identify and address diseases in three easy steps</Text>
+        <Text style={styles.heading}>{t('howItWorks')}</Text>
+        <Text style={styles.subheading}>{t('onboardingSubheading')}</Text>
 
         {STEPS.map((step, i) => (
           <View key={i} style={styles.stepRow}>
@@ -40,8 +31,8 @@ export default function OnboardingScreen({ navigation }) {
               <Ionicons name={step.icon} size={22} color={colors.primary} />
             </View>
             <View style={styles.stepText}>
-              <Text style={styles.stepTitle}>{step.title}</Text>
-              <Text style={styles.stepDesc}>{step.desc}</Text>
+              <Text style={styles.stepTitle}>{t(step.titleKey)}</Text>
+              <Text style={styles.stepDesc}>{t(step.descKey)}</Text>
             </View>
           </View>
         ))}
@@ -52,7 +43,7 @@ export default function OnboardingScreen({ navigation }) {
         activeOpacity={0.85}
         onPress={() => navigation.replace('MainTabs')}
       >
-        <Text style={styles.getStartedText}>Get Started</Text>
+        <Text style={styles.getStartedText}>{t('getStarted')}</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

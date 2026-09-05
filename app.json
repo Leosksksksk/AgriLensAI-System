@@ -18,7 +18,16 @@
           "photosPermission": "AgriLens AI needs access to your photos to analyze crop leaf health.",
           "cameraPermission": "AgriLens AI needs camera access to capture leaf images."
         }
-      ]
-    ]
+      ],
+      "expo-status-bar"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "c3941f92-ffaa-4510-aa9e-522a3857bb77"
+      }
+    },
+    "android": {
+      "package": "com.junrel.agrilensai"
+    }
   }
 }

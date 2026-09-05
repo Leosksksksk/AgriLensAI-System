@@ -1,3 +1,4 @@
+//translations.js
 export const translations = {
   en: {
     // ---- your existing keys (unchanged) ----
@@ -33,6 +34,8 @@ export const translations = {
     viewDetails: "View Details",
     forecast7Day: "7-Day Forecast",
     sync: "Sync",
+    syncNow: "Sync Now",
+    syncing: "Syncing…",
     offlineData: "Offline Data",
     recordsWaiting: "records waiting to sync",
     personalInfo: "Personal Information",
@@ -58,7 +61,106 @@ export const translations = {
     getStarted: "Get Started",
     continueAsGuest: "Continue as Guest",
     howItWorks: "How it works",
+
+    // ---- Alerts screen ----
+    tagWarning: "WARNING",
+    tagInfo: "INFO",
+    tagReminder: "REMINDER",
+    alertHeatTitle: "Extreme Heat Warning",
+    alertHeatDesc: "Temperatures exceeding 35°C increase early blight risk. Water early in the morning.",
+    alertBlightTitle: "Early Blight Nearby",
+    alertBlightDesc: "5 farms in your barangay reported early blight on tomatoes. Protect your crops.",
+    alertPendingTitle: "Pending Offline Scans",
+    alertPendingDesc: "You have 3 records waiting to sync. Connect to internet to sync now.",
+    alertFungicideTitle: "Apply Fungicide Today",
+    alertFungicideDesc: "Scheduled treatment for your tomato crops in Barangay Bogo.",
+
+    //Climate screen
+    temperature: "Temperature",
+    humidity: "Humidity",
+    rainfall: "Rainfall",
+    today: "Today",
+    tomorrow: "Tomorrow",
+    riskHigh: "High Risk",
+    riskLow: "Low Risk",
+    riskModerate: "Moderate Risk",
+
+    //Results screen
+    viewTreatmentPlan: "View Treatment Plan",
+    progSevereDamage: "Severe Leaf Damage",
+    progSpreadStems: "Spread to Stems",
+    progModerateSpots: "Moderate Spots",
+    progSlightDiscoloration: "Slight Discoloration",
+    defaultCropLabel: "Tomato Leaf",
+    defaultDiseaseDetected: "Early Blight Detected",
+
+    //Treatment Plan screen
+    defaultDisease: "Early Blight",
+    defaultCrop: "Tomato",
+    action1: "Remove and destroy affected lower leaves.",
+    action2: "Apply chemical or copper-based fungicide.",
+    action3: "Improve air circulation by pruning and staking.",
+    action4: "Monitor crops daily for disease progression.",
+    organicBakingSodaName: "Baking Soda Spray",
+    organicBakingSodaDesc: "Mix 1 tbsp baking soda with 1 tsp liquid soap in 1 gallon of water. Spray weekly.",
+    organicNeemName: "Neem Oil Solution",
+    organicNeemDesc: "Prevents fungal spore germination. Apply in cool evening hours to prevent leaf burn.",
+
+    //profile screen
+    farmLabel: "FARM",
+    cropTomato: "Tomato Leaf",
+    cropRice: "Rice Plant",
+    cropCorn: "Corn Stalk",
+    cropEggplant: "Eggplant Leaf",
+    cropBanana: "Banana",
+    cropMango: "Mango",
+
+    //translations for HistoryScreen
+    statusHealthy: "Healthy",
+    statusEarlyBlight: "Early Blight",
+    statusLeafSpot: "Leaf Spot",
+    statusBacterialWilt: "Bacterial Wilt",
+    statusLateBlight: "Late Blight",
+    whenToday: "Today",
+    whenYesterday: "Yesterday",
+    whenTwoDaysAgo: "2 days ago",
+    whenThreeDaysAgo: "3 days ago",
+    whenOneWeekAgo: "1 week ago",
+    totalSuffix: "total",
+    noMatchingScans: "No matching scans.",
+
+    //Intro screen
+    scanningCropHealth: "Scanning Crop Health...",
+
+    //login screen
+    signInTagline: "Sign in to secure crop data",
+    mobileNumber: "Mobile Number",
+    smsHelperText: "We will send a one-time verification SMS.",
+
+    //onboarding screen
+    onboardingSubheading: "Identify and address diseases in three easy steps",
+    step1Title: "1. Scan your leaf",
+    step1Desc: "Position your crop's leaf in the camera viewfinder.",
+    step2Title: "2. Get instant diagnosis",
+    step2Desc: "Our offline AI analyzes severity immediately without internet.",
+    step3Title: "3. Follow treatment guide",
+    step3Desc: "Apply recommended actions and organic solutions.",
+
+    //first-time language selection screen
+    chooseLanguageTitle: "Choose Your Language",
+    chooseLanguageSubtitle: "You can change this anytime in Settings.",
+    continueBtn: "Continue",
+
+    //OTP verification screen
+    checkYourEmail: "Check your email",
+    otpSentTo: "We sent a 6-digit verification code to",
+    verifyCode: "Verify Code",
+    useDifferentEmail: "Use a different email",
+    invalidCodeTitle: "Invalid Code",
+    invalidCodeDesc: "Please enter the 6-digit code sent to your email.",
+    verificationFailedTitle: "Verification Failed",
   },
+
 
   fil: {
     // ---- your existing keys (unchanged) ----
@@ -94,6 +196,8 @@ export const translations = {
     viewDetails: "Tingnan ang Detalye",
     forecast7Day: "Forecast sa 7 Araw",
     sync: "I-sync",
+    syncNow: "I-sync Ngayon",
+    syncing: "Sini-sync…",
     offlineData: "Offline na Datos",
     recordsWaiting: "na record ang naghihintay i-sync",
     personalInfo: "Personal na Impormasyon",
@@ -119,6 +223,103 @@ export const translations = {
     getStarted: "Magsimula",
     continueAsGuest: "Magpatuloy bilang Bisita",
     howItWorks: "Paano ito gumagana",
+
+    // ---- Alerts screen ----
+    tagWarning: "BABALA",
+    tagInfo: "IMPORMASYON",
+    tagReminder: "PAALALA",
+    alertHeatTitle: "Babala sa Sobrang Init",
+    alertHeatDesc: "Ang temperaturang lampas 35°C ay nagpapataas ng panganib ng early blight. Magdilig nang maaga sa umaga.",
+    alertBlightTitle: "May Early Blight Malapit",
+    alertBlightDesc: "5 sakahan sa inyong barangay ang nag-ulat ng early blight sa kamatis. Protektahan ang inyong pananim.",
+    alertPendingTitle: "Naghihintay na Offline Scans",
+    alertPendingDesc: "May 3 record kayong naghihintay i-sync. Kumonekta sa internet para i-sync ngayon.",
+    alertFungicideTitle: "Maglagay ng Fungicide Ngayon",
+    alertFungicideDesc: "Nakaiskedyul na paggamot para sa inyong pananim na kamatis sa Barangay Bogo.",
+
+    //Climate screen
+    temperature: "Temperatura",
+    humidity: "Halumigmig",
+    rainfall: "Ulan",
+    today: "Ngayon",
+    tomorrow: "Bukas",
+    riskHigh: "Mataas na Panganib",
+    riskLow: "Mababang Panganib",
+    riskModerate: "Katamtamang Panganib",
+    //Results screen
+    viewTreatmentPlan: "Tingnan ang Plano sa Paggamot",
+    progSevereDamage: "Matinding Pinsala sa Dahon",
+    progSpreadStems: "Kumalat sa mga Sanga",
+    progModerateSpots: "Katamtamang Batik",
+    progSlightDiscoloration: "Bahagyang Pagbabago ng Kulay",
+    defaultCropLabel: "Dahon ng Kamatis",
+    defaultDiseaseDetected: "Natukoy ang Early Blight",
+
+    //Treatment Plan screen
+    defaultDisease: "Early Blight",
+    defaultCrop: "Kamatis",
+    action1: "Alisin at itapon ang apektadong mababang dahon.",
+    action2: "Maglagay ng kemikal o copper-based na fungicide.",
+    action3: "Pagandahin ang daloy ng hangin sa pamamagitan ng pagpuno at pagtukod.",
+    action4: "Bantayan ang pananim araw-araw para sa paglala ng sakit.",
+    organicBakingSodaName: "Baking Soda Spray",
+    organicBakingSodaDesc: "Ihalo ang 1 tbsp baking soda at 1 tsp likidong sabon sa 1 galon ng tubig. I-spray lingguhan.",
+    organicNeemName: "Neem Oil Solution",
+    organicNeemDesc: "Pumipigil sa pagsibol ng fungal spore. Ilagay sa malamig na gabi para maiwasan ang pagkasunog ng dahon.",
+
+    //profile screen
+    farmLabel: "SAKAHAN",
+    cropTomato: "Dahon ng Kamatis",
+    cropRice: "Halamang Palay",
+    cropCorn: "Puno ng Mais",
+    cropEggplant: "Dahon ng Talong",
+    cropBanana: "Saging",
+    cropMango: "Mangga",
+
+    //translations for HistoryScreen
+    statusHealthy: "Malusog",
+    statusEarlyBlight: "Early Blight",
+    statusLeafSpot: "Leaf Spot",
+    statusBacterialWilt: "Bacterial Wilt",
+    statusLateBlight: "Late Blight",
+    whenToday: "Ngayon",
+    whenYesterday: "Kahapon",
+    whenTwoDaysAgo: "2 araw ang nakalipas",
+    whenThreeDaysAgo: "3 araw ang nakalipas",
+    whenOneWeekAgo: "1 linggo ang nakalipas",
+    totalSuffix: "kabuuan",
+    noMatchingScans: "Walang nahanap na scan.",
+
+    //Intro screen
+    scanningCropHealth: "Sinusuri ang Kalusugan ng Pananim...",
+
+    //login screen
+    signInTagline: "Mag-sign in para sa ligtas na datos ng pananim",
+    mobileNumber: "Numero ng Mobile",
+    smsHelperText: "Magpapadala kami ng one-time verification SMS.",
+
+    //onboarding screen
+    onboardingSubheading: "Tukuyin at tugunan ang mga sakit sa tatlong madaling hakbang",
+    step1Title: "1. I-scan ang iyong dahon",
+    step1Desc: "Ilagay ang dahon ng iyong pananim sa camera viewfinder.",
+    step2Title: "2. Kumuha ng agarang diagnosis",
+    step2Desc: "Sinusuri ng aming offline AI ang kalubhaan agad kahit walang internet.",
+    step3Title: "3. Sundin ang gabay sa paggamot",
+    step3Desc: "Ilapat ang mga inirerekomendang hakbang at organikong solusyon.",
+
+    //first-time language selection screen
+    chooseLanguageTitle: "Piliin ang Wika",
+    chooseLanguageSubtitle: "Puwede mo itong baguhin anumang oras sa Settings.",
+    continueBtn: "Magpatuloy",
+
+    //OTP verification screen
+    checkYourEmail: "Tingnan ang iyong email",
+    otpSentTo: "Nagpadala kami ng 6-digit na verification code sa",
+    verifyCode: "I-verify ang Code",
+    useDifferentEmail: "Gumamit ng ibang email",
+    invalidCodeTitle: "Maling Code",
+    invalidCodeDesc: "Ilagay ang 6-digit na code na ipinadala sa iyong email.",
+    verificationFailedTitle: "Hindi Na-verify",
   },
 
   ceb: {
@@ -155,6 +356,8 @@ export const translations = {
     viewDetails: "Tan-awa ang Detalye",
     forecast7Day: "Forecast sa 7 ka Adlaw",
     sync: "I-sync",
+    syncNow: "I-sync Karon",
+    syncing: "Gina-sync…",
     offlineData: "Offline nga Datos",
     recordsWaiting: "ka record ang naghulat i-sync",
     personalInfo: "Personal nga Impormasyon",
@@ -180,6 +383,104 @@ export const translations = {
     getStarted: "Sugdi",
     continueAsGuest: "Padayon isip Bisita",
     howItWorks: "Giunsa kini paglihok",
+
+    // ---- Alerts screen ----
+    tagWarning: "PASIDAAN",
+    tagInfo: "IMPORMASYON",
+    tagReminder: "PAHINUMDOM",
+    alertHeatTitle: "Pasidaan sa Grabeng Kainit",
+    alertHeatDesc: "Ang temperatura nga labaw sa 35°C nagpataas sa risgo sa early blight. Bisbisi sayo sa buntag.",
+    alertBlightTitle: "Naay Early Blight Duol",
+    alertBlightDesc: "5 ka uma sa inyong barangay ang nagreport og early blight sa kamatis. Panalipdi ang inyong tanom.",
+    alertPendingTitle: "Naghulat nga Offline Scans",
+    alertPendingDesc: "Naa moy 3 ka record nga naghulat i-sync. Konekta sa internet para i-sync karon.",
+    alertFungicideTitle: "Ibutang ang Fungicide Karon",
+    alertFungicideDesc: "Naka-iskedyul nga tambal para sa inyong tanom nga kamatis sa Barangay Bogo.",
+
+    //Climate screen
+    temperature: "Temperatura",
+    humidity: "Kaumog",
+    rainfall: "Ulan",
+    today: "Karon",
+    tomorrow: "Ugma",
+    riskHigh: "Taas nga Peligro",
+    riskLow: "Ubos nga Peligro",
+    riskModerate: "Katunga nga Peligro",
+
+    //Results screen
+    viewTreatmentPlan: "Tan-awa ang Plano sa Tambal",
+    progSevereDamage: "Grabe nga Kadaot sa Dahon",
+    progSpreadStems: "Mikaylap sa mga Sanga",
+    progModerateSpots: "Katunga nga Batik",
+    progSlightDiscoloration: "Gamay nga Pagkausab sa Kolor",
+    defaultCropLabel: "Dahon sa Kamatis",
+    defaultDiseaseDetected: "Nakit-an ang Early Blight",
+
+    //Treatment Plan screen
+    defaultDisease: "Early Blight",
+    defaultCrop: "Kamatis",
+    action1: "Kuhaa ug laglaga ang naapektuhang ubos nga mga dahon.",
+    action2: "Pag-aplay og kemikal o copper-based nga fungicide.",
+    action3: "Pauswaga ang agos sa hangin pinaagi sa pagpul-ong ug pagtukod.",
+    action4: "Bantayi ang tanom matag adlaw para sa pagkatap sa sakit.",
+    organicBakingSodaName: "Baking Soda Spray",
+    organicBakingSodaDesc: "Sagola ang 1 tbsp baking soda ug 1 tsp likidong sabon sa 1 galon nga tubig. I-spray semana-semana.",
+    organicNeemName: "Neem Oil Solution",
+    organicNeemDesc: "Nagapugong sa pagturok sa fungal spore. I-apply sa bugnaw nga gabii aron malikayan ang pagkasunog sa dahon.",
+
+    //profile screen
+    farmLabel: "UMA",
+    cropTomato: "Dahon sa Kamatis",
+    cropRice: "Tanom nga Humay",
+    cropCorn: "Punoan sa Mais",
+    cropEggplant: "Dahon sa Talong",
+    cropBanana: "Saging",
+    cropMango: "Mangga",
+
+    //translations for HistoryScreen
+    statusHealthy: "Himsog",
+    statusEarlyBlight: "Early Blight",
+    statusLeafSpot: "Leaf Spot",
+    statusBacterialWilt: "Bacterial Wilt",
+    statusLateBlight: "Late Blight",
+    whenToday: "Karon",
+    whenYesterday: "Gahapon",
+    whenTwoDaysAgo: "2 ka adlaw ang milabay",
+    whenThreeDaysAgo: "3 ka adlaw ang milabay",
+    whenOneWeekAgo: "1 ka semana ang milabay",
+    totalSuffix: "tanan",
+    noMatchingScans: "Walay natukma nga scan.",
+
+    //Intro screen
+    scanningCropHealth: "Gisusi ang Panglawas sa Tanom...",
+
+    //login screen
+    signInTagline: "Sign in para sa protektado nga datos sa tanom",
+    mobileNumber: "Numero sa Mobile",
+    smsHelperText: "Magpadala kami og one-time verification SMS.",
+
+    //onboarding screen
+    onboardingSubheading: "Ilhon ug atimana ang mga sakit sa tulo ka sayon nga lakang",
+    step1Title: "1. I-scan ang imong dahon",
+    step1Desc: "Ibutang ang dahon sa imong tanom sa camera viewfinder.",
+    step2Title: "2. Pagkuha og dali nga diagnosis",
+    step2Desc: "Ang among offline AI nagsusi sa kagrabe dayon bisan walay internet.",
+    step3Title: "3. Sunda ang giya sa tambal",
+    step3Desc: "I-apply ang girekomendar nga mga lihok ug organikong solusyon.",
+
+    //first-time language selection screen
+    chooseLanguageTitle: "Pilia ang Pinulongan",
+    chooseLanguageSubtitle: "Mahimo nimo kini usbon bisan kanus-a sa Settings.",
+    continueBtn: "Padayon",
+
+    //OTP verification screen
+    checkYourEmail: "Susiha ang imong email",
+    otpSentTo: "Nagpadala kami og 6-digit nga verification code sa",
+    verifyCode: "I-verify ang Code",
+    useDifferentEmail: "Gamit og laing email",
+    invalidCodeTitle: "Sayop nga Code",
+    invalidCodeDesc: "Isulod ang 6-digit nga code nga gipadala sa imong email.",
+    verificationFailedTitle: "Wala Na-verify",
   },
 };
 

@@ -4,13 +4,14 @@ import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'r
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
+import { useLanguage } from '../context/LanguageContext';
 
 const MOCK_HISTORY = [
-  { id: '1', crop: 'Tomato Leaf', status: 'Healthy', severity: 98, healthy: true, when: 'Today' },
-  { id: '2', crop: 'Rice Plant', status: 'Early Blight', severity: 65, when: 'Yesterday' },
-  { id: '3', crop: 'Corn Stalk', status: 'Leaf Spot', severity: 45, when: '2 days ago' },
-  { id: '4', crop: 'Eggplant Leaf', status: 'Bacterial Wilt', severity: 82, when: '3 days ago' },
-  { id: '5', crop: 'Tomato Leaf', status: 'Late Blight', severity: 71, when: '1 week ago' },
+  { id: '1', cropKey: 'cropTomato', statusKey: 'statusHealthy', severity: 98, healthy: true, whenKey: 'whenToday' },
+  { id: '2', cropKey: 'cropRice', statusKey: 'statusEarlyBlight', severity: 65, whenKey: 'whenYesterday' },
+  { id: '3', cropKey: 'cropCorn', statusKey: 'statusLeafSpot', severity: 45, whenKey: 'whenTwoDaysAgo' },
+  { id: '4', cropKey: 'cropEggplant', statusKey: 'statusBacterialWilt', severity: 82, whenKey: 'whenThreeDaysAgo' },
+  { id: '5', cropKey: 'cropTomato', statusKey: 'statusLateBlight', severity: 71, whenKey: 'whenOneWeekAgo' },
 ];
 
 function iconColorFor(item) {
@@ -20,15 +21,18 @@ function iconColorFor(item) {
 }
 
 export default function HistoryScreen() {
+  const { t } = useLanguage();
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return MOCK_HISTORY;
-    return MOCK_HISTORY.filter(
-      (h) => h.crop.toLowerCase().includes(q) || h.status.toLowerCase().includes(q)
-    );
-  }, [query]);
+    return MOCK_HISTORY.filter((h) => {
+      const cropLabel = t(h.cropKey).toLowerCase();
+      const statusLabel = t(h.statusKey).toLowerCase();
+      return cropLabel.includes(q) || statusLabel.includes(q);
+    });
+  }, [query, t]);
 
   function renderItem({ item }) {
     const color = iconColorFor(item);
@@ -38,14 +42,13 @@ export default function HistoryScreen() {
           <Ionicons name="leaf" size={16} color={colors.white} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.cropName}>{item.crop}</Text>
+          <Text style={styles.cropName}>{t(item.cropKey)}</Text>
           <Text style={styles.statusLine}>
-            {item.status} {item.healthy ? '' : `– ${item.severity}%`}
-            {item.healthy ? ` – ${item.severity}%` : ''}
+            {t(item.statusKey)} – {item.severity}%
           </Text>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
-          <Text style={styles.whenText}>{item.when}</Text>
+          <Text style={styles.whenText}>{t(item.whenKey)}</Text>
           <Ionicons name="chevron-forward" size={16} color={colors.textLight} />
         </View>
       </TouchableOpacity>
@@ -55,7 +58,7 @@ export default function HistoryScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Scan History</Text>
+        <Text style={styles.headerTitle}>{t('scanHistory')}</Text>
         <TouchableOpacity>
           <Ionicons name="filter-outline" size={20} color={colors.white} />
         </TouchableOpacity>
@@ -65,7 +68,7 @@ export default function HistoryScreen() {
         <Ionicons name="search" size={16} color={colors.textLight} style={{ marginRight: 8 }} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search scans..."
+          placeholder={t('searchScans')}
           placeholderTextColor={colors.textLight}
           value={query}
           onChangeText={setQuery}
@@ -73,9 +76,9 @@ export default function HistoryScreen() {
       </View>
 
       <View style={styles.listHeaderRow}>
-        <Text style={styles.listHeaderTitle}>Recent Scans</Text>
+        <Text style={styles.listHeaderTitle}>{t('recentScans')}</Text>
         <View style={styles.countBadge}>
-          <Text style={styles.countBadgeText}>{MOCK_HISTORY.length} total</Text>
+          <Text style={styles.countBadgeText}>{MOCK_HISTORY.length} {t('totalSuffix')}</Text>
         </View>
       </View>
 
@@ -84,7 +87,7 @@ export default function HistoryScreen() {
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 30 }}
-        ListEmptyComponent={<Text style={styles.empty}>No matching scans.</Text>}
+        ListEmptyComponent={<Text style={styles.empty}>{t('noMatchingScans')}</Text>}
       />
     </SafeAreaView>
   );

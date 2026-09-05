@@ -4,18 +4,31 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, riskColor } from '../theme/colors';
+import { useLanguage } from '../context/LanguageContext';
 
+// riskKey stays a stable English id (for the color lookup + translation lookup);
+// dayKey maps to a translated label. Both keep the demo data separate from display text.
 const FORECAST = [
-  { day: 'Today', temp: '32°C', icon: 'rainy-outline', risk: 'High Risk' },
-  { day: 'Tomorrow', temp: '28°C', icon: 'sunny-outline', risk: 'Low Risk' },
-  { day: 'Wednesday', temp: '30°C', icon: 'cloudy-outline', risk: 'Moderate Risk' },
+  { dayKey: 'today', temp: '32°C', icon: 'rainy-outline', riskKey: 'riskHigh' },
+  { dayKey: 'tomorrow', temp: '28°C', icon: 'sunny-outline', riskKey: 'riskLow' },
+  { day: 'Wednesday', temp: '30°C', icon: 'cloudy-outline', riskKey: 'riskModerate' },
 ];
 
+// riskColor() (in theme/colors.js) expects the original English risk strings —
+// map each riskKey back to that exact string so the color lookup still works.
+const RISK_COLOR_LOOKUP = {
+  riskHigh: 'High Risk',
+  riskLow: 'Low Risk',
+  riskModerate: 'Moderate Risk',
+};
+
 export default function ClimateScreen({ location = 'Bogo City Cebu' }) {
+  const { t } = useLanguage();
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Climate</Text>
+        <Text style={styles.headerTitle}>{t('climate')}</Text>
         <View style={styles.locationRow}>
           <Ionicons name="location-outline" size={14} color={colors.white} />
           <Text style={styles.locationText}>{location}</Text>
@@ -26,17 +39,17 @@ export default function ClimateScreen({ location = 'Bogo City Cebu' }) {
         <View style={styles.metricsRow}>
           <View style={styles.metricCard}>
             <Ionicons name="sunny" size={18} color="#F5A623" />
-            <Text style={styles.metricLabel}>Temperature</Text>
+            <Text style={styles.metricLabel}>{t('temperature')}</Text>
             <Text style={styles.metricValue}>32°C</Text>
           </View>
           <View style={styles.metricCard}>
             <Ionicons name="water" size={18} color="#1565C0" />
-            <Text style={styles.metricLabel}>Humidity</Text>
+            <Text style={styles.metricLabel}>{t('humidity')}</Text>
             <Text style={styles.metricValue}>85%</Text>
           </View>
           <View style={styles.metricCard}>
             <Ionicons name="rainy" size={18} color="#1E88E5" />
-            <Text style={styles.metricLabel}>Rainfall</Text>
+            <Text style={styles.metricLabel}>{t('rainfall')}</Text>
             <Text style={styles.metricValue}>12mm</Text>
           </View>
         </View>
@@ -44,27 +57,27 @@ export default function ClimateScreen({ location = 'Bogo City Cebu' }) {
         <View style={styles.riskCard}>
           <View style={styles.riskDot} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.riskTitle}>HIGH RISK</Text>
-            <Text style={styles.riskDesc}>Conditions are favorable for rapid disease spread</Text>
+            <Text style={styles.riskTitle}>{t('highRisk')}</Text>
+            <Text style={styles.riskDesc}>{t('favorableConditions')}</Text>
             <TouchableOpacity>
-              <Text style={styles.riskLink}>View Details</Text>
+              <Text style={styles.riskLink}>{t('viewDetails')}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>7-Day Forecast</Text>
+        <Text style={styles.sectionTitle}>{t('forecast7Day')}</Text>
 
         {FORECAST.map((f, i) => (
           <View key={i} style={styles.forecastRow}>
             <View>
-              <Text style={styles.forecastDay}>{f.day}</Text>
+              <Text style={styles.forecastDay}>{f.dayKey ? t(f.dayKey) : f.day}</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 6 }}>
                 <Text style={styles.forecastTemp}>{f.temp}</Text>
                 <Ionicons name={f.icon} size={16} color={colors.textMuted} />
               </View>
             </View>
-            <View style={[styles.riskBadge, { backgroundColor: riskColor(f.risk) }]}>
-              <Text style={styles.riskBadgeText}>{f.risk}</Text>
+            <View style={[styles.riskBadge, { backgroundColor: riskColor(RISK_COLOR_LOOKUP[f.riskKey]) }]}>
+              <Text style={styles.riskBadgeText}>{t(f.riskKey)}</Text>
             </View>
           </View>
         ))}

@@ -5,20 +5,23 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import SeverityRing from '../components/SeverityRing';
-
-const PROGRESSION = [
-  { label: 'Disease Progression', color: colors.danger },
-  { label: 'Severe Leaf Damage', color: '#F57C00' },
-  { label: 'Spread to Stems', color: colors.warning, active: true },
-  { label: 'Moderate Spots', color: '#9CCC65' },
-  { label: 'Slight Discoloration', color: colors.ok },
-];
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ResultsScreen({ route, navigation }) {
+  const { t } = useLanguage();
+
   const [playing, setPlaying] = useState(false);
-  const cropLabel = route?.params?.cropLabel ?? 'Tomato Leaf';
-  const disease = route?.params?.disease ?? 'Early Blight Detected';
+  const cropLabel = route?.params?.cropLabel ?? t('defaultCropLabel');
+  const disease = route?.params?.disease ?? t('defaultDiseaseDetected');
   const severity = route?.params?.severity ?? 65;
+
+  const PROGRESSION = [
+    { labelKey: 'diseaseProgression', color: colors.danger },
+    { labelKey: 'progSevereDamage', color: '#F57C00' },
+    { labelKey: 'progSpreadStems', color: colors.warning, active: true },
+    { labelKey: 'progModerateSpots', color: '#9CCC65' },
+    { labelKey: 'progSlightDiscoloration', color: colors.ok },
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -26,7 +29,7 @@ export default function ResultsScreen({ route, navigation }) {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Scan Results</Text>
+        <Text style={styles.headerTitle}>{t('scanResults')}</Text>
         <View style={styles.cropPill}>
           <Text style={styles.cropPillText}>{cropLabel}</Text>
         </View>
@@ -35,18 +38,18 @@ export default function ResultsScreen({ route, navigation }) {
       <ScrollView contentContainerStyle={styles.body}>
         <View style={styles.card}>
           <View style={{ alignItems: 'center', marginBottom: 8 }}>
-            <SeverityRing percent={severity} color={colors.warning} label="Moderate Severity" />
+            <SeverityRing percent={severity} color={colors.warning} label={t('moderateSeverity')} />
           </View>
           <Text style={styles.diseaseLabel}>{disease}</Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Paglambo sa Sakit</Text>
+          <Text style={styles.sectionTitle}>{t('diseaseProgression')}</Text>
           {PROGRESSION.map((item, i) => (
             <View key={i} style={styles.progressionRow}>
               <View style={[styles.dot, { backgroundColor: item.color }]} />
               <Text style={[styles.progressionLabel, item.active && styles.progressionActive]}>
-                {item.label}
+                {t(item.labelKey)}
               </Text>
             </View>
           ))}
@@ -58,7 +61,7 @@ export default function ResultsScreen({ route, navigation }) {
           onPress={() => setPlaying((p) => !p)}
         >
           <Ionicons name={playing ? 'pause' : 'play'} size={20} color={colors.white} />
-          <Text style={styles.audioText}>Listen to Diagnosis</Text>
+          <Text style={styles.audioText}>{t('listenDiagnosis')}</Text>
           <View style={styles.audioTrack}>
             <View style={[styles.audioProgress, { width: playing ? '70%' : '20%' }]} />
           </View>
@@ -69,7 +72,7 @@ export default function ResultsScreen({ route, navigation }) {
           activeOpacity={0.85}
           onPress={() => navigation.navigate('TreatmentPlan', { disease, severity, cropLabel })}
         >
-          <Text style={styles.treatmentBtnText}>View Treatment Plan</Text>
+          <Text style={styles.treatmentBtnText}>{t('viewTreatmentPlan')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
