@@ -7,7 +7,7 @@ import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function OtpVerifyScreen({ route, navigation }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   // Grab the email and phone passed over from LoginScreen
   const { email, phone } = route.params;
@@ -31,6 +31,18 @@ export default function OtpVerifyScreen({ route, navigation }) {
       });
 
       if (error) throw error;
+
+      const userId = data.session.user.id;
+
+      // Create/update the matching farmers profile row — required because
+      // scan_results.farmer_id has a foreign key pointing to farmers.id.
+      // Skipping this step causes every future scan upload to fail.
+      const { error: upsertError } = await supabase.from('farmers').upsert(
+        { id: userId, email, phone, preferred_language: language },
+        { onConflict: 'id' }
+      );
+
+      if (upsertError) throw upsertError;
 
       // If successful, take them to the main app (or Onboarding)
       navigation.replace('MainTabs');

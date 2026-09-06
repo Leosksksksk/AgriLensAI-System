@@ -11,6 +11,7 @@ import { decode } from 'base64-arraybuffer';
 import { supabase } from '../../supabaseClient';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
+import { analyzeLeaf } from '../services/aiEngineService';
 
 export default function ScanScreen({ navigation }) {
   const { language, languageLabels, t } = useLanguage();
@@ -20,6 +21,8 @@ export default function ScanScreen({ navigation }) {
   const [imageUri, setImageUri] = useState(null);
   const [isOnline, setIsOnline] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [diagnosis, setDiagnosis] = useState(null);
   const cameraRef = useRef(null);
 
   useEffect(() => {
@@ -38,40 +41,48 @@ export default function ScanScreen({ navigation }) {
     setShowCamera(true);
   }
 
+  // Runs the real, on-device pixel analysis. Independent of the network
+  // upload below — works fully offline.
+  async function runAnalysis(uri) {
+    setAnalyzing(true);
+    setDiagnosis(null);
+    try {
+      const result = await analyzeLeaf(uri);
+      setDiagnosis(result);
+    } catch (e) {
+      console.warn('Analysis error:', e);
+      setDiagnosis(null);
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
   // Helper function to handle the Supabase storage upload and database sync
   async function uploadAndSyncToSupabase(uri) {
     try {
       setUploading(true);
 
-      // 1. Read file as Base64 using a plain string literal
       const base64 = await FileSystem.readAsStringAsync(uri, {
         encoding: 'base64',
       });
       const arrayBuffer = decode(base64);
 
-      // 2. Define unique filename
       const filename = `agrilens_scan_${Date.now()}.jpg`;
 
-      // 3. Upload to Supabase 'scans' bucket
       const { error: storageError } = await supabase.storage
         .from('scans')
         .upload(filename, arrayBuffer, { contentType: 'image/jpeg' });
 
       if (storageError) throw storageError;
 
-      // 4. Get public URL of the uploaded image
       const { data: publicUrlData } = supabase.storage
         .from('scans')
         .getPublicUrl(filename);
 
       const publicUrl = publicUrlData.publicUrl;
 
-      // 5. Insert record into 'scan_results' table, tagged with the signed-in farmer
       const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        throw new Error('No active session. Please log in again.');
-      }
+      if (!user) throw new Error('No active session. Please log in again.');
 
       const { error: dbError } = await supabase
         .from('scan_results')
@@ -79,16 +90,21 @@ export default function ScanScreen({ navigation }) {
 
       if (dbError) throw dbError;
 
-      // Set image URI for local preview and proceed
-      setImageUri(publicUrl);
       Alert.alert('Synced!', 'Image successfully saved to Supabase bucket and database.');
-
     } catch (error) {
       console.error('Supabase Sync Error:', error);
       Alert.alert('Upload Failed', error.message);
     } finally {
       setUploading(false);
     }
+  }
+
+  function handleImageReady(uri) {
+    setImageUri(uri);
+    // Analysis (local) and upload (network) run independently — analysis
+    // doesn't need to wait for or depend on the network call succeeding.
+    runAnalysis(uri);
+    uploadAndSyncToSupabase(uri);
   }
 
   async function handleUploadPhoto() {
@@ -104,9 +120,7 @@ export default function ScanScreen({ navigation }) {
     });
 
     if (!picked.canceled && picked.assets?.length) {
-      const selectedUri = picked.assets[0].uri;
-      setImageUri(selectedUri);
-      await uploadAndSyncToSupabase(selectedUri);
+      handleImageReady(picked.assets[0].uri);
     }
   }
 
@@ -115,7 +129,15 @@ export default function ScanScreen({ navigation }) {
       Alert.alert('No photo yet', 'Take or upload a leaf photo first.');
       return;
     }
-    navigation.navigate('Results', { imageUri });
+    if (analyzing) {
+      Alert.alert('Still analyzing', 'Please wait a moment while we finish analyzing your leaf photo.');
+      return;
+    }
+    if (!diagnosis) {
+      Alert.alert('Analysis unavailable', 'Could not analyze this photo. Please try again with a clearer image.');
+      return;
+    }
+    navigation.navigate('Results', { imageUri, diagnosis });
   }
 
   if (showCamera) {
@@ -135,7 +157,7 @@ export default function ScanScreen({ navigation }) {
                   const photo = await cameraRef.current.takePictureAsync({ quality: 0.7 });
                   setShowCamera(false);
                   if (photo?.uri) {
-                    await uploadAndSyncToSupabase(photo.uri);
+                    handleImageReady(photo.uri);
                   }
                 } catch (err) {
                   console.error('Capture error:', err);
@@ -185,6 +207,12 @@ export default function ScanScreen({ navigation }) {
               <View style={styles.cornerBR} />
               <Text style={styles.viewfinderHint}>{t('pointCamera')}</Text>
             </>
+          )}
+          {analyzing && (
+            <View style={styles.analyzingOverlay}>
+              <ActivityIndicator color={colors.white} />
+              <Text style={styles.analyzingText}>{t('analyzingImage')}</Text>
+            </View>
           )}
         </View>
 
@@ -247,6 +275,19 @@ const styles = StyleSheet.create({
   },
   offlineBadgeText: { color: colors.white, fontSize: 11, fontWeight: '700' },
   viewfinderHint: { color: '#8FA893', fontSize: 13 },
+  analyzingOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    gap: 8,
+  },
+  analyzingText: { color: colors.white, fontSize: 12, fontWeight: '600' },
   cornerTL: { position: 'absolute', top: 20, left: 20, width: 26, height: 26, borderTopWidth: 2, borderLeftWidth: 2, borderColor: colors.white },
   cornerTR: { position: 'absolute', top: 20, right: 20, width: 26, height: 26, borderTopWidth: 2, borderRightWidth: 2, borderColor: colors.white },
   cornerBL: { position: 'absolute', bottom: 20, left: 20, width: 26, height: 26, borderBottomWidth: 2, borderLeftWidth: 2, borderColor: colors.white },

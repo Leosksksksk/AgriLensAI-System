@@ -1,19 +1,21 @@
 // src/screens/TreatmentPlanScreen.js
-// import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, severityColor } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
+import { getDiseaseProfile } from '../utils/diseaseCatalog';
 
 export default function TreatmentPlanScreen({ route, navigation }) {
   const { t } = useLanguage();
 
-  const disease = route?.params?.disease ?? t('defaultDisease');
-  const severity = route?.params?.severity ?? 65;
+  const diseaseId = route?.params?.diseaseId ?? 'leafBlight';
+  const damagePercent = route?.params?.damagePercent ?? 0;
   const cropLabel = route?.params?.cropLabel ?? t('defaultCrop');
 
-  const ACTIONS = [t('action1'), t('action2'), t('action3'), t('action4')];
+  const profile = getDiseaseProfile(diseaseId);
+  const diseaseName = t(profile.nameKey);
+  const actions = profile.mitigationKeys.map((key) => t(key));
 
   const ORGANICS = [
     { name: t('organicBakingSodaName'), desc: t('organicBakingSodaDesc') },
@@ -38,37 +40,50 @@ export default function TreatmentPlanScreen({ route, navigation }) {
             <Ionicons name="leaf" size={22} color={colors.warning} />
           </View>
           <View>
-            <Text style={styles.diseaseName}>{disease}</Text>
+            <Text style={styles.diseaseName}>{diseaseName}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 2 }}>
               <View style={[styles.severityDot, { backgroundColor: severityColor('moderate') }]} />
-              <Text style={styles.severityText}>{t('moderateSeverity')} ({severity}%)</Text>
+              <Text style={styles.severityText}>{damagePercent.toFixed(1)}% leaf tissue damage</Text>
             </View>
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>{t('recommendedActions')}</Text>
-        <View style={styles.card}>
-          {ACTIONS.map((action, i) => (
-            <View key={i} style={styles.actionRow}>
-              <Ionicons name="checkmark-circle" size={18} color={colors.ok} />
-              <Text style={styles.actionText}>{action}</Text>
+        {diseaseId === 'healthy' ? (
+          <View style={styles.card}>
+            {actions.map((action, i) => (
+              <View key={i} style={styles.actionRow}>
+                <Ionicons name="checkmark-circle" size={18} color={colors.ok} />
+                <Text style={styles.actionText}>{action}</Text>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <>
+            <Text style={styles.sectionTitle}>{t('recommendedActions')}</Text>
+            <View style={styles.card}>
+              {actions.map((action, i) => (
+                <View key={i} style={styles.actionRow}>
+                  <Ionicons name="checkmark-circle" size={18} color={colors.ok} />
+                  <Text style={styles.actionText}>{action}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
 
-        <Text style={styles.sectionTitle}>{t('organicAlternatives')}</Text>
-        <View style={styles.card}>
-          {ORGANICS.map((item, i) => (
-            <View key={i} style={i > 0 ? { marginTop: 16 } : undefined}>
-              <Text style={styles.organicName}>{item.name}</Text>
-              <Text style={styles.organicDesc}>{item.desc}</Text>
+            <Text style={styles.sectionTitle}>{t('organicAlternatives')}</Text>
+            <View style={styles.card}>
+              {ORGANICS.map((item, i) => (
+                <View key={i} style={i > 0 ? { marginTop: 16 } : undefined}>
+                  <Text style={styles.organicName}>{item.name}</Text>
+                  <Text style={styles.organicDesc}>{item.desc}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
 
-        <TouchableOpacity style={styles.reminderBtn} activeOpacity={0.85}>
-          <Text style={styles.reminderBtnText}>{t('scheduleReminder')}</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.reminderBtn} activeOpacity={0.85}>
+              <Text style={styles.reminderBtnText}>{t('scheduleReminder')}</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

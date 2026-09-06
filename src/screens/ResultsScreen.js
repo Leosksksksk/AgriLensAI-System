@@ -6,22 +6,36 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import SeverityRing from '../components/SeverityRing';
 import { useLanguage } from '../context/LanguageContext';
+import { getDiseaseProfile } from '../utils/diseaseCatalog';
+
+const PROGRESSION_STAGES = [
+  { labelKey: 'progSevereDamage', color: '#D32F2F', threshold: 70 },
+  { labelKey: 'progSpreadStems', color: colors.warning, threshold: 40 },
+  { labelKey: 'progModerateSpots', color: '#FBC02D', threshold: 15 },
+  { labelKey: 'progSlightDiscoloration', color: colors.ok, threshold: 0 },
+];
 
 export default function ResultsScreen({ route, navigation }) {
   const { t } = useLanguage();
 
   const [playing, setPlaying] = useState(false);
-  const cropLabel = route?.params?.cropLabel ?? t('defaultCropLabel');
-  const disease = route?.params?.disease ?? t('defaultDiseaseDetected');
-  const severity = route?.params?.severity ?? 65;
 
-  const PROGRESSION = [
-    { labelKey: 'diseaseProgression', color: colors.danger },
-    { labelKey: 'progSevereDamage', color: '#F57C00' },
-    { labelKey: 'progSpreadStems', color: colors.warning, active: true },
-    { labelKey: 'progModerateSpots', color: '#9CCC65' },
-    { labelKey: 'progSlightDiscoloration', color: colors.ok },
-  ];
+  // ScanScreen sends the real diagnosis object here — this replaces the
+  // old route.params.disease/severity, which no longer exist.
+  const diagnosis = route?.params?.diagnosis ?? {
+    diseaseId: 'healthy',
+    damagePercent: 0,
+    severity: 'None',
+    confidence: 0.5,
+  };
+  const cropLabel = route?.params?.cropLabel ?? t('defaultCropLabel');
+
+  const profile = getDiseaseProfile(diagnosis.diseaseId);
+  const diseaseName = t(profile.nameKey);
+  const diseaseDesc = t(profile.descKey);
+  const severityLabel = t(`severity${diagnosis.severity}`);
+
+  const activeStage = PROGRESSION_STAGES.find((s) => diagnosis.damagePercent >= s.threshold);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -38,22 +52,42 @@ export default function ResultsScreen({ route, navigation }) {
       <ScrollView contentContainerStyle={styles.body}>
         <View style={styles.card}>
           <View style={{ alignItems: 'center', marginBottom: 8 }}>
-            <SeverityRing percent={severity} color={colors.warning} label={t('moderateSeverity')} />
+            <SeverityRing
+              percent={diagnosis.damagePercent}
+              color={colors.warning}
+              label={severityLabel}
+            />
           </View>
-          <Text style={styles.diseaseLabel}>{disease}</Text>
+          <Text style={styles.diseaseLabel}>{diseaseName}</Text>
+          <Text style={styles.diseaseDesc}>{diseaseDesc}</Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>{t('diseaseProgression')}</Text>
-          {PROGRESSION.map((item, i) => (
-            <View key={i} style={styles.progressionRow}>
-              <View style={[styles.dot, { backgroundColor: item.color }]} />
-              <Text style={[styles.progressionLabel, item.active && styles.progressionActive]}>
-                {t(item.labelKey)}
-              </Text>
-            </View>
-          ))}
+          <View style={styles.confidenceRow}>
+            <Text style={styles.confidenceLabel}>Confidence</Text>
+            <Text style={styles.confidenceValue}>{Math.round(diagnosis.confidence * 100)}%</Text>
+          </View>
+          <View style={styles.confidenceTrack}>
+            <View style={[styles.confidenceFill, { width: `${diagnosis.confidence * 100}%` }]} />
+          </View>
         </View>
+
+        {diagnosis.diseaseId !== 'healthy' && (
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>{t('diseaseProgression')}</Text>
+            {PROGRESSION_STAGES.slice().reverse().map((stage, i) => {
+              const isActive = activeStage?.labelKey === stage.labelKey;
+              return (
+                <View key={i} style={styles.progressionRow}>
+                  <View style={[styles.dot, { backgroundColor: stage.color }]} />
+                  <Text style={[styles.progressionLabel, isActive && styles.progressionActive]}>
+                    {t(stage.labelKey)}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+        )}
 
         <TouchableOpacity
           style={styles.audioBar}
@@ -70,7 +104,13 @@ export default function ResultsScreen({ route, navigation }) {
         <TouchableOpacity
           style={styles.treatmentBtn}
           activeOpacity={0.85}
-          onPress={() => navigation.navigate('TreatmentPlan', { disease, severity, cropLabel })}
+          onPress={() =>
+            navigation.navigate('TreatmentPlan', {
+              diseaseId: diagnosis.diseaseId,
+              damagePercent: diagnosis.damagePercent,
+              cropLabel,
+            })
+          }
         >
           <Text style={styles.treatmentBtnText}>{t('viewTreatmentPlan')}</Text>
         </TouchableOpacity>
@@ -96,6 +136,12 @@ const styles = StyleSheet.create({
   body: { padding: 20, paddingBottom: 50 },
   card: { backgroundColor: colors.white, borderRadius: 14, padding: 20, marginBottom: 16 },
   diseaseLabel: { textAlign: 'center', color: colors.warning, fontWeight: '800', fontSize: 15, marginTop: 6 },
+  diseaseDesc: { textAlign: 'center', color: colors.textMuted, fontSize: 12, marginTop: 6, lineHeight: 17 },
+  confidenceRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  confidenceLabel: { fontSize: 12, color: colors.textMuted, fontWeight: '600' },
+  confidenceValue: { fontSize: 12, color: colors.textDark, fontWeight: '800' },
+  confidenceTrack: { height: 8, backgroundColor: colors.border, borderRadius: 4, overflow: 'hidden' },
+  confidenceFill: { height: 8, backgroundColor: colors.primary },
   sectionTitle: { fontWeight: '800', fontSize: 16, color: colors.textDark, marginBottom: 14 },
   progressionRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   dot: { width: 10, height: 10, borderRadius: 5, marginRight: 12 },
