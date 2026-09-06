@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   cropPillText: { color: colors.white, fontSize: 12, fontWeight: '700' },
   body: { padding: 20, paddingBottom: 40 },
   diseaseCard: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.card,
     borderRadius: 14,
     padding: 16,
     flexDirection: 'row',
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   severityDot: { width: 8, height: 8, borderRadius: 4 },
   severityText: { fontSize: 12, color: colors.textMuted },
   sectionTitle: { fontWeight: '800', fontSize: 15, color: colors.textDark, marginBottom: 10 },
-  card: { backgroundColor: colors.white, borderRadius: 14, padding: 16, marginBottom: 20 },
+  card: { backgroundColor: colors.card, borderRadius: 14, padding: 16, marginBottom: 20 },
   actionRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 12 },
   actionText: { flex: 1, fontSize: 13, color: colors.textDark, lineHeight: 18 },
   organicName: { fontWeight: '700', color: colors.primary, fontSize: 14, marginBottom: 4 },

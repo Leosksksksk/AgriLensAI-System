@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   },
   name: { color: colors.white, fontSize: 18, fontWeight: '800' },
   subLabel: { color: '#DCEEDC', fontSize: 12, marginTop: 2, letterSpacing: 0.5 },
-  card: { backgroundColor: colors.white, margin: 20, borderRadius: 14, padding: 18 },
+  card: { backgroundColor: colors.card, margin: 20, borderRadius: 14, padding: 18 },
   cardTitle: { fontWeight: '800', fontSize: 16, color: colors.textDark, marginBottom: 14 },
   fieldLabel: { fontSize: 12, color: colors.textMuted, marginBottom: 6, marginTop: 12 },
   input: {

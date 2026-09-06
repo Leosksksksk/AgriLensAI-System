@@ -151,8 +151,7 @@ const styles = StyleSheet.create({
   headerTitle: { color: colors.white, fontSize: 22, fontWeight: '800' },
   body: { padding: 20, paddingBottom: 40 },
   sectionLabel: { fontSize: 11, fontWeight: '800', color: colors.textLight, marginBottom: 8, marginTop: 12, letterSpacing: 0.5 },
-  card: { backgroundColor: colors.white, borderRadius: 14, paddingHorizontal: 16 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14 },
+  card: { backgroundColor: colors.card, borderRadius: 14, paddingHorizontal: 16 },  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14 },
   rowLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   rowLabel: { fontSize: 14, color: colors.textDark, fontWeight: '600' },
   rowRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
@@ -173,7 +172,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalSheet: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.card,
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
     paddingHorizontal: 20,

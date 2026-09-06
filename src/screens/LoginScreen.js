@@ -73,7 +73,7 @@ export default function LoginScreen({ navigation }) {
           <TextInput
             style={styles.fullInput}
             placeholder="farmer@example.com"
-            placeholderTextColor="#A0A0A0"
+            placeholderTextColor={colors.textLight}
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
@@ -92,7 +92,7 @@ export default function LoginScreen({ navigation }) {
             <TextInput
               style={styles.phoneInput}
               placeholder="9XX XXX XXXX"
-              placeholderTextColor="#A0A0A0"
+              placeholderTextColor={colors.textLight}
               keyboardType="number-pad"
               value={phone}
               onChangeText={handlePhoneChange}
@@ -122,10 +122,10 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#2A5D34',
+    backgroundColor: colors.primaryDark,
   },
   headerContainer: {
-    backgroundColor: '#2A5D34',
+    backgroundColor: colors.primaryDark,
     alignItems: 'center',
     paddingVertical: 40,
     paddingHorizontal: 20,
@@ -143,23 +143,23 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 26,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.white,
     marginBottom: 8,
   },
   tagline: {
     fontSize: 14,
-    color: '#E0EAE1',
+    color: colors.textMuted,
     textAlign: 'center',
   },
   formContainer: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.background,
     paddingHorizontal: 24,
     paddingTop: 32,
   },
   label: {
     fontSize: 13,
-    color: '#666666',
+    color: colors.textMuted,
     marginBottom: 8,
   },
   inputWrapper: {
@@ -167,12 +167,13 @@ const styles = StyleSheet.create({
   },
   fullInput: {
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: colors.border,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 15,
-    color: '#333333',
+    color: colors.textDark,
+    backgroundColor: colors.card,
   },
   phoneRow: {
     flexDirection: 'row',
@@ -180,45 +181,47 @@ const styles = StyleSheet.create({
   },
   prefixContainer: {
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: colors.border,
     borderRadius: 8,
     paddingHorizontal: 16,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
+    backgroundColor: colors.card,
   },
   prefixText: {
     fontSize: 15,
-    color: '#333333',
+    color: colors.textDark,
     fontWeight: '500',
   },
   phoneInputContainer: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: colors.border,
     borderRadius: 8,
     paddingHorizontal: 16,
     justifyContent: 'center',
+    backgroundColor: colors.card,
   },
   phoneInput: {
     paddingVertical: 14,
     fontSize: 15,
-    color: '#333333',
+    color: colors.textDark,
   },
   helperText: {
     fontSize: 12,
-    color: '#999999',
+    color: colors.textMuted,
     marginBottom: 20,
   },
   primaryBtn: {
-    backgroundColor: '#387C44',
+    backgroundColor: colors.primary,
     borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
     marginBottom: 12,
   },
   primaryBtnText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 16,
     fontWeight: '600',
   },

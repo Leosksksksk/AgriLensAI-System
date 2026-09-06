@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   locationText: { color: '#DCEEDC', fontSize: 12 },
   body: { padding: 20, paddingBottom: 40 },
   metricsRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
-  metricCard: { flex: 1, backgroundColor: colors.white, borderRadius: 12, padding: 12, alignItems: 'flex-start', gap: 6 },
+  metricCard: { flex: 1, backgroundColor: colors.card, borderRadius: 12, padding: 12, alignItems: 'flex-start', gap: 6 },
   metricLabel: { fontSize: 11, color: colors.textMuted },
   metricValue: { fontSize: 16, fontWeight: '800', color: colors.textDark },
   riskCard: {

@@ -1,17 +1,17 @@
 // src/theme/colors.js
 export const colors = {
-  primaryDark: '#1B5E20',
+  primaryDark: '#094a0df3', //dashboard above
   primary: '#2E7D32',
   primaryLight: '#43A047',
-  leafGreen: '#4CAF50',
+  leafGreen: '#0b950b', //scan leaf padding
   mint: '#E8F5E9',
 
   background: '#042804',  //background
   card: '#FFFFFF',
 
-  textDark: '#1A1A1A', //sync texts
+  textDark: '#797070', //sync texts
   textMuted: '#7a786b', //sync sub-texts
-  textLight: '#26dc75', //dashboard texts
+  textLight: '#7a867f', //dashboard texts
 
   warning: '#F5A623',
   warningBg: '#FFF7E6',

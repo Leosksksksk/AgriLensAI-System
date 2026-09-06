@@ -19,7 +19,7 @@ export default function LanguageSelectScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.logoCircle}>
-          <Ionicons name="globe-outline" size={32} color={colors.primary} />
+          <Ionicons name="globe-outline" size={32} color={colors.primaryLight} />
         </View>
 
         <Text style={styles.title}>{t('chooseLanguageTitle')}</Text>
@@ -55,18 +55,18 @@ export default function LanguageSelectScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.white },
+  container: { flex: 1, backgroundColor: colors.background },
   content: { flex: 1, paddingHorizontal: 28, paddingTop: 60, alignItems: 'center' },
   logoCircle: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: colors.mint,
+    backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
   },
-  title: { fontSize: 22, fontWeight: '800', color: colors.textDark, textAlign: 'center' },
+  title: { fontSize: 22, fontWeight: '800', color: colors.white, textAlign: 'center' },
   subtitle: {
     fontSize: 13,
     color: colors.textMuted,
@@ -84,9 +84,10 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 20,
     paddingVertical: 18,
+    backgroundColor: colors.card,
   },
   optionActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  optionText: { fontSize: 16, fontWeight: '700', color: colors.textDark },
+  optionText: { fontSize: 16, fontWeight: '700', color: colors.white },
   optionTextActive: { color: colors.white },
   continueBtn: {
     backgroundColor: colors.primary,

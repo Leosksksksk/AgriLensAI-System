@@ -52,8 +52,7 @@ export default function ScanScreen({ navigation }) {
     setShowCamera(true);
   }
 
-  // Runs the real, on-device pixel analysis. Independent of the network
-  // upload below — works fully offline.
+  // Runs the real, on-device pixel analysis. Independent of the network upload
   async function runAnalysis(uri) {
     setAnalyzing(true);
     setDiagnosis(null);
@@ -111,10 +110,8 @@ export default function ScanScreen({ navigation }) {
   }
 
   function handleImageReady(uri) {
-    setImageUri(uri);
-    // Analysis (local) and upload (network) run independently — analysis
-    // doesn't need to wait for or depend on the network call succeeding.
-    runAnalysis(uri);
+    setImageUri(uri);        // Analysis (local) and upload (network) run independently — analysis
+    runAnalysis(uri);       // doesn't need to wait for or depend on the network call succeeding.
     uploadAndSyncToSupabase(uri);
   }
 
@@ -239,6 +236,7 @@ export default function ScanScreen({ navigation }) {
           )}
         </View>
 
+        {/* UPLOAD & TAKE PHOTO BUTTONS */}
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={handleUploadPhoto} disabled={uploading}>
             <Text style={styles.outlineBtnText}>{uploading ? 'Uploading...' : t('uploadPhoto')}</Text>
@@ -248,12 +246,14 @@ export default function ScanScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
+        {/* MAIN SCAN BUTTON */}
         <TouchableOpacity style={styles.scanBtn} activeOpacity={0.85} onPress={handleAnalyze}>
           <Text style={styles.scanBtnText}>{t('scanLeafBtn')}</Text>
         </TouchableOpacity>
 
+        {/* OFFLINE AI BUTTON */}
         <TouchableOpacity style={styles.analyzeBtn} activeOpacity={0.85} onPress={handleAnalyze}>
-          <Ionicons name="sparkles" size={16} color={colors.white} style={{ marginRight: 8 }} />
+          <Ionicons name="sparkles" size={16} color="#A2E0A2" style={{ marginRight: 8 }} />
           <Text style={styles.analyzeBtnText}>{t('analyzeOffline')}</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   header: {
     backgroundColor: colors.primaryDark,
-    paddingTop: 54,
+    paddingTop: 16,
     paddingBottom: 16,
     paddingHorizontal: 20,
     flexDirection: 'row',
@@ -326,28 +326,52 @@ const styles = StyleSheet.create({
   cornerBL: { position: 'absolute', bottom: 20, left: 20, width: 26, height: 26, borderBottomWidth: 2, borderLeftWidth: 2, borderColor: colors.white },
   cornerBR: { position: 'absolute', bottom: 20, right: 20, width: 26, height: 26, borderBottomWidth: 2, borderRightWidth: 2, borderColor: colors.white },
   buttonRow: { flexDirection: 'row', gap: 12, marginBottom: 14 },
+  
+  /* Upload Photo (Outline Button) */
   outlineBtn: {
     flex: 1,
-    borderWidth: 1.5,
-    borderColor: colors.primary,
+    borderWidth: 1,
+    borderColor: '#26482D',
+    backgroundColor: '#112214',
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
   },
-  outlineBtnText: { color: colors.primary, fontWeight: '700', fontSize: 13 },
-  filledBtn: { flex: 1, backgroundColor: colors.primary, borderRadius: 10, paddingVertical: 14, alignItems: 'center' },
-  filledBtnText: { color: colors.white, fontWeight: '700', fontSize: 13 },
-  scanBtn: { backgroundColor: colors.leafGreen, borderRadius: 10, paddingVertical: 16, alignItems: 'center', marginBottom: 12 },
-  scanBtnText: { color: colors.white, fontWeight: '800', fontSize: 15 },
+  outlineBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13 },
+
+  /* Take Photo (Filled Button) */
+  filledBtn: { 
+    flex: 1, 
+    backgroundColor: '#2E7D32', 
+    borderRadius: 10, 
+    paddingVertical: 14, 
+    alignItems: 'center' 
+  },
+  filledBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13 },
+
+  /* Scan Leaf Button */
+  scanBtn: { 
+    backgroundColor: '#4CAF50', 
+    borderRadius: 10, 
+    paddingVertical: 16, 
+    alignItems: 'center', 
+    marginBottom: 12 
+  },
+  scanBtnText: { color: '#09150B', fontWeight: '800', fontSize: 15 }, // Dark green on light green for high readability
+
+  /* Offline AI Button ("Susihon gamit ang Offline AI") */
   analyzeBtn: {
-    backgroundColor: '#123A18',
+    backgroundColor: '#112214',
+    borderWidth: 1,
+    borderColor: '#26482D',
     borderRadius: 10,
     paddingVertical: 16,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  analyzeBtnText: { color: colors.white, fontWeight: '800', fontSize: 14 },
+  analyzeBtnText: { color: '#A2E0A2', fontWeight: '800', fontSize: 14 }, // Bright mint green text
+
   cameraControls: {
     position: 'absolute',
     bottom: 36,

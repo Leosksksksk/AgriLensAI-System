@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   cropPill: { backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 16 },
   cropPillText: { color: colors.white, fontSize: 12, fontWeight: '700' },
   body: { padding: 20, paddingBottom: 50 },
-  card: { backgroundColor: colors.white, borderRadius: 14, padding: 20, marginBottom: 16 },
+  card: { backgroundColor: colors.card, borderRadius: 14, padding: 20, marginBottom: 16 },
   diseaseLabel: { textAlign: 'center', color: colors.warning, fontWeight: '800', fontSize: 15, marginTop: 6 },
   diseaseDesc: { textAlign: 'center', color: colors.textMuted, fontSize: 12, marginTop: 6, lineHeight: 17 },
   confidenceRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },

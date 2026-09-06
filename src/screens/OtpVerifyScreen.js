@@ -9,7 +9,6 @@ import { useLanguage } from '../context/LanguageContext';
 export default function OtpVerifyScreen({ route, navigation }) {
   const { t, language } = useLanguage();
 
-  // Grab the email and phone passed over from LoginScreen
   const { email, phone } = route.params;
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,7 +22,6 @@ export default function OtpVerifyScreen({ route, navigation }) {
     try {
       setLoading(true);
 
-      // Verify the 6-digit OTP with Supabase
       const { data, error } = await supabase.auth.verifyOtp({
         email: email,
         token: code,
@@ -34,9 +32,6 @@ export default function OtpVerifyScreen({ route, navigation }) {
 
       const userId = data.session.user.id;
 
-      // Create/update the matching farmers profile row — required because
-      // scan_results.farmer_id has a foreign key pointing to farmers.id.
-      // Skipping this step causes every future scan upload to fail.
       const { error: upsertError } = await supabase.from('farmers').upsert(
         { id: userId, email, phone, preferred_language: language },
         { onConflict: 'id' }
@@ -44,11 +39,9 @@ export default function OtpVerifyScreen({ route, navigation }) {
 
       if (upsertError) throw upsertError;
 
-      // If successful, take them to the main app (or Onboarding)
       navigation.replace('MainTabs');
 
     } catch (error) {
-      //console.error(error);
       Alert.alert(t('verificationFailedTitle'), error.message);
     } finally {
       setLoading(false);
@@ -72,7 +65,7 @@ export default function OtpVerifyScreen({ route, navigation }) {
           <TextInput
             style={styles.codeInput}
             placeholder="000000"
-            placeholderTextColor="#8FA893"
+            placeholderTextColor={colors.textLight}
             keyboardType="number-pad"
             maxLength={6}
             value={code}
@@ -105,15 +98,15 @@ export default function OtpVerifyScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { flex: 1, padding: 24, justifyContent: 'center', alignItems: 'center' },
-  headerIcon: { width: 80, height: 80, backgroundColor: '#DCEEDC', borderRadius: 40, justifyContent: 'center', alignItems: 'center', marginBottom: 24 },
+  headerIcon: { width: 80, height: 80, backgroundColor: colors.card, borderRadius: 40, justifyContent: 'center', alignItems: 'center', marginBottom: 24 },
   iconText: { fontSize: 32 },
-  title: { fontSize: 28, fontWeight: '800', color: colors.primaryDark, marginBottom: 12, textAlign: 'center' },
-  subtitle: { fontSize: 15, color: '#4A5D4E', marginBottom: 32, textAlign: 'center', lineHeight: 22 },
-  boldText: { fontWeight: '700', color: colors.primaryDark },
+  title: { fontSize: 28, fontWeight: '800', color: colors.white, marginBottom: 12, textAlign: 'center' },
+  subtitle: { fontSize: 15, color: colors.textMuted, marginBottom: 32, textAlign: 'center', lineHeight: 22 },
+  boldText: { fontWeight: '700', color: colors.white },
   inputContainer: { width: '100%', marginBottom: 32 },
-  codeInput: { backgroundColor: colors.white, borderWidth: 2, borderColor: colors.primary, borderRadius: 12, padding: 20, fontSize: 32, fontWeight: '800', color: colors.primaryDark, letterSpacing: 8 },
+  codeInput: { backgroundColor: colors.card, borderWidth: 2, borderColor: colors.primary, borderRadius: 12, padding: 20, fontSize: 32, fontWeight: '800', color: colors.white, letterSpacing: 8 },
   verifyBtn: { width: '100%', backgroundColor: colors.primary, borderRadius: 12, paddingVertical: 18, alignItems: 'center', marginBottom: 16 },
   verifyBtnText: { color: colors.white, fontWeight: '800', fontSize: 18 },
   backBtn: { padding: 12 },
-  backBtnText: { color: colors.primary, fontWeight: '700', fontSize: 15 },
+  backBtnText: { color: colors.primaryLight, fontWeight: '700', fontSize: 15 },
 });
