@@ -1,10 +1,14 @@
 // src/screens/TreatmentPlanScreen.js
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, severityColor } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
 import { getDiseaseProfile } from '../utils/diseaseCatalog';
+import { addReminder, hasActiveReminder } from '../utils/reminderStorage';
+
+const REMINDER_DAYS_AHEAD = 3;
 
 export default function TreatmentPlanScreen({ route, navigation }) {
   const { t } = useLanguage();
@@ -17,10 +21,46 @@ export default function TreatmentPlanScreen({ route, navigation }) {
   const diseaseName = t(profile.nameKey);
   const actions = profile.mitigationKeys.map((key) => t(key));
 
+  const [scheduling, setScheduling] = useState(false);
+  const [reminderSet, setReminderSet] = useState(false);
+
+  useEffect(() => {
+    hasActiveReminder(diseaseId, cropLabel).then(setReminderSet);
+  }, [diseaseId, cropLabel]);
+
   const ORGANICS = [
     { name: t('organicBakingSodaName'), desc: t('organicBakingSodaDesc') },
     { name: t('organicNeemName'), desc: t('organicNeemDesc') },
   ];
+
+  async function handleScheduleReminder() {
+    if (reminderSet) {
+      Alert.alert(t('reminderAlreadySet'), t('reminderAlreadySetDesc'));
+      return;
+    }
+
+    setScheduling(true);
+    try {
+      const reminder = await addReminder({
+        diseaseId,
+        diseaseName,
+        cropLabel,
+        daysAhead: REMINDER_DAYS_AHEAD,
+      });
+      setReminderSet(true);
+
+      const dueDate = new Date(reminder.dueDateISO);
+      Alert.alert(
+        t('reminderScheduledTitle'),
+        `${t('reminderScheduledDesc')}\n\n${dueDate.toLocaleDateString()}`
+      );
+    } catch (e) {
+      console.warn('Reminder scheduling error:', e);
+      Alert.alert('Error', e.message ?? 'Could not save the reminder.');
+    } finally {
+      setScheduling(false);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -79,8 +119,19 @@ export default function TreatmentPlanScreen({ route, navigation }) {
               ))}
             </View>
 
-            <TouchableOpacity style={styles.reminderBtn} activeOpacity={0.85}>
-              <Text style={styles.reminderBtnText}>{t('scheduleReminder')}</Text>
+            <TouchableOpacity
+              style={[styles.reminderBtn, reminderSet && styles.reminderBtnDone]}
+              activeOpacity={0.85}
+              onPress={handleScheduleReminder}
+              disabled={scheduling}
+            >
+              <Text style={styles.reminderBtnText}>
+                {scheduling
+                  ? t('schedulingReminder')
+                  : reminderSet
+                  ? `✓ ${t('reminderAlreadySet')}`
+                  : t('scheduleReminder')}
+              </Text>
             </TouchableOpacity>
           </>
         )}
@@ -131,5 +182,6 @@ const styles = StyleSheet.create({
   organicName: { fontWeight: '700', color: colors.primary, fontSize: 14, marginBottom: 4 },
   organicDesc: { fontSize: 13, color: colors.textMuted, lineHeight: 18 },
   reminderBtn: { backgroundColor: colors.leafGreen, borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
+  reminderBtnDone: { backgroundColor: colors.textMuted },
   reminderBtnText: { color: colors.white, fontWeight: '800', fontSize: 15 },
 });

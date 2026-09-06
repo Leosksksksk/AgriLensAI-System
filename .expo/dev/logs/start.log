@@ -1788,3 +1788,595 @@
 {"_e":"metro:bundling:done","_t":1788653073677,"id":"1","total":1216,"ms":10155.7791}
 {"_e":"metro:client_log","_t":1788653082587,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
 {"_e":"metro:client_log","_t":1788653082638,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"root:init","_t":1788691320678,"format":"v0-jsonl","version":"57.0.22"}
+{"_e":"env:mode","_t":1788691320696,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1788691320715,"mode":"development","files":[],"env":{}}
+{"_e":"devserver:start","_t":1788691330191,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1788691343930,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"expo:dev-tools-plugin:load","_t":1788691349589,"plugins":[]}
+{"_e":"metro:instantiate","_t":1788691366818,"atlas":false,"workers":6,"host":"::","port":8081}
+{"_e":"metro:bundling:started","_t":1788691399580,"id":"3","platform":"android","environment":null,"entry":"node_modules\\expo\\AppEntry.js"}
+{"_e":"metro:bundling:progress","_t":1788691399581,"id":"3","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1788691399589,"id":"3","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1788691410384,"id":"3","progress":0.010000000000000002,"total":1,"current":1}
+{"_e":"metro:bundling:progress","_t":1788691410485,"id":"3","progress":0.010000000000000002,"total":3,"current":1}
+{"_e":"metro:bundling:progress","_t":1788691410598,"id":"3","progress":0.04000000000000001,"total":3,"current":2}
+{"_e":"metro:bundling:progress","_t":1788691410699,"id":"3","progress":0.04000000000000001,"total":26,"current":2}
+{"_e":"metro:bundling:progress","_t":1788691410751,"id":"3","progress":0.04000000000000001,"total":26,"current":3}
+{"_e":"metro:bundling:progress","_t":1788691410859,"id":"3","progress":0.04000000000000001,"total":32,"current":5}
+{"_e":"metro:bundling:progress","_t":1788691410968,"id":"3","progress":0.04000000000000001,"total":48,"current":8}
+{"_e":"metro:bundling:progress","_t":1788691411073,"id":"3","progress":0.04000000000000001,"total":50,"current":10}
+{"_e":"metro:bundling:progress","_t":1788691411172,"id":"3","progress":0.04474852071005917,"total":52,"current":11}
+{"_e":"metro:bundling:progress","_t":1788691411294,"id":"3","progress":0.0625,"total":52,"current":13}
+{"_e":"metro:bundling:progress","_t":1788691411404,"id":"3","progress":0.08321005917159761,"total":52,"current":15}
+{"_e":"metro:bundling:progress","_t":1788691411537,"id":"3","progress":0.08590963139120093,"total":58,"current":17}
+{"_e":"metro:bundling:progress","_t":1788691411647,"id":"3","progress":0.10027777777777777,"total":60,"current":19}
+{"_e":"metro:bundling:progress","_t":1788691411760,"id":"3","progress":0.11472424557752339,"total":62,"current":21}
+{"_e":"metro:bundling:progress","_t":1788691411868,"id":"3","progress":0.1650390625,"total":64,"current":26}
+{"_e":"metro:bundling:progress","_t":1788691411971,"id":"3","progress":0.1650390625,"total":87,"current":32}
+{"_e":"metro:bundling:progress","_t":1788691412079,"id":"3","progress":0.18230021461936624,"total":89,"current":38}
+{"_e":"metro:bundling:progress","_t":1788691412185,"id":"3","progress":0.18230021461936624,"total":130,"current":46}
+{"_e":"metro:bundling:progress","_t":1788691412288,"id":"3","progress":0.18230021461936624,"total":143,"current":53}
+{"_e":"metro:bundling:progress","_t":1788691412394,"id":"3","progress":0.18230021461936624,"total":167,"current":63}
+{"_e":"metro:bundling:progress","_t":1788691412495,"id":"3","progress":0.18230021461936624,"total":197,"current":75}
+{"_e":"metro:bundling:progress","_t":1788691412611,"id":"3","progress":0.18230021461936624,"total":207,"current":83}
+{"_e":"metro:bundling:progress","_t":1788691412712,"id":"3","progress":0.19011253116506818,"total":211,"current":92}
+{"_e":"metro:bundling:progress","_t":1788691412819,"id":"3","progress":0.1979841764161266,"total":218,"current":97}
+{"_e":"metro:bundling:progress","_t":1788691412924,"id":"3","progress":0.24555564413265307,"total":224,"current":111}
+{"_e":"metro:bundling:progress","_t":1788691413024,"id":"3","progress":0.24555564413265307,"total":237,"current":114}
+{"_e":"metro:bundling:progress","_t":1788691413134,"id":"3","progress":0.25,"total":254,"current":127}
+{"_e":"metro:bundling:progress","_t":1788691413233,"id":"3","progress":0.28284868633309485,"total":267,"current":142}
+{"_e":"metro:bundling:progress","_t":1788691413335,"id":"3","progress":0.28284868633309485,"total":332,"current":157}
+{"_e":"metro:bundling:progress","_t":1788691413442,"id":"3","progress":0.28284868633309485,"total":341,"current":170}
+{"_e":"metro:bundling:progress","_t":1788691413542,"id":"3","progress":0.29261140179884415,"total":342,"current":185}
+{"_e":"metro:bundling:progress","_t":1788691413655,"id":"3","progress":0.29261140179884415,"total":440,"current":193}
+{"_e":"metro:bundling:progress","_t":1788691414786,"id":"3","progress":0.29261140179884415,"total":440,"current":194}
+{"_e":"metro:bundling:progress","_t":1788691414887,"id":"3","progress":0.29261140179884415,"total":451,"current":212}
+{"_e":"metro:bundling:progress","_t":1788691414987,"id":"3","progress":0.29261140179884415,"total":465,"current":224}
+{"_e":"metro:bundling:progress","_t":1788691415087,"id":"3","progress":0.29261140179884415,"total":468,"current":240}
+{"_e":"metro:bundling:progress","_t":1788691415188,"id":"3","progress":0.29261140179884415,"total":476,"current":251}
+{"_e":"metro:bundling:progress","_t":1788691415289,"id":"3","progress":0.29261140179884415,"total":484,"current":260}
+{"_e":"metro:bundling:progress","_t":1788691415390,"id":"3","progress":0.3222569125599429,"total":495,"current":281}
+{"_e":"metro:bundling:progress","_t":1788691415493,"id":"3","progress":0.3775584264769923,"total":498,"current":306}
+{"_e":"metro:bundling:progress","_t":1788691415593,"id":"3","progress":0.3828811966941178,"total":522,"current":323}
+{"_e":"metro:bundling:progress","_t":1788691415694,"id":"3","progress":0.3883305849913495,"total":544,"current":339}
+{"_e":"metro:bundling:progress","_t":1788691415806,"id":"3","progress":0.39464168310322156,"total":546,"current":343}
+{"_e":"metro:bundling:progress","_t":1788691415893,"id":"3","progress":0.39694615518791343,"total":546,"current":344}
+{"_e":"metro:bundling:progress","_t":1788691415993,"id":"3","progress":0.39694615518791343,"total":566,"current":352}
+{"_e":"metro:bundling:progress","_t":1788691416097,"id":"3","progress":0.39694615518791343,"total":569,"current":357}
+{"_e":"metro:bundling:progress","_t":1788691416205,"id":"3","progress":0.39694615518791343,"total":575,"current":361}
+{"_e":"metro:bundling:progress","_t":1788691416313,"id":"3","progress":0.4003834720570749,"total":580,"current":367}
+{"_e":"metro:bundling:progress","_t":1788691416413,"id":"3","progress":0.402818873357594,"total":594,"current":377}
+{"_e":"metro:bundling:progress","_t":1788691416519,"id":"3","progress":0.41001300728407913,"total":620,"current":397}
+{"_e":"metro:bundling:progress","_t":1788691416624,"id":"3","progress":0.41964321031604757,"total":636,"current":412}
+{"_e":"metro:bundling:progress","_t":1788691416724,"id":"3","progress":0.4424080464607356,"total":654,"current":435}
+{"_e":"metro:bundling:progress","_t":1788691416825,"id":"3","progress":0.46272826336707096,"total":663,"current":451}
+{"_e":"metro:bundling:progress","_t":1788691416931,"id":"3","progress":0.469970526895596,"total":671,"current":460}
+{"_e":"metro:bundling:progress","_t":1788691417041,"id":"3","progress":0.47520219880256287,"total":676,"current":466}
+{"_e":"metro:bundling:progress","_t":1788691417156,"id":"3","progress":0.47520219880256287,"total":708,"current":476}
+{"_e":"metro:bundling:progress","_t":1788691417258,"id":"3","progress":0.47520219880256287,"total":765,"current":497}
+{"_e":"metro:bundling:progress","_t":1788691417358,"id":"3","progress":0.47520219880256287,"total":771,"current":508}
+{"_e":"metro:bundling:progress","_t":1788691417459,"id":"3","progress":0.47520219880256287,"total":773,"current":528}
+{"_e":"metro:bundling:progress","_t":1788691417575,"id":"3","progress":0.49539940828402373,"total":780,"current":549}
+{"_e":"metro:bundling:progress","_t":1788691417676,"id":"3","progress":0.49539940828402373,"total":814,"current":561}
+{"_e":"metro:bundling:progress","_t":1788691417776,"id":"3","progress":0.49539940828402373,"total":835,"current":584}
+{"_e":"metro:bundling:progress","_t":1788691417881,"id":"3","progress":0.49539940828402373,"total":862,"current":593}
+{"_e":"metro:bundling:progress","_t":1788691417990,"id":"3","progress":0.49539940828402373,"total":865,"current":601}
+{"_e":"metro:bundling:progress","_t":1788691418093,"id":"3","progress":0.49539940828402373,"total":865,"current":603}
+{"_e":"metro:bundling:progress","_t":1788691418237,"id":"3","progress":0.49539940828402373,"total":865,"current":604}
+{"_e":"metro:bundling:progress","_t":1788691418342,"id":"3","progress":0.49539940828402373,"total":866,"current":607}
+{"_e":"metro:bundling:progress","_t":1788691418454,"id":"3","progress":0.49539940828402373,"total":866,"current":608}
+{"_e":"metro:bundling:progress","_t":1788691418558,"id":"3","progress":0.49539940828402373,"total":873,"current":608}
+{"_e":"metro:bundling:progress","_t":1788691418652,"id":"3","progress":0.49539940828402373,"total":873,"current":609}
+{"_e":"metro:bundling:progress","_t":1788691418758,"id":"3","progress":0.49539940828402373,"total":881,"current":617}
+{"_e":"metro:bundling:progress","_t":1788691418817,"id":"3","progress":0.49539940828402373,"total":881,"current":618}
+{"_e":"metro:bundling:progress","_t":1788691418917,"id":"3","progress":0.49539940828402373,"total":882,"current":619}
+{"_e":"metro:bundling:progress","_t":1788691419021,"id":"3","progress":0.49901748783089406,"total":889,"current":628}
+{"_e":"metro:bundling:progress","_t":1788691419122,"id":"3","progress":0.49901748783089406,"total":899,"current":635}
+{"_e":"metro:bundling:progress","_t":1788691419228,"id":"3","progress":0.5119783174828851,"total":921,"current":659}
+{"_e":"metro:bundling:progress","_t":1788691419333,"id":"3","progress":0.5340844411979546,"total":925,"current":676}
+{"_e":"metro:bundling:progress","_t":1788691419446,"id":"3","progress":0.5484002921840759,"total":925,"current":685}
+{"_e":"metro:bundling:progress","_t":1788691419546,"id":"3","progress":0.5734753511169761,"total":927,"current":702}
+{"_e":"metro:bundling:progress","_t":1788691419656,"id":"3","progress":0.5971827329236785,"total":933,"current":721}
+{"_e":"metro:bundling:progress","_t":1788691419756,"id":"3","progress":0.6261771491669059,"total":944,"current":747}
+{"_e":"metro:bundling:progress","_t":1788691419857,"id":"3","progress":0.6528233038871007,"total":953,"current":770}
+{"_e":"metro:bundling:progress","_t":1788691419965,"id":"3","progress":0.6528233038871007,"total":987,"current":786}
+{"_e":"metro:bundling:progress","_t":1788691420071,"id":"3","progress":0.6602591542124621,"total":987,"current":802}
+{"_e":"metro:bundling:progress","_t":1788691420187,"id":"3","progress":0.6707759060484337,"total":989,"current":810}
+{"_e":"metro:bundling:progress","_t":1788691420289,"id":"3","progress":0.686388151415128,"total":997,"current":826}
+{"_e":"metro:bundling:progress","_t":1788691420389,"id":"3","progress":0.7027860446771127,"total":1002,"current":840}
+{"_e":"metro:bundling:progress","_t":1788691420490,"id":"3","progress":0.7252117029888415,"total":1004,"current":855}
+{"_e":"metro:bundling:progress","_t":1788691420597,"id":"3","progress":0.7342137639369473,"total":1020,"current":874}
+{"_e":"metro:bundling:progress","_t":1788691420703,"id":"3","progress":0.7428717788344857,"total":1021,"current":880}
+{"_e":"metro:bundling:progress","_t":1788691420806,"id":"3","progress":0.7615912115227877,"total":1029,"current":898}
+{"_e":"metro:bundling:progress","_t":1788691420911,"id":"3","progress":0.7747401339587855,"total":1035,"current":911}
+{"_e":"metro:bundling:progress","_t":1788691421010,"id":"3","progress":0.7836603063692555,"total":1037,"current":918}
+{"_e":"metro:bundling:progress","_t":1788691421124,"id":"3","progress":0.7991015177115949,"total":1037,"current":927}
+{"_e":"metro:bundling:progress","_t":1788691421224,"id":"3","progress":0.800192857648442,"total":1043,"current":933}
+{"_e":"metro:bundling:progress","_t":1788691421340,"id":"3","progress":0.8181003804931359,"total":1047,"current":947}
+{"_e":"metro:bundling:progress","_t":1788691421440,"id":"3","progress":0.8181003804931359,"total":1091,"current":963}
+{"_e":"metro:bundling:progress","_t":1788691421543,"id":"3","progress":0.8181003804931359,"total":1105,"current":982}
+{"_e":"metro:bundling:progress","_t":1788691421649,"id":"3","progress":0.8181003804931359,"total":1108,"current":998}
+{"_e":"metro:bundling:progress","_t":1788691421749,"id":"3","progress":0.8268914645977908,"total":1114,"current":1013}
+{"_e":"metro:bundling:progress","_t":1788691421849,"id":"3","progress":0.8432654297423406,"total":1126,"current":1034}
+{"_e":"metro:bundling:progress","_t":1788691421951,"id":"3","progress":0.8584924426345053,"total":1130,"current":1047}
+{"_e":"metro:bundling:progress","_t":1788691422062,"id":"3","progress":0.8620105445192224,"total":1132,"current":1051}
+{"_e":"metro:bundling:progress","_t":1788691422173,"id":"3","progress":0.8620105445192224,"total":1142,"current":1059}
+{"_e":"metro:bundling:progress","_t":1788691422278,"id":"3","progress":0.8631744167144623,"total":1142,"current":1061}
+{"_e":"metro:bundling:progress","_t":1788691422328,"id":"3","progress":0.8648022794679198,"total":1142,"current":1062}
+{"_e":"metro:bundling:progress","_t":1788691422434,"id":"3","progress":0.8734996492118859,"total":1147,"current":1072}
+{"_e":"metro:bundling:progress","_t":1788691422532,"id":"3","progress":0.8806349287540554,"total":1153,"current":1082}
+{"_e":"metro:bundling:progress","_t":1788691422643,"id":"3","progress":0.8990576928239685,"total":1158,"current":1098}
+{"_e":"metro:bundling:progress","_t":1788691422746,"id":"3","progress":0.9061732579343882,"total":1165,"current":1109}
+{"_e":"metro:bundling:progress","_t":1788691422848,"id":"3","progress":0.9113056213642333,"total":1168,"current":1115}
+{"_e":"metro:bundling:progress","_t":1788691422948,"id":"3","progress":0.9113056213642333,"total":1173,"current":1118}
+{"_e":"metro:bundling:progress","_t":1788691423055,"id":"3","progress":0.9135916450171764,"total":1177,"current":1125}
+{"_e":"metro:bundling:progress","_t":1788691423169,"id":"3","progress":0.9201662626361621,"total":1178,"current":1130}
+{"_e":"metro:bundling:progress","_t":1788691423280,"id":"3","progress":0.9221838762326515,"total":1184,"current":1137}
+{"_e":"metro:bundling:progress","_t":1788691423380,"id":"3","progress":0.9290952786819141,"total":1191,"current":1148}
+{"_e":"metro:bundling:progress","_t":1788691423480,"id":"3","progress":0.937257893788568,"total":1192,"current":1154}
+{"_e":"metro:bundling:progress","_t":1788691423581,"id":"3","progress":0.9422327999573523,"total":1194,"current":1159}
+{"_e":"metro:bundling:progress","_t":1788691423687,"id":"3","progress":0.9472041699757274,"total":1196,"current":1164}
+{"_e":"metro:bundling:progress","_t":1788691423796,"id":"3","progress":0.9555428760795368,"total":1201,"current":1174}
+{"_e":"metro:bundling:progress","_t":1788691423904,"id":"3","progress":0.978468539608611,"total":1201,"current":1188}
+{"_e":"metro:bundling:progress","_t":1788691424004,"id":"3","progress":0.9933555001232001,"total":1202,"current":1198}
+{"_e":"metro:bundling:progress","_t":1788691424118,"id":"3","progress":0.9966749815199847,"total":1202,"current":1200}
+{"_e":"metro:bundling:progress","_t":1788691424411,"id":"3","progress":0.9983367986245886,"total":1202,"current":1201}
+{"_e":"metro:bundling:progress","_t":1788691424513,"id":"3","progress":0.998340937656032,"total":1205,"current":1204}
+{"_e":"metro:bundling:progress","_t":1788691424894,"id":"3","progress":0.999,"total":1205,"current":1205}
+{"_e":"metro:bundling:progress","_t":1788691424996,"id":"3","progress":0.999,"total":1216,"current":1215}
+{"_e":"metro:bundling:progress","_t":1788691425101,"id":"3","progress":0.999,"total":1216,"current":1216}
+{"_e":"metro:bundling:done","_t":1788691425805,"id":"3","total":1216,"ms":26224.6228}
+{"_e":"metro:client_log","_t":1788691434430,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788691434478,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"root:init","_t":1788692050417,"format":"v0-jsonl","version":"57.0.22"}
+{"_e":"env:mode","_t":1788692050464,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1788692050501,"mode":"development","files":[],"env":{}}
+{"_e":"devserver:start","_t":1788692065961,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1788692084670,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"expo:dev-tools-plugin:load","_t":1788692093984,"plugins":[]}
+{"_e":"metro:instantiate","_t":1788692119373,"atlas":false,"workers":6,"host":"::","port":8081}
+{"_e":"metro:bundling:started","_t":1788692131139,"id":"1","platform":"android","environment":null,"entry":"node_modules\\expo\\AppEntry.js"}
+{"_e":"metro:bundling:progress","_t":1788692131140,"id":"1","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1788692131155,"id":"1","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1788692142668,"id":"1","progress":0.010000000000000002,"total":1,"current":1}
+{"_e":"metro:bundling:progress","_t":1788692142769,"id":"1","progress":0.010000000000000002,"total":3,"current":1}
+{"_e":"metro:bundling:progress","_t":1788692143087,"id":"1","progress":0.04000000000000001,"total":3,"current":2}
+{"_e":"metro:bundling:progress","_t":1788692143191,"id":"1","progress":0.04591836734693877,"total":14,"current":3}
+{"_e":"metro:bundling:progress","_t":1788692143295,"id":"1","progress":0.09765625,"total":16,"current":5}
+{"_e":"metro:bundling:progress","_t":1788692143445,"id":"1","progress":0.1695501730103806,"total":17,"current":7}
+{"_e":"metro:bundling:progress","_t":1788692143583,"id":"1","progress":0.22145328719723184,"total":17,"current":8}
+{"_e":"metro:bundling:progress","_t":1788692143694,"id":"1","progress":0.22675736961451246,"total":21,"current":10}
+{"_e":"metro:bundling:progress","_t":1788692143796,"id":"1","progress":0.22675736961451246,"total":35,"current":12}
+{"_e":"metro:bundling:progress","_t":1788692143900,"id":"1","progress":0.22675736961451246,"total":37,"current":13}
+{"_e":"metro:bundling:progress","_t":1788692143979,"id":"1","progress":0.22675736961451246,"total":37,"current":14}
+{"_e":"metro:bundling:progress","_t":1788692144084,"id":"1","progress":0.22675736961451246,"total":45,"current":15}
+{"_e":"metro:bundling:progress","_t":1788692144182,"id":"1","progress":0.22675736961451246,"total":45,"current":16}
+{"_e":"metro:bundling:progress","_t":1788692144288,"id":"1","progress":0.22675736961451246,"total":45,"current":17}
+{"_e":"metro:bundling:progress","_t":1788692144406,"id":"1","progress":0.22675736961451246,"total":45,"current":18}
+{"_e":"metro:bundling:progress","_t":1788692144511,"id":"1","progress":0.22675736961451246,"total":45,"current":19}
+{"_e":"metro:bundling:progress","_t":1788692144612,"id":"1","progress":0.22675736961451246,"total":46,"current":21}
+{"_e":"metro:bundling:progress","_t":1788692144733,"id":"1","progress":0.26075147125396103,"total":47,"current":24}
+{"_e":"metro:bundling:progress","_t":1788692145462,"id":"1","progress":0.282933454051607,"total":47,"current":25}
+{"_e":"metro:bundling:progress","_t":1788692145570,"id":"1","progress":0.32333717800845824,"total":51,"current":29}
+{"_e":"metro:bundling:progress","_t":1788692145670,"id":"1","progress":0.32333717800845824,"total":54,"current":30}
+{"_e":"metro:bundling:progress","_t":1788692145772,"id":"1","progress":0.3472576530612245,"total":56,"current":33}
+{"_e":"metro:bundling:progress","_t":1788692145876,"id":"1","progress":0.3770390889504463,"total":57,"current":35}
+{"_e":"metro:bundling:progress","_t":1788692145943,"id":"1","progress":0.39889196675900274,"total":57,"current":36}
+{"_e":"metro:bundling:progress","_t":1788692146072,"id":"1","progress":0.39889196675900274,"total":81,"current":38}
+{"_e":"metro:bundling:progress","_t":1788692146166,"id":"1","progress":0.39889196675900274,"total":83,"current":41}
+{"_e":"metro:bundling:progress","_t":1788692146269,"id":"1","progress":0.39889196675900274,"total":104,"current":45}
+{"_e":"metro:bundling:progress","_t":1788692146379,"id":"1","progress":0.39889196675900274,"total":105,"current":47}
+{"_e":"metro:bundling:progress","_t":1788692146502,"id":"1","progress":0.39889196675900274,"total":105,"current":48}
+{"_e":"metro:bundling:progress","_t":1788692146614,"id":"1","progress":0.39889196675900274,"total":110,"current":50}
+{"_e":"metro:bundling:progress","_t":1788692146723,"id":"1","progress":0.39889196675900274,"total":130,"current":51}
+{"_e":"metro:bundling:progress","_t":1788692146830,"id":"1","progress":0.39889196675900274,"total":131,"current":52}
+{"_e":"metro:bundling:progress","_t":1788692146948,"id":"1","progress":0.39889196675900274,"total":137,"current":55}
+{"_e":"metro:bundling:progress","_t":1788692147055,"id":"1","progress":0.39889196675900274,"total":142,"current":63}
+{"_e":"metro:bundling:progress","_t":1788692147155,"id":"1","progress":0.39889196675900274,"total":146,"current":70}
+{"_e":"metro:bundling:progress","_t":1788692147255,"id":"1","progress":0.39889196675900274,"total":148,"current":79}
+{"_e":"metro:bundling:progress","_t":1788692147357,"id":"1","progress":0.39889196675900274,"total":159,"current":84}
+{"_e":"metro:bundling:progress","_t":1788692147456,"id":"1","progress":0.39889196675900274,"total":173,"current":86}
+{"_e":"metro:bundling:progress","_t":1788692147567,"id":"1","progress":0.39889196675900274,"total":176,"current":87}
+{"_e":"metro:bundling:progress","_t":1788692147644,"id":"1","progress":0.39889196675900274,"total":176,"current":88}
+{"_e":"metro:bundling:progress","_t":1788692147745,"id":"1","progress":0.39889196675900274,"total":178,"current":91}
+{"_e":"metro:bundling:progress","_t":1788692147904,"id":"1","progress":0.39889196675900274,"total":179,"current":92}
+{"_e":"metro:bundling:progress","_t":1788692148009,"id":"1","progress":0.39889196675900274,"total":273,"current":95}
+{"_e":"metro:bundling:progress","_t":1788692148122,"id":"1","progress":0.39889196675900274,"total":275,"current":96}
+{"_e":"metro:bundling:progress","_t":1788692148194,"id":"1","progress":0.39889196675900274,"total":275,"current":97}
+{"_e":"metro:bundling:progress","_t":1788692148306,"id":"1","progress":0.39889196675900274,"total":284,"current":99}
+{"_e":"metro:bundling:progress","_t":1788692148453,"id":"1","progress":0.39889196675900274,"total":284,"current":104}
+{"_e":"metro:bundling:progress","_t":1788692148547,"id":"1","progress":0.39889196675900274,"total":285,"current":109}
+{"_e":"metro:bundling:progress","_t":1788692148659,"id":"1","progress":0.39889196675900274,"total":289,"current":112}
+{"_e":"metro:bundling:progress","_t":1788692148761,"id":"1","progress":0.39889196675900274,"total":313,"current":117}
+{"_e":"metro:bundling:progress","_t":1788692148867,"id":"1","progress":0.39889196675900274,"total":328,"current":122}
+{"_e":"metro:bundling:progress","_t":1788692148970,"id":"1","progress":0.39889196675900274,"total":338,"current":126}
+{"_e":"metro:bundling:progress","_t":1788692149086,"id":"1","progress":0.39889196675900274,"total":342,"current":132}
+{"_e":"metro:bundling:progress","_t":1788692149188,"id":"1","progress":0.39889196675900274,"total":346,"current":137}
+{"_e":"metro:bundling:progress","_t":1788692149313,"id":"1","progress":0.39889196675900274,"total":347,"current":145}
+{"_e":"metro:bundling:progress","_t":1788692149419,"id":"1","progress":0.39889196675900274,"total":353,"current":150}
+{"_e":"metro:bundling:progress","_t":1788692149520,"id":"1","progress":0.39889196675900274,"total":354,"current":154}
+{"_e":"metro:bundling:progress","_t":1788692149625,"id":"1","progress":0.39889196675900274,"total":356,"current":159}
+{"_e":"metro:bundling:progress","_t":1788692149781,"id":"1","progress":0.39889196675900274,"total":358,"current":160}
+{"_e":"metro:bundling:progress","_t":1788692149884,"id":"1","progress":0.39889196675900274,"total":363,"current":164}
+{"_e":"metro:bundling:progress","_t":1788692149986,"id":"1","progress":0.39889196675900274,"total":366,"current":168}
+{"_e":"metro:bundling:progress","_t":1788692150104,"id":"1","progress":0.39889196675900274,"total":393,"current":174}
+{"_e":"metro:bundling:progress","_t":1788692150207,"id":"1","progress":0.39889196675900274,"total":423,"current":178}
+{"_e":"metro:bundling:progress","_t":1788692150875,"id":"1","progress":0.39889196675900274,"total":423,"current":179}
+{"_e":"metro:bundling:progress","_t":1788692150975,"id":"1","progress":0.39889196675900274,"total":425,"current":183}
+{"_e":"metro:bundling:progress","_t":1788692151084,"id":"1","progress":0.39889196675900274,"total":429,"current":186}
+{"_e":"metro:bundling:progress","_t":1788692151200,"id":"1","progress":0.39889196675900274,"total":430,"current":188}
+{"_e":"metro:bundling:progress","_t":1788692151304,"id":"1","progress":0.39889196675900274,"total":438,"current":192}
+{"_e":"metro:bundling:progress","_t":1788692151405,"id":"1","progress":0.39889196675900274,"total":449,"current":197}
+{"_e":"metro:bundling:progress","_t":1788692151508,"id":"1","progress":0.39889196675900274,"total":451,"current":199}
+{"_e":"metro:bundling:progress","_t":1788692151586,"id":"1","progress":0.39889196675900274,"total":451,"current":200}
+{"_e":"metro:bundling:progress","_t":1788692151690,"id":"1","progress":0.39889196675900274,"total":454,"current":203}
+{"_e":"metro:bundling:progress","_t":1788692151790,"id":"1","progress":0.39889196675900274,"total":457,"current":206}
+{"_e":"metro:bundling:progress","_t":1788692151891,"id":"1","progress":0.39889196675900274,"total":467,"current":209}
+{"_e":"metro:bundling:progress","_t":1788692151996,"id":"1","progress":0.39889196675900274,"total":475,"current":214}
+{"_e":"metro:bundling:progress","_t":1788692152097,"id":"1","progress":0.39889196675900274,"total":479,"current":222}
+{"_e":"metro:bundling:progress","_t":1788692152201,"id":"1","progress":0.39889196675900274,"total":485,"current":229}
+{"_e":"metro:bundling:progress","_t":1788692152302,"id":"1","progress":0.39889196675900274,"total":495,"current":238}
+{"_e":"metro:bundling:progress","_t":1788692152403,"id":"1","progress":0.39889196675900274,"total":501,"current":244}
+{"_e":"metro:bundling:progress","_t":1788692152506,"id":"1","progress":0.39889196675900274,"total":504,"current":249}
+{"_e":"metro:bundling:progress","_t":1788692152632,"id":"1","progress":0.39889196675900274,"total":511,"current":259}
+{"_e":"metro:bundling:progress","_t":1788692152731,"id":"1","progress":0.39889196675900274,"total":514,"current":266}
+{"_e":"metro:bundling:progress","_t":1788692152834,"id":"1","progress":0.39889196675900274,"total":519,"current":275}
+{"_e":"metro:bundling:progress","_t":1788692152933,"id":"1","progress":0.39889196675900274,"total":529,"current":280}
+{"_e":"metro:bundling:progress","_t":1788692153039,"id":"1","progress":0.39889196675900274,"total":544,"current":288}
+{"_e":"metro:bundling:progress","_t":1788692153145,"id":"1","progress":0.39889196675900274,"total":552,"current":296}
+{"_e":"metro:bundling:progress","_t":1788692153246,"id":"1","progress":0.39889196675900274,"total":555,"current":301}
+{"_e":"metro:bundling:progress","_t":1788692153346,"id":"1","progress":0.39889196675900274,"total":561,"current":310}
+{"_e":"metro:bundling:progress","_t":1788692153447,"id":"1","progress":0.39889196675900274,"total":564,"current":313}
+{"_e":"metro:bundling:progress","_t":1788692153547,"id":"1","progress":0.39889196675900274,"total":573,"current":318}
+{"_e":"metro:bundling:progress","_t":1788692153650,"id":"1","progress":0.39889196675900274,"total":575,"current":325}
+{"_e":"metro:bundling:progress","_t":1788692153760,"id":"1","progress":0.39889196675900274,"total":578,"current":332}
+{"_e":"metro:bundling:progress","_t":1788692153864,"id":"1","progress":0.39889196675900274,"total":592,"current":338}
+{"_e":"metro:bundling:progress","_t":1788692153970,"id":"1","progress":0.39889196675900274,"total":601,"current":344}
+{"_e":"metro:bundling:progress","_t":1788692154070,"id":"1","progress":0.39889196675900274,"total":603,"current":348}
+{"_e":"metro:bundling:progress","_t":1788692154173,"id":"1","progress":0.39889196675900274,"total":613,"current":354}
+{"_e":"metro:bundling:progress","_t":1788692154281,"id":"1","progress":0.39889196675900274,"total":631,"current":359}
+{"_e":"metro:bundling:progress","_t":1788692154383,"id":"1","progress":0.39889196675900274,"total":634,"current":365}
+{"_e":"metro:bundling:progress","_t":1788692154484,"id":"1","progress":0.39889196675900274,"total":637,"current":372}
+{"_e":"metro:bundling:progress","_t":1788692154597,"id":"1","progress":0.39889196675900274,"total":638,"current":376}
+{"_e":"metro:bundling:progress","_t":1788692154705,"id":"1","progress":0.39889196675900274,"total":652,"current":379}
+{"_e":"metro:bundling:progress","_t":1788692154805,"id":"1","progress":0.39889196675900274,"total":654,"current":386}
+{"_e":"metro:bundling:progress","_t":1788692154905,"id":"1","progress":0.39889196675900274,"total":662,"current":396}
+{"_e":"metro:bundling:progress","_t":1788692155007,"id":"1","progress":0.39889196675900274,"total":679,"current":403}
+{"_e":"metro:bundling:progress","_t":1788692155105,"id":"1","progress":0.39889196675900274,"total":722,"current":411}
+{"_e":"metro:bundling:progress","_t":1788692155205,"id":"1","progress":0.39889196675900274,"total":729,"current":416}
+{"_e":"metro:bundling:progress","_t":1788692155313,"id":"1","progress":0.39889196675900274,"total":735,"current":426}
+{"_e":"metro:bundling:progress","_t":1788692155417,"id":"1","progress":0.39889196675900274,"total":755,"current":437}
+{"_e":"metro:bundling:progress","_t":1788692155517,"id":"1","progress":0.39889196675900274,"total":760,"current":444}
+{"_e":"metro:bundling:progress","_t":1788692155619,"id":"1","progress":0.39889196675900274,"total":769,"current":456}
+{"_e":"metro:bundling:progress","_t":1788692155719,"id":"1","progress":0.39889196675900274,"total":774,"current":463}
+{"_e":"metro:bundling:progress","_t":1788692155818,"id":"1","progress":0.39889196675900274,"total":775,"current":466}
+{"_e":"metro:bundling:progress","_t":1788692155921,"id":"1","progress":0.39889196675900274,"total":776,"current":469}
+{"_e":"metro:bundling:progress","_t":1788692156024,"id":"1","progress":0.39889196675900274,"total":802,"current":478}
+{"_e":"metro:bundling:progress","_t":1788692156133,"id":"1","progress":0.39889196675900274,"total":809,"current":486}
+{"_e":"metro:bundling:progress","_t":1788692156235,"id":"1","progress":0.39889196675900274,"total":816,"current":496}
+{"_e":"metro:bundling:progress","_t":1788692156336,"id":"1","progress":0.39889196675900274,"total":821,"current":507}
+{"_e":"metro:bundling:progress","_t":1788692156452,"id":"1","progress":0.39889196675900274,"total":826,"current":514}
+{"_e":"metro:bundling:progress","_t":1788692156553,"id":"1","progress":0.39889196675900274,"total":832,"current":521}
+{"_e":"metro:bundling:progress","_t":1788692156662,"id":"1","progress":0.39889196675900274,"total":833,"current":526}
+{"_e":"metro:bundling:progress","_t":1788692156762,"id":"1","progress":0.4028828570404102,"total":835,"current":530}
+{"_e":"metro:bundling:progress","_t":1788692156882,"id":"1","progress":0.40468356989654747,"total":841,"current":535}
+{"_e":"metro:bundling:progress","_t":1788692156985,"id":"1","progress":0.40729530330725866,"total":843,"current":538}
+{"_e":"metro:bundling:progress","_t":1788692157086,"id":"1","progress":0.40729530330725866,"total":861,"current":547}
+{"_e":"metro:bundling:progress","_t":1788692157188,"id":"1","progress":0.4100753118254101,"total":862,"current":552}
+{"_e":"metro:bundling:progress","_t":1788692157301,"id":"1","progress":0.4160399653317972,"total":862,"current":556}
+{"_e":"metro:bundling:progress","_t":1788692157408,"id":"1","progress":0.4180678841358864,"total":863,"current":558}
+{"_e":"metro:bundling:progress","_t":1788692157548,"id":"1","progress":0.4221243609876708,"total":865,"current":562}
+{"_e":"metro:bundling:progress","_t":1788692157650,"id":"1","progress":0.4276888447216868,"total":867,"current":567}
+{"_e":"metro:bundling:progress","_t":1788692157750,"id":"1","progress":0.43681463865768266,"total":870,"current":575}
+{"_e":"metro:bundling:progress","_t":1788692157864,"id":"1","progress":0.44751486325802614,"total":870,"current":582}
+{"_e":"metro:bundling:progress","_t":1788692157969,"id":"1","progress":0.4619629047204145,"total":871,"current":592}
+{"_e":"metro:bundling:progress","_t":1788692158072,"id":"1","progress":0.4691311690748733,"total":876,"current":600}
+{"_e":"metro:bundling:progress","_t":1788692158179,"id":"1","progress":0.4767573696145125,"total":882,"current":609}
+{"_e":"metro:bundling:progress","_t":1788692158281,"id":"1","progress":0.4860531775671104,"total":885,"current":617}
+{"_e":"metro:bundling:progress","_t":1788692158384,"id":"1","progress":0.4976140005808948,"total":886,"current":625}
+{"_e":"metro:bundling:progress","_t":1788692158485,"id":"1","progress":0.5108945573605467,"total":887,"current":634}
+{"_e":"metro:bundling:progress","_t":1788692158586,"id":"1","progress":0.52877655321956,"total":887,"current":645}
+{"_e":"metro:bundling:progress","_t":1788692158689,"id":"1","progress":0.5383272314101756,"total":890,"current":653}
+{"_e":"metro:bundling:progress","_t":1788692158797,"id":"1","progress":0.5384342046654554,"total":894,"current":656}
+{"_e":"metro:bundling:progress","_t":1788692158897,"id":"1","progress":0.5566428439159398,"total":894,"current":667}
+{"_e":"metro:bundling:progress","_t":1788692159000,"id":"1","progress":0.5734098541177871,"total":898,"current":680}
+{"_e":"metro:bundling:progress","_t":1788692159100,"id":"1","progress":0.5757934852219138,"total":908,"current":689}
+{"_e":"metro:bundling:progress","_t":1788692159202,"id":"1","progress":0.5847750865051903,"total":918,"current":702}
+{"_e":"metro:bundling:progress","_t":1788692159334,"id":"1","progress":0.5942886514563668,"total":921,"current":710}
+{"_e":"metro:bundling:progress","_t":1788692159435,"id":"1","progress":0.6143170197224251,"total":925,"current":725}
+{"_e":"metro:bundling:progress","_t":1788692159536,"id":"1","progress":0.6238957063763376,"total":928,"current":733}
+{"_e":"metro:bundling:progress","_t":1788692159637,"id":"1","progress":0.6238957063763376,"total":946,"current":745}
+{"_e":"metro:bundling:progress","_t":1788692159739,"id":"1","progress":0.6238957063763376,"total":951,"current":748}
+{"_e":"metro:bundling:progress","_t":1788692159841,"id":"1","progress":0.6238957063763376,"total":958,"current":752}
+{"_e":"metro:bundling:progress","_t":1788692159941,"id":"1","progress":0.631012983730022,"total":958,"current":761}
+{"_e":"metro:bundling:progress","_t":1788692160042,"id":"1","progress":0.640333029784921,"total":961,"current":769}
+{"_e":"metro:bundling:progress","_t":1788692160159,"id":"1","progress":0.6456089434198716,"total":972,"current":781}
+{"_e":"metro:bundling:progress","_t":1788692160304,"id":"1","progress":0.657864223401878,"total":974,"current":790}
+{"_e":"metro:bundling:progress","_t":1788692160405,"id":"1","progress":0.7009991315088384,"total":977,"current":818}
+{"_e":"metro:bundling:progress","_t":1788692160505,"id":"1","progress":0.72771345272803,"total":980,"current":836}
+{"_e":"metro:bundling:progress","_t":1788692160606,"id":"1","progress":0.7302479338842974,"total":990,"current":846}
+{"_e":"metro:bundling:progress","_t":1788692160706,"id":"1","progress":0.7607911047775587,"total":994,"current":867}
+{"_e":"metro:bundling:progress","_t":1788692160813,"id":"1","progress":0.7697744254773069,"total":1003,"current":880}
+{"_e":"metro:bundling:progress","_t":1788692160914,"id":"1","progress":0.784640584429352,"total":1007,"current":892}
+{"_e":"metro:bundling:progress","_t":1788692161014,"id":"1","progress":0.799342221350848,"total":1010,"current":903}
+{"_e":"metro:bundling:progress","_t":1788692161114,"id":"1","progress":0.8248154056495568,"total":1013,"current":920}
+{"_e":"metro:bundling:progress","_t":1788692161214,"id":"1","progress":0.8360726408952819,"total":1016,"current":929}
+{"_e":"metro:bundling:progress","_t":1788692161328,"id":"1","progress":0.8360726408952819,"total":1026,"current":938}
+{"_e":"metro:bundling:progress","_t":1788692161439,"id":"1","progress":0.8476817227794634,"total":1034,"current":952}
+{"_e":"metro:bundling:progress","_t":1788692161546,"id":"1","progress":0.8593165331864266,"total":1041,"current":965}
+{"_e":"metro:bundling:progress","_t":1788692161648,"id":"1","progress":0.8744391352485286,"total":1048,"current":980}
+{"_e":"metro:bundling:progress","_t":1788692161749,"id":"1","progress":0.8744391352485286,"total":1132,"current":990}
+{"_e":"metro:bundling:progress","_t":1788692161849,"id":"1","progress":0.8744391352485286,"total":1138,"current":999}
+{"_e":"metro:bundling:progress","_t":1788692161949,"id":"1","progress":0.8744391352485286,"total":1146,"current":1012}
+{"_e":"metro:bundling:progress","_t":1788692162050,"id":"1","progress":0.8744391352485286,"total":1148,"current":1023}
+{"_e":"metro:bundling:progress","_t":1788692162160,"id":"1","progress":0.8744391352485286,"total":1151,"current":1032}
+{"_e":"metro:bundling:progress","_t":1788692162267,"id":"1","progress":0.8744391352485286,"total":1155,"current":1037}
+{"_e":"metro:bundling:progress","_t":1788692162366,"id":"1","progress":0.8744391352485286,"total":1177,"current":1048}
+{"_e":"metro:bundling:progress","_t":1788692162468,"id":"1","progress":0.8744391352485286,"total":1177,"current":1060}
+{"_e":"metro:bundling:progress","_t":1788692162569,"id":"1","progress":0.8744391352485286,"total":1178,"current":1079}
+{"_e":"metro:bundling:progress","_t":1788692162669,"id":"1","progress":0.8744391352485286,"total":1186,"current":1098}
+{"_e":"metro:bundling:progress","_t":1788692162808,"id":"1","progress":0.8955002026935723,"total":1192,"current":1128}
+{"_e":"metro:bundling:progress","_t":1788692162918,"id":"1","progress":0.9050521372911131,"total":1192,"current":1134}
+{"_e":"metro:bundling:progress","_t":1788692163018,"id":"1","progress":0.9134057644808204,"total":1197,"current":1144}
+{"_e":"metro:bundling:progress","_t":1788692163119,"id":"1","progress":0.9246180056099592,"total":1197,"current":1151}
+{"_e":"metro:bundling:progress","_t":1788692163219,"id":"1","progress":0.9328340277777778,"total":1200,"current":1159}
+{"_e":"metro:bundling:progress","_t":1788692163319,"id":"1","progress":0.9361608910274335,"total":1202,"current":1163}
+{"_e":"metro:bundling:progress","_t":1788692163419,"id":"1","progress":0.9394825940111036,"total":1204,"current":1167}
+{"_e":"metro:bundling:progress","_t":1788692163523,"id":"1","progress":0.9460223756837701,"total":1206,"current":1173}
+{"_e":"metro:bundling:progress","_t":1788692163630,"id":"1","progress":0.9477642522547669,"total":1209,"current":1177}
+{"_e":"metro:bundling:progress","_t":1788692163751,"id":"1","progress":0.9542544908134691,"total":1210,"current":1182}
+{"_e":"metro:bundling:progress","_t":1788692163862,"id":"1","progress":0.9672957633333312,"total":1213,"current":1193}
+{"_e":"metro:bundling:progress","_t":1788692163968,"id":"1","progress":0.9819453855559006,"total":1213,"current":1202}
+{"_e":"metro:bundling:progress","_t":1788692164069,"id":"1","progress":0.993415655760044,"total":1213,"current":1209}
+{"_e":"metro:bundling:progress","_t":1788692164184,"id":"1","progress":0.9950597029025349,"total":1213,"current":1210}
+{"_e":"metro:bundling:progress","_t":1788692164268,"id":"1","progress":0.996705109323358,"total":1213,"current":1211}
+{"_e":"metro:bundling:progress","_t":1788692164377,"id":"1","progress":0.998351875022513,"total":1213,"current":1212}
+{"_e":"metro:bundling:progress","_t":1788692165103,"id":"1","progress":0.999,"total":1213,"current":1213}
+{"_e":"metro:bundling:progress","_t":1788692165216,"id":"1","progress":0.999,"total":1216,"current":1216}
+{"_e":"metro:bundling:done","_t":1788692166732,"id":"1","total":1216,"ms":35592.8855}
+{"_e":"metro:client_log","_t":1788692175210,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788692175561,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788692388508,"level":"error","data":["[Error: expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Learn more at https://docs.expo.dev/develop/development-builds/introduction/.]"]}
+{"_e":"metro:client_log","_t":1788692404518,"level":"error","data":["[Error: Got an invalid value for 'component' prop for the screen 'TreatmentPlan'. It must be a valid React Component.]"]}
+{"_e":"metro:client_log","_t":1788692405357,"level":"error","data":["[Error: expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Learn more at https://docs.expo.dev/develop/development-builds/introduction/.]"]}
+{"_e":"metro:client_log","_t":1788692405373,"level":"error","data":["[Error: expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Learn more at https://docs.expo.dev/develop/development-builds/introduction/.]"]}
+{"_e":"metro:client_log","_t":1788692405373,"level":"error","data":["[Error: expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Learn more at https://docs.expo.dev/develop/development-builds/introduction/.]"]}
+{"_e":"metro:client_log","_t":1788692405373,"level":"error","data":["[Error: Cannot find native module 'ExpoTopicSubscriptionModule']"]}
+{"_e":"metro:client_log","_t":1788692405376,"level":"error","data":["[Error: expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Learn more at https://docs.expo.dev/develop/development-builds/introduction/.]"]}
+{"_e":"metro:client_log","_t":1788692405423,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405423,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405433,"level":"error","data":["[Error: expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Learn more at https://docs.expo.dev/develop/development-builds/introduction/.]"]}
+{"_e":"metro:client_log","_t":1788692405434,"level":"error","data":["[Error: expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Learn more at https://docs.expo.dev/develop/development-builds/introduction/.]"]}
+{"_e":"metro:client_log","_t":1788692405443,"level":"error","data":["[Error: expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Learn more at https://docs.expo.dev/develop/development-builds/introduction/.]"]}
+{"_e":"metro:client_log","_t":1788692405443,"level":"error","data":["[Error: expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Learn more at https://docs.expo.dev/develop/development-builds/introduction/.]"]}
+{"_e":"metro:client_log","_t":1788692405446,"level":"error","data":["[Error: expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Learn more at https://docs.expo.dev/develop/development-builds/introduction/.]"]}
+{"_e":"metro:client_log","_t":1788692405446,"level":"error","data":["[Error: expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Learn more at https://docs.expo.dev/develop/development-builds/introduction/.]"]}
+{"_e":"metro:client_log","_t":1788692405449,"level":"error","data":["[Error: expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Learn more at https://docs.expo.dev/develop/development-builds/introduction/.]"]}
+{"_e":"metro:client_log","_t":1788692405469,"level":"error","data":["[Error: expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Learn more at https://docs.expo.dev/develop/development-builds/introduction/.]"]}
+{"_e":"metro:client_log","_t":1788692405469,"level":"error","data":["[Error: expo-notifications: Android Push notifications (remote notifications) functionality provided by expo-notifications was removed from Expo Go with the release of SDK 53. Use a development build instead of Expo Go. Learn more at https://docs.expo.dev/develop/development-builds/introduction/.]"]}
+{"_e":"metro:client_log","_t":1788692405469,"level":"error","data":["[Error: Cannot find native module 'ExpoTopicSubscriptionModule']"]}
+{"_e":"metro:client_log","_t":1788692405469,"level":"error","data":["[Error: Cannot find native module 'ExpoTopicSubscriptionModule']"]}
+{"_e":"metro:client_log","_t":1788692405471,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405472,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405481,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405481,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405481,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405481,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405481,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405483,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405484,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405494,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405494,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405494,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405494,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405494,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405496,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405496,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405506,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405507,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405507,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405507,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405507,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405509,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405509,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405519,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405519,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405520,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405520,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405520,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405522,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405522,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405532,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405532,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405532,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405532,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405532,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405534,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405534,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405549,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405550,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405550,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405550,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405550,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405552,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405552,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405561,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405561,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405561,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405561,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405561,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405563,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405563,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405574,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405574,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405574,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405574,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405574,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405576,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405577,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405586,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405586,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405586,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405586,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405586,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405588,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405601,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405601,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405601,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405601,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405601,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405611,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405611,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405611,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405611,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405611,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405626,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405626,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405626,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405626,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405626,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405629,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405629,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405629,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405645,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405645,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405645,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405645,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405645,"level":"warn","data":["`expo-notifications` functionality is not fully supported in Expo Go:\nWe recommend you instead use a development build to avoid limitations. Learn more: https://expo.fyi/dev-client."]}
+{"_e":"metro:client_log","_t":1788692405647,"level":"error","data":["[TypeError: Cannot read property 'setAutoServerRegistrationEnabledAsync' of undefined]"]}
+{"_e":"metro:client_log","_t":1788692405701,"level":"error","data":["[TypeError: undefined is not a function]"]}
+{"_e":"metro:client_log","_t":1788692689223,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788692689530,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:bundling:started","_t":1788692958735,"id":"1z","platform":"android","environment":null,"entry":"node_modules\\expo\\AppEntry.js"}
+{"_e":"metro:bundling:progress","_t":1788692958735,"id":"1z","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1788692958873,"id":"1z","total":1,"ms":138.1614}
+{"_e":"metro:client_log","_t":1788692967664,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788692967713,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:bundling:started","_t":1788693057873,"id":"20","platform":"android","environment":null,"entry":"node_modules\\expo\\AppEntry.js"}
+{"_e":"metro:bundling:progress","_t":1788693057873,"id":"20","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1788693058001,"id":"20","total":1,"ms":128.1742}
+{"_e":"metro:client_log","_t":1788693067049,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693067184,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693489147,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693489192,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693491659,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693491790,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693497406,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693497452,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693503600,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693503653,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693505999,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693506048,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693507365,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693507416,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693520858,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693520908,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693521886,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693521933,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693543448,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693543501,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693544902,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693544960,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693565280,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693565325,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693569892,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693569950,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693573676,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693573676,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693576858,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693576930,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693579342,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693579400,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693586579,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693586632,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693588164,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693588210,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693590748,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693590777,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693593632,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693593678,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693597287,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693597336,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693604727,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693604778,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693609150,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693609207,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693612357,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693612402,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693615156,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693615204,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693616923,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693616969,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693626951,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693627008,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693635251,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693635298,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693636579,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693636631,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693642302,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693642365,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693643533,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693643680,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:bundling:started","_t":1788693692104,"id":"21","platform":"android","environment":null,"entry":"node_modules\\expo\\AppEntry.js"}
+{"_e":"metro:bundling:progress","_t":1788693692105,"id":"21","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1788693692144,"id":"21","total":1,"ms":39.736}
+{"_e":"metro:client_log","_t":1788693701154,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693701210,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693736995,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693737052,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693770157,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693770205,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788693777322,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788693777367,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788694056739,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788694056786,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788694060140,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788694060186,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788694062788,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788694062841,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788694065328,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788694065374,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788694141765,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788694141875,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:bundling:failed","_t":1788694146727,"id":null,"message":"SyntaxError: C:\\SAD SYSTEM\\AgriLensAI App\\src\\utils\\translations.js: Unexpected token, expected \",\" (552:2)\n\n  550 |     signInTagline: \"Sign in para sa protektado nga datos sa tanom\",\n  551 |     mobileNumber: \"Numero sa Mobile\",\n> 552 | s msHelperText: \"Magpadala kami kanimo og one-time verification code sa email.\",\n      |   ^\n  553 |     //onboarding screen\n  554 |     onboardingSubheading: \"Ilhon ug atimana ang mga sakit sa tulo ka sayon nga lakang\",\n  555 |     step1Title: \"1. I-scan ang imong dahon\",","importStack":null,"filename":"src\\utils\\translations.js","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:bundling:failed","_t":1788694146948,"id":null,"message":"SyntaxError: C:\\SAD SYSTEM\\AgriLensAI App\\src\\utils\\translations.js: Unexpected token, expected \",\" (552:2)\n\n  550 |     signInTagline: \"Sign in para sa protektado nga datos sa tanom\",\n  551 |     mobileNumber: \"Numero sa Mobile\",\n> 552 | s msHelperText: \"Magpadala kami kanimo og one-time verification code sa email.\",\n      |   ^\n  553 |     //onboarding screen\n  554 |     onboardingSubheading: \"Ilhon ug atimana ang mga sakit sa tulo ka sayon nga lakang\",\n  555 |     step1Title: \"1. I-scan ang imong dahon\",","importStack":null,"filename":"src\\utils\\translations.js","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:bundling:failed","_t":1788694150046,"id":null,"message":"SyntaxError: C:\\SAD SYSTEM\\AgriLensAI App\\src\\utils\\translations.js: Unexpected token, expected \",\" (552:2)\n\n  550 |     signInTagline: \"Sign in para sa protektado nga datos sa tanom\",\n  551 |     mobileNumber: \"Numero sa Mobile\",\n> 552 | s msHelperText: \"Magpadala kami kanimo og one-time verification code sa email.\",\n      |   ^\n  553 |     //onboarding screen\n  554 |     onboardingSubheading: \"Ilhon ug atimana ang mga sakit sa tulo ka sayon nga lakang\",\n  555 |     step1Title: \"1. I-scan ang imong dahon\",","importStack":null,"filename":"src\\utils\\translations.js","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:client_log","_t":1788694152701,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788694152756,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788694156601,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788694156604,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788694158593,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788694158646,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788694166345,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788694166391,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788694167444,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788694167498,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:client_log","_t":1788694168775,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788694168820,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:bundling:started","_t":1788694776711,"id":"23","platform":"android","environment":null,"entry":"node_modules\\expo\\AppEntry.js"}
+{"_e":"metro:bundling:progress","_t":1788694776711,"id":"23","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1788694776753,"id":"23","total":1,"ms":42.0606}
+{"_e":"metro:client_log","_t":1788694786175,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788694786228,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:bundling:started","_t":1788694817057,"id":"24","platform":"android","environment":null,"entry":"node_modules\\expo\\AppEntry.js"}
+{"_e":"metro:bundling:progress","_t":1788694817057,"id":"24","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1788694817101,"id":"24","total":1,"ms":43.4282}
+{"_e":"metro:client_log","_t":1788694830410,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788694830478,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:bundling:started","_t":1788694888561,"id":"25","platform":"android","environment":null,"entry":"node_modules\\expo\\AppEntry.js"}
+{"_e":"metro:bundling:progress","_t":1788694888561,"id":"25","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1788694888601,"id":"25","total":1,"ms":40.0775}
+{"_e":"metro:client_log","_t":1788694897961,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788694898014,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}
+{"_e":"metro:bundling:started","_t":1788696384610,"id":"28","platform":"android","environment":null,"entry":"node_modules\\expo\\AppEntry.js"}
+{"_e":"metro:bundling:progress","_t":1788696384610,"id":"28","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1788696384612,"id":"28","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1788696384713,"id":"28","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1788696384840,"id":"28","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1788696384940,"id":"28","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1788696385040,"id":"28","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1788696385140,"id":"28","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1788696385265,"id":"28","total":1,"ms":654.7042}
+{"_e":"metro:client_log","_t":1788696396122,"level":"log","data":["🔍 AsyncStorage saved language value:","null"]}
+{"_e":"metro:client_log","_t":1788696396170,"level":"log","data":["🔍 No valid saved language — LanguageSelect should show"]}

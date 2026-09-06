@@ -1,6 +1,6 @@
 // src/screens/LoginScreen.js
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert} from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
@@ -23,7 +23,7 @@ function isValidEmail(email) {
 }
 
 export default function LoginScreen({ navigation }) {
-  const { language, t } = useLanguage();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
@@ -34,26 +34,24 @@ export default function LoginScreen({ navigation }) {
 
   const handleSendOTP = async () => {
     if (!isValidEmail(email)) {
-      Alert.alert('Invalid Email', 'Palihug pagbutang og sakto nga email address.');
+      Alert.alert(t('invalidEmailTitle'), t('invalidEmailDesc'));
       return;
     }
 
     try {
       setLoading(true);
-      
-      // Request the 6-digit OTP via Email
+
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
       });
 
       if (error) throw error;
 
-      // Navigate to the verification screen and pass the contact details
       navigation.navigate('OtpVerify', { email: email.trim(), phone });
-      
+
     } catch (error) {
       console.error(error);
-      Alert.alert('Login Failed', error.message);
+      Alert.alert(t('loginFailedTitle'), error.message);
     } finally {
       setLoading(false);
     }
@@ -61,25 +59,16 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* TOP HEADER SECTION (Green) */}
       <View style={styles.headerContainer}>
-        {/* Optional Settings Icon from your screenshot */}
-        <TouchableOpacity style={styles.settingsIcon}>
-          <Ionicons name="settings-sharp" size={24} color="rgba(255,255,255,0.7)" />
-        </TouchableOpacity>
-
         <View style={styles.iconCircle}>
           <Ionicons name="leaf" size={36} color="#4CD964" />
         </View>
-        <Text style={styles.appName}>{t('appName', language)}</Text>
-        <Text style={styles.tagline}>Sign in para sa protektado nga datos sa tanom</Text>
+        <Text style={styles.appName}>{t('appName')}</Text>
+        <Text style={styles.tagline}>{t('signInTagline')}</Text>
       </View>
 
-      {/* BOTTOM FORM SECTION (White) */}
       <View style={styles.formContainer}>
-        
-        {/* NEW EMAIL FIELD */}
-        <Text style={styles.label}>Email Address</Text>
+        <Text style={styles.label}>{t('emailAddress')}</Text>
         <View style={styles.inputWrapper}>
           <TextInput
             style={styles.fullInput}
@@ -89,11 +78,12 @@ export default function LoginScreen({ navigation }) {
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
+            editable={!loading}
           />
         </View>
+        <Text style={styles.helperText}>{t('smsHelperText')}</Text>
 
-        {/* EXISTING MOBILE NUMBER FIELD */}
-        <Text style={styles.label}>Numero sa Mobile (Optional)</Text>
+        <Text style={styles.label}>{t('mobileNumber')} (Optional)</Text>
         <View style={styles.phoneRow}>
           <View style={styles.prefixContainer}>
             <Text style={styles.prefixText}>+63</Text>
@@ -107,32 +97,22 @@ export default function LoginScreen({ navigation }) {
               value={phone}
               onChangeText={handlePhoneChange}
               maxLength={12}
+              editable={!loading}
             />
           </View>
         </View>
-        
-        {/* Updated helper text to mention email */}
-        <Text style={styles.helperText}>Magpadala kami og one-time verification code sa email.</Text>
 
-        {/* BUTTONS */}
-        <TouchableOpacity 
-          style={styles.primaryBtn} 
-          activeOpacity={0.85} 
+        <TouchableOpacity
+          style={[styles.primaryBtn, loading && styles.btnDisabled]}
+          activeOpacity={0.85}
           onPress={handleSendOTP}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.primaryBtnText}>Sugdi</Text>
+            <Text style={styles.primaryBtnText}>{t('sendVerificationCode')}</Text>
           )}
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.secondaryBtn} 
-          onPress={() => navigation.navigate('MainTabs')}
-        >
-           <Text style={styles.secondaryBtnText}>Padayon isip Bisita</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -142,7 +122,7 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#2A5D34', // Matches your green header background
+    backgroundColor: '#2A5D34',
   },
   headerContainer: {
     backgroundColor: '#2A5D34',
@@ -150,14 +130,6 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
     paddingHorizontal: 20,
     position: 'relative',
-  },
-  settingsIcon: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    backgroundColor: 'rgba(0,0,0,0.1)',
-    padding: 8,
-    borderRadius: 20,
   },
   iconCircle: {
     width: 70,
@@ -191,7 +163,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   inputWrapper: {
-    marginBottom: 20,
+    marginBottom: 8,
   },
   fullInput: {
     borderWidth: 1,
@@ -204,7 +176,7 @@ const styles = StyleSheet.create({
   },
   phoneRow: {
     flexDirection: 'row',
-    marginBottom: 8,
+    marginBottom: 32,
   },
   prefixContainer: {
     borderWidth: 1,
@@ -236,7 +208,7 @@ const styles = StyleSheet.create({
   helperText: {
     fontSize: 12,
     color: '#999999',
-    marginBottom: 32,
+    marginBottom: 20,
   },
   primaryBtn: {
     backgroundColor: '#387C44',
@@ -250,17 +222,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  secondaryBtn: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#387C44',
-    borderRadius: 8,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  secondaryBtnText: {
-    color: '#387C44',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  btnDisabled: { opacity: 0.6 },
 });

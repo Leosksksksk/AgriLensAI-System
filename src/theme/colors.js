@@ -6,24 +6,24 @@ export const colors = {
   leafGreen: '#4CAF50',
   mint: '#E8F5E9',
 
-  background: '#F5F7F5',
+  background: '#042804',  //background
   card: '#FFFFFF',
 
-  textDark: '#1A1A1A',
-  textMuted: '#6B7A6E',
-  textLight: '#9AA79C',
+  textDark: '#1A1A1A', //sync texts
+  textMuted: '#7a786b', //sync sub-texts
+  textLight: '#26dc75', //dashboard texts
 
   warning: '#F5A623',
   warningBg: '#FFF7E6',
   danger: '#E53935',
   dangerBg: '#FDECEA',
   info: '#1565C0',
-  infoBg: '#E8F0FE',
-  ok: '#2E7D32',
+  infoBg: '#E8F0FE', //pending and info card background
+  ok: '#55ef5d', //reminder and tomato leaf logo
   okBg: '#E8F5E9',
 
   border: '#E4E9E4',
-  white: '#FFFFFF',
+  white: '#034c08', //borders
   black: '#000000',
 };
 

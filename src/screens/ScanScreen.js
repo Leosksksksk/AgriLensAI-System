@@ -12,6 +12,7 @@ import { supabase } from '../../supabaseClient';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
 import { analyzeLeaf } from '../services/aiEngineService';
+import { getDueReminders, dismissReminder } from '../utils/reminderStorage';
 
 export default function ScanScreen({ navigation }) {
   const { language, languageLabels, t } = useLanguage();
@@ -24,11 +25,21 @@ export default function ScanScreen({ navigation }) {
   const [analyzing, setAnalyzing] = useState(false);
   const [diagnosis, setDiagnosis] = useState(null);
   const cameraRef = useRef(null);
+  const [dueReminders, setDueReminders] = useState([]);
 
   useEffect(() => {
     const unsub = NetInfo.addEventListener((state) => setIsOnline(!!state.isConnected));
     return unsub;
   }, []);
+
+  useEffect(() => {
+    getDueReminders().then(setDueReminders);
+  }, []);
+
+  async function handleDismissReminder(id) {
+    await dismissReminder(id);
+    setDueReminders((prev) => prev.filter((r) => r.id !== id));
+  }
 
   async function handleTakePhoto() {
     if (!permission?.granted) {
@@ -188,6 +199,18 @@ export default function ScanScreen({ navigation }) {
       </View>
 
       <ScrollView contentContainerStyle={styles.body}>
+        {dueReminders.map((reminder) => (
+          <View key={reminder.id} style={styles.reminderBanner}>
+            <Ionicons name="notifications" size={18} color={colors.warning} />
+            <Text style={styles.reminderBannerText}>
+              {reminder.diseaseName} — {reminder.cropLabel}
+            </Text>
+            <TouchableOpacity onPress={() => handleDismissReminder(reminder.id)}>
+              <Ionicons name="close" size={18} color={colors.textMuted} />
+            </TouchableOpacity>
+          </View>
+        ))}
+
         <View style={styles.viewfinder}>
           {!isOnline && (
             <View style={styles.offlineBadge}>
@@ -253,6 +276,16 @@ const styles = StyleSheet.create({
   langPill: { backgroundColor: colors.white, paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 },
   langPillText: { color: colors.primaryDark, fontWeight: '700', fontSize: 12 },
   body: { padding: 20, paddingBottom: 40 },
+  reminderBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: colors.warningBg,
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 14,
+  },
+  reminderBannerText: { flex: 1, fontSize: 13, color: colors.textDark, fontWeight: '600' },
   viewfinder: {
     backgroundColor: '#0E1F13',
     borderRadius: 14,

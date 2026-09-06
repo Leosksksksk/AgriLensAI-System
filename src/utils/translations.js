@@ -135,7 +135,7 @@ export const translations = {
     //login screen
     signInTagline: "Sign in to secure crop data",
     mobileNumber: "Mobile Number",
-    smsHelperText: "We will send a one-time verification SMS.",
+    smsHelperText: "We will email you a one-time verification code.",
 
     //onboarding screen
     onboardingSubheading: "Identify and address diseases in three easy steps",
@@ -187,6 +187,24 @@ export const translations = {
     rustAction1: "Remove and burn/bury infected leaves; do not compost them.",
     rustAction2: "Apply a rust-labeled fungicide as soon as pustules are confirmed.",
     rustAction3: "Avoid dense planting to reduce humidity buildup.",
+
+    //Schedule Reminder Dashboard
+    reminderPermissionTitle: "Notifications Disabled",
+    reminderPermissionDesc: "Enable notifications in your device settings to receive treatment reminders.",
+    reminderScheduledTitle: "Reminder Set",
+    reminderScheduledDesc: "We'll remind you to check on your treatment in 3 days.",
+    reminderNotificationBody: "Time to check your {crop}'s treatment progress for {disease}.",
+    reminderAlreadySet: "Reminder Already Set",
+    reminderAlreadySetDesc: "You already have a reminder scheduled for this treatment.",
+    schedulingReminder: "Scheduling...",
+
+    //Email OTP verification screen
+    emailAddress: "Email Address",
+    sendingCode: "Sending...",
+    sendVerificationCode: "Send Verification Code",
+    invalidEmailTitle: "Invalid Email",
+    invalidEmailDesc: "Please enter a valid email address.",
+    loginFailedTitle: "Login Failed",
   },
 
 
@@ -325,7 +343,8 @@ export const translations = {
     signInTagline: "Mag-sign in para sa ligtas na datos ng pananim",
     mobileNumber: "Numero ng Mobile",
     smsHelperText: "Magpapadala kami ng one-time verification SMS.",
-
+    smsHelperText: "Magpapadala kami sa iyo ng one-time verification code sa email.",
+    
     //onboarding screen
     onboardingSubheading: "Tukuyin at tugunan ang mga sakit sa tatlong madaling hakbang",
     step1Title: "1. I-scan ang iyong dahon",
@@ -376,6 +395,24 @@ export const translations = {
     rustAction1: "Alisin at sunugin/ilibing ang apektadong dahon; huwag gawing compost.",
     rustAction2: "Maglagay ng fungicide na para sa kalawang kapag napagtibay na ang bukol.",
     rustAction3: "Iwasang siksikan ang pagtatanim para mabawasan ang halumigmig.",
+
+    //Schedule Reminder Dashboard
+    reminderPermissionTitle: "Naka-disable ang Notifications",
+    reminderPermissionDesc: "I-enable ang notifications sa settings ng iyong device para makatanggap ng paalala sa paggamot.",
+    reminderScheduledTitle: "Naka-set na ang Paalala",
+    reminderScheduledDesc: "Paaalalahanan ka namin na tingnan ang paggamot sa loob ng 3 araw.",
+    reminderNotificationBody: "Oras na para tingnan ang progreso ng paggamot ng iyong {crop} para sa {disease}.",
+    reminderAlreadySet: "May Naka-set nang Paalala",
+    reminderAlreadySetDesc: "May naka-schedule ka nang paalala para sa paggamot na ito.",
+    schedulingReminder: "Nag-i-schedule...",
+    
+    //Email OTP verification screen
+    emailAddress: "Email Address",
+    sendingCode: "Ipinapadala...",
+    sendVerificationCode: "Ipadala ang Verification Code",
+    invalidEmailTitle: "Maling Email",
+    invalidEmailDesc: "Maglagay ng wastong email address.",
+    loginFailedTitle: "Hindi Naka-login",
   },
 
   ceb: {
@@ -513,7 +550,7 @@ export const translations = {
     //login screen
     signInTagline: "Sign in para sa protektado nga datos sa tanom",
     mobileNumber: "Numero sa Mobile",
-    smsHelperText: "Magpadala kami og one-time verification SMS.",
+    smsHelperText: "Magpadala kami kanimo og one-time verification code sa email.",
 
     //onboarding screen
     onboardingSubheading: "Ilhon ug atimana ang mga sakit sa tulo ka sayon nga lakang",
@@ -565,6 +602,25 @@ export const translations = {
     rustAction1: "Kuhaa ug sunoga/ilubong ang naapektuhang dahon; ayaw i-compost.",
     rustAction2: "Pag-aplay og fungicide para sa taya sa dihang makumpirma ang bukol.",
     rustAction3: "Likayi ang siksik nga pagtanom para mikunhod ang umog.",
+
+    //Schedule Reminder Dashboard
+    reminderPermissionTitle: "Naka-disable ang Notifications",
+    reminderPermissionDesc: "I-enable ang notifications sa settings sa imong device para makadawat og pahinumdom sa tambal.",
+    reminderScheduledTitle: "Naka-set na ang Pahinumdom",
+    reminderScheduledDesc: "Pahinumduman ka namo nga susihon ang tambal sulod sa 3 ka adlaw.",
+    reminderNotificationBody: "Oras na para susihon ang progreso sa tambal sa imong {crop} para sa {disease}.",
+    reminderAlreadySet: "Naa Nay Naka-set nga Pahinumdom",
+    reminderAlreadySetDesc: "Naa na kay naka-schedule nga pahinumdom para niini nga tambal.",
+    schedulingReminder: "Nag-i-schedule...",
+
+    //Email OTP verification screen
+    emailAddress: "Email Address",
+    sendingCode: "Gipadala...",
+    sendVerificationCode: "Ipadala ang Verification Code",
+    invalidEmailTitle: "Sayop nga Email",
+    invalidEmailDesc: "Palihug pagbutang og sakto nga email address.",
+    loginFailedTitle: "Wala Naka-login",
+    
   },
 };
 
