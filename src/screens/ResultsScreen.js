@@ -1,8 +1,9 @@
 // src/screens/ResultsScreen.js
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as Speech from 'expo-speech';
 import { colors } from '../theme/colors';
 import SeverityRing from '../components/SeverityRing';
 import { useLanguage } from '../context/LanguageContext';
@@ -16,12 +17,10 @@ const PROGRESSION_STAGES = [
 ];
 
 export default function ResultsScreen({ route, navigation }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [playing, setPlaying] = useState(false);
 
-  // ScanScreen sends the real diagnosis object here — this replaces the
-  // old route.params.disease/severity, which no longer exist.
   const diagnosis = route?.params?.diagnosis ?? {
     diseaseId: 'healthy',
     damagePercent: 0,
@@ -36,6 +35,56 @@ export default function ResultsScreen({ route, navigation }) {
   const severityLabel = t(`severity${diagnosis.severity}`);
 
   const activeStage = PROGRESSION_STAGES.find((s) => diagnosis.damagePercent >= s.threshold);
+
+  // Stop audio playback if the user leaves this screen
+  useEffect(() => {
+    return () => {
+      Speech.stop();
+    };
+  }, []);
+
+  const handleToggleAudio = async () => {
+    const isCurrentlySpeaking = await Speech.isSpeakingAsync();
+
+    if (playing || isCurrentlySpeaking) {
+      await Speech.stop();
+      setPlaying(false);
+    } else {
+      const textToRead = `${diseaseName}. ${diseaseDesc}`;
+
+      // Map app language to device Text-To-Speech locales
+      let speechLang = 'en-US';
+      if (language === 'ceb' || language === 'bis' || language === 'fil') {
+        speechLang = 'fil-PH'; // Philippines locale voice engine
+      }
+
+      // Fetch installed voices on the user's phone
+      const availableVoices = await Speech.getAvailableVoicesAsync();
+
+      // Search for a male voice identifier installed on the device
+      const maleVoice = availableVoices.find(
+        (v) =>
+          v.language.startsWith(speechLang.slice(0, 2)) &&
+          (v.name.toLowerCase().includes('male') ||
+           v.identifier.toLowerCase().includes('male') ||
+           v.name.toLowerCase().includes('guy') ||
+           v.name.toLowerCase().includes('es-es-x-sfd') ||
+           v.identifier.toLowerCase().includes('m03'))
+      );
+
+      setPlaying(true);
+
+      Speech.speak(textToRead, {
+        language: speechLang,
+        voice: maleVoice ? maleVoice.identifier : undefined,
+        pitch: 0.70, // Lower pitch deepens the tone to sound distinctly male
+        rate: 0.90, // Slightly lower speed for clarity / reading speed
+        onDone: () => setPlaying(false),
+        onStopped: () => setPlaying(false),
+        onError: () => setPlaying(false),
+      });
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -89,28 +138,30 @@ export default function ResultsScreen({ route, navigation }) {
           </View>
         )}
 
+        {/* FUNCTIONAL AUDIO DIAGNOSIS BUTTON */}
         <TouchableOpacity
           style={styles.audioBar}
           activeOpacity={0.85}
-          onPress={() => setPlaying((p) => !p)}
+          onPress={handleToggleAudio}
         >
-          <Ionicons name={playing ? 'pause' : 'play'} size={20} color={colors.white} />
+          <Ionicons name={playing ? 'square' : 'play'} size={20} color={colors.white} />
           <Text style={styles.audioText}>{t('listenDiagnosis')}</Text>
           <View style={styles.audioTrack}>
-            <View style={[styles.audioProgress, { width: playing ? '70%' : '20%' }]} />
+            <View style={[styles.audioProgress, { width: playing ? '100%' : '0%' }]} />
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.treatmentBtn}
           activeOpacity={0.85}
-          onPress={() =>
+          onPress={() => {
+            Speech.stop();
             navigation.navigate('TreatmentPlan', {
               diseaseId: diagnosis.diseaseId,
               damagePercent: diagnosis.damagePercent,
               cropLabel,
-            })
-          }
+            });
+          }}
         >
           <Text style={styles.treatmentBtnText}>{t('viewTreatmentPlan')}</Text>
         </TouchableOpacity>
@@ -123,7 +174,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   header: {
     backgroundColor: colors.primaryDark,
-    paddingTop: 54,
+    paddingTop: 16,
     paddingBottom: 16,
     paddingHorizontal: 20,
     flexDirection: 'row',

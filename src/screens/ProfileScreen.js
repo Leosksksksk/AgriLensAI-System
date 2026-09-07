@@ -1,10 +1,11 @@
 // src/screens/ProfileScreen.js
-import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
+import { supabase } from '../../supabaseClient';
 
 const ALL_CROPS = [
   { id: 'tomato', labelKey: 'cropTomato' },
@@ -18,15 +19,88 @@ const ALL_CROPS = [
 export default function ProfileScreen() {
   const { t } = useLanguage();
 
-  const [fullName, setFullName] = useState('Junrel Alipogpog');
-  const [phone, setPhone] = useState('+63 9xx xxx xxxx');
-  const [barangay, setBarangay] = useState('Bogo City Cebu');
-  const [farmSize, setFarmSize] = useState('2.5 hectares');
-  const [selectedCropIds, setSelectedCropIds] = useState(['tomato', 'rice', 'corn', 'eggplant']);
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [barangay, setBarangay] = useState('');
+  const [farmSize, setFarmSize] = useState('');
+  const [selectedCropIds, setSelectedCropIds] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  async function loadProfile() {
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No active session.');
+
+      const { data, error } = await supabase
+        .from('farmers')
+        .select('full_name, phone, barangay, farm_size, crop_types')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setFullName(data.full_name ?? '');
+        setPhone(data.phone ?? '');
+        setBarangay(data.barangay ?? '');
+        setFarmSize(data.farm_size ?? '');
+        setSelectedCropIds(data.crop_types ?? []);
+      }
+    } catch (e) {
+      console.warn('Profile load error:', e);
+      Alert.alert(t('profileLoadErrorTitle'), e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No active session.');
+
+      const { error } = await supabase.from('farmers').upsert(
+        {
+          id: user.id,
+          full_name: fullName,
+          phone,
+          barangay,
+          farm_size: farmSize,
+          crop_types: selectedCropIds,
+        },
+        { onConflict: 'id' }
+      );
+
+      if (error) throw error;
+
+      Alert.alert(t('profileSavedTitle'), t('profileSavedDesc'));
+    } catch (e) {
+      console.warn('Profile save error:', e);
+      Alert.alert(t('profileErrorTitle'), e.message);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   function toggleCrop(cropId) {
     setSelectedCropIds((prev) =>
       prev.includes(cropId) ? prev.filter((c) => c !== cropId) : [...prev, cropId]
+    );
+  }
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, styles.centerFill]}>
+        <ActivityIndicator color={colors.primary} />
+      </SafeAreaView>
     );
   }
 
@@ -37,24 +111,49 @@ export default function ProfileScreen() {
           <View style={styles.avatar}>
             <Ionicons name="person" size={30} color={colors.white} />
           </View>
-          <Text style={styles.name}>{fullName}</Text>
-          <Text style={styles.subLabel}>{t('farmLabel')} · {barangay}</Text>
+          <Text style={styles.name}>{fullName || t('fullName')}</Text>
+          <Text style={styles.subLabel}>{t('farmLabel')} · {barangay || '—'}</Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{t('personalInfo')}</Text>
 
           <Text style={styles.fieldLabel}>{t('fullName')}</Text>
-          <TextInput style={styles.input} value={fullName} onChangeText={setFullName} />
+          <TextInput
+            style={styles.input}
+            value={fullName}
+            onChangeText={setFullName}
+            placeholder={t('fullName')}
+            placeholderTextColor={colors.textLight}
+          />
 
           <Text style={styles.fieldLabel}>{t('phoneNumber')}</Text>
-          <TextInput style={styles.input} value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+          <TextInput
+            style={styles.input}
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+            placeholder="+63 9XX XXX XXXX"
+            placeholderTextColor={colors.textLight}
+          />
 
           <Text style={styles.fieldLabel}>{t('barangay')}</Text>
-          <TextInput style={styles.input} value={barangay} onChangeText={setBarangay} />
+          <TextInput
+            style={styles.input}
+            value={barangay}
+            onChangeText={setBarangay}
+            placeholder={t('barangay')}
+            placeholderTextColor={colors.textLight}
+          />
 
           <Text style={styles.fieldLabel}>{t('farmSize')}</Text>
-          <TextInput style={styles.input} value={farmSize} onChangeText={setFarmSize} />
+          <TextInput
+            style={styles.input}
+            value={farmSize}
+            onChangeText={setFarmSize}
+            placeholder={t('farmSize')}
+            placeholderTextColor={colors.textLight}
+          />
         </View>
 
         <Text style={styles.sectionTitle}>{t('cropTypes')}</Text>
@@ -73,6 +172,19 @@ export default function ProfileScreen() {
             );
           })}
         </View>
+
+        <TouchableOpacity
+          style={[styles.saveBtn, saving && styles.saveBtnDisabled]}
+          activeOpacity={0.85}
+          onPress={handleSave}
+          disabled={saving}
+        >
+          {saving ? (
+            <ActivityIndicator color={colors.white} />
+          ) : (
+            <Text style={styles.saveBtnText}>{t('saveProfile')}</Text>
+          )}
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -80,6 +192,7 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  centerFill: { alignItems: 'center', justifyContent: 'center' },
   header: { backgroundColor: colors.primaryDark, alignItems: 'center', paddingTop: 54, paddingBottom: 26 },
   avatar: {
     width: 66,
@@ -104,9 +217,18 @@ const styles = StyleSheet.create({
     color: colors.textDark,
   },
   sectionTitle: { fontWeight: '800', fontSize: 16, color: colors.textDark, marginHorizontal: 20, marginBottom: 12 },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginHorizontal: 20 },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginHorizontal: 20, marginBottom: 24 },
   chip: { borderWidth: 1, borderColor: colors.primary, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 9 },
   chipActive: { backgroundColor: colors.primary },
   chipText: { color: colors.primary, fontWeight: '700', fontSize: 12 },
   chipTextActive: { color: colors.white },
+  saveBtn: {
+    backgroundColor: colors.primary,
+    marginHorizontal: 20,
+    borderRadius: 12,
+    paddingVertical: 15,
+    alignItems: 'center',
+  },
+  saveBtnDisabled: { opacity: 0.6 },
+  saveBtnText: { color: colors.white, fontWeight: '800', fontSize: 15 },
 });

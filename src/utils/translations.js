@@ -205,6 +205,21 @@ export const translations = {
     invalidEmailTitle: "Invalid Email",
     invalidEmailDesc: "Please enter a valid email address.",
     loginFailedTitle: "Login Failed",
+
+    //weather risk screen
+    alertWeatherRiskDesc: "{temp}°C, {humidity}% humidity, {rain}% chance of rain — conditions favor rapid disease spread.",
+    alertBlightNearbyDesc: "{count} farm(s) in your barangay reported {disease} recently. Protect your crops.",
+    alertPendingDescDynamic: "You have {count} record(s) waiting to sync. Connect to internet to sync now.",
+    alertReminderDesc: "Scheduled treatment reminder for your {crop} regarding {disease}.",
+    noAlertsTitle: "All Clear",
+    noAlertsDesc: "No active alerts right now. We'll notify you when something needs your attention.",
+
+    //profile screen
+    savingProfile: "Saving...",
+    profileSavedTitle: "Profile Saved",
+    profileSavedDesc: "Your profile has been updated.",
+    profileErrorTitle: "Could Not Save",
+    profileLoadErrorTitle: "Could Not Load Profile",
   },
 
 
@@ -413,6 +428,21 @@ export const translations = {
     invalidEmailTitle: "Maling Email",
     invalidEmailDesc: "Maglagay ng wastong email address.",
     loginFailedTitle: "Hindi Naka-login",
+
+    //weather risk screen
+    alertWeatherRiskDesc: "{temp}°C, {humidity}% halumigmig, {rain}% tsansa ng ulan — paborable ang kondisyon para sa mabilis na paglaganap ng sakit.",
+    alertBlightNearbyDesc: "{count} sakahan sa inyong barangay ang nag-ulat ng {disease} kamakailan. Protektahan ang inyong pananim.",
+    alertPendingDescDynamic: "May {count} record kayong naghihintay i-sync. Kumonekta sa internet para i-sync ngayon.",
+    alertReminderDesc: "Naka-iskedyul na paalala sa paggamot para sa inyong {crop} tungkol sa {disease}.",
+    noAlertsTitle: "Wala Pang Alerto",
+    noAlertsDesc: "Walang aktibong alerto sa ngayon. Aabisuhan ka namin kapag may kailangang pansinin.",
+
+    //profile screen
+    savingProfile: "Sini-save...",
+    profileSavedTitle: "Na-save ang Profile",
+    profileSavedDesc: "Na-update na ang iyong profile.",
+    profileErrorTitle: "Hindi Na-save",
+    profileLoadErrorTitle: "Hindi Na-load ang Profile",
   },
 
   ceb: {
@@ -620,7 +650,22 @@ export const translations = {
     invalidEmailTitle: "Sayop nga Email",
     invalidEmailDesc: "Palihug pagbutang og sakto nga email address.",
     loginFailedTitle: "Wala Naka-login",
+
+
+    //weather risk screen
+    alertWeatherRiskDesc: "{temp}°C, {humidity}% kaumog, {rain}% tsansa sa ulan — paborable ang kondisyon para sa paspas nga pagkatap sa sakit.",
+    alertBlightNearbyDesc: "{count} ka uma sa inyong barangay ang nagreport og {disease} bag-ohay. Panalipdi ang inyong tanom.",
+    alertPendingDescDynamic: "Naa moy {count} ka record nga naghulat i-sync. Konekta sa internet para i-sync karon.",
+    alertReminderDesc: "Naka-iskedyul nga pahinumdom sa tambal para sa inyong {crop} bahin sa {disease}.",
+    noAlertsTitle: "Walay Alerto",
+    noAlertsDesc: "Walay aktibo nga alerto karon. Pahibaw-on ka namo kung naa nay kinahanglan tagdon.",
     
+    //profile screen
+    savingProfile: "Gina-save...",
+    profileSavedTitle: "Na-save ang Profile",
+    profileSavedDesc: "Na-update na ang imong profile.",
+    profileErrorTitle: "Wala Na-save",
+    profileLoadErrorTitle: "Wala Na-load ang Profile",
   },
 };
 

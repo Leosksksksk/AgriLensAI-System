@@ -52,23 +52,27 @@ export default function ScanScreen({ navigation }) {
     setShowCamera(true);
   }
 
-  // Runs the real, on-device pixel analysis. Independent of the network upload
+  // Runs the real, on-device pixel analysis. Now returns the result
+  // directly so the caller can pass it straight to the upload step,
+  // instead of relying on possibly-stale React state.
   async function runAnalysis(uri) {
     setAnalyzing(true);
     setDiagnosis(null);
     try {
       const result = await analyzeLeaf(uri);
       setDiagnosis(result);
+      return result;
     } catch (e) {
       console.warn('Analysis error:', e);
       setDiagnosis(null);
+      return null;
     } finally {
       setAnalyzing(false);
     }
   }
 
   // Helper function to handle the Supabase storage upload and database sync
-  async function uploadAndSyncToSupabase(uri) {
+  async function uploadAndSyncToSupabase(uri, diagnosisResult) {
     try {
       setUploading(true);
 
@@ -94,9 +98,18 @@ export default function ScanScreen({ navigation }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No active session. Please log in again.');
 
+      // Store the real on-device diagnosis alongside the scan — this
+      // powers the nearby-outbreak alerts and future history views.
       const { error: dbError } = await supabase
         .from('scan_results')
-        .insert([{ image_url: publicUrl, status: 'Pending AI Analysis', farmer_id: user.id }]);
+        .insert([{
+          image_url: publicUrl,
+          status: 'Pending AI Analysis',
+          farmer_id: user.id,
+          disease_id: diagnosisResult?.diseaseId ?? null,
+          damage_percent: diagnosisResult?.damagePercent ?? null,
+          severity: diagnosisResult?.severity ?? null,
+        }]);
 
       if (dbError) throw dbError;
 
@@ -109,10 +122,12 @@ export default function ScanScreen({ navigation }) {
     }
   }
 
-  function handleImageReady(uri) {
-    setImageUri(uri);        // Analysis (local) and upload (network) run independently — analysis
-    runAnalysis(uri);       // doesn't need to wait for or depend on the network call succeeding.
-    uploadAndSyncToSupabase(uri);
+  async function handleImageReady(uri) {
+    setImageUri(uri);
+    // Wait for analysis to finish before uploading, so the real
+    // diagnosis is available to save alongside the scan record.
+    const result = await runAnalysis(uri);
+    uploadAndSyncToSupabase(uri, result);
   }
 
   async function handleUploadPhoto() {
@@ -326,7 +341,7 @@ const styles = StyleSheet.create({
   cornerBL: { position: 'absolute', bottom: 20, left: 20, width: 26, height: 26, borderBottomWidth: 2, borderLeftWidth: 2, borderColor: colors.white },
   cornerBR: { position: 'absolute', bottom: 20, right: 20, width: 26, height: 26, borderBottomWidth: 2, borderRightWidth: 2, borderColor: colors.white },
   buttonRow: { flexDirection: 'row', gap: 12, marginBottom: 14 },
-  
+
   /* Upload Photo (Outline Button) */
   outlineBtn: {
     flex: 1,
@@ -340,24 +355,24 @@ const styles = StyleSheet.create({
   outlineBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13 },
 
   /* Take Photo (Filled Button) */
-  filledBtn: { 
-    flex: 1, 
-    backgroundColor: '#2E7D32', 
-    borderRadius: 10, 
-    paddingVertical: 14, 
-    alignItems: 'center' 
+  filledBtn: {
+    flex: 1,
+    backgroundColor: '#2E7D32',
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: 'center'
   },
   filledBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13 },
 
   /* Scan Leaf Button */
-  scanBtn: { 
-    backgroundColor: '#4CAF50', 
-    borderRadius: 10, 
-    paddingVertical: 16, 
-    alignItems: 'center', 
-    marginBottom: 12 
+  scanBtn: {
+    backgroundColor: '#4CAF50',
+    borderRadius: 10,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginBottom: 12
   },
-  scanBtnText: { color: '#09150B', fontWeight: '800', fontSize: 15 }, // Dark green on light green for high readability
+  scanBtnText: { color: '#09150B', fontWeight: '800', fontSize: 15 },
 
   /* Offline AI Button ("Susihon gamit ang Offline AI") */
   analyzeBtn: {
@@ -370,7 +385,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  analyzeBtnText: { color: '#A2E0A2', fontWeight: '800', fontSize: 14 }, // Bright mint green text
+  analyzeBtnText: { color: '#A2E0A2', fontWeight: '800', fontSize: 14 },
 
   cameraControls: {
     position: 'absolute',
