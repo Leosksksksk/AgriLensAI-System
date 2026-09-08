@@ -1,6 +1,6 @@
 // src/screens/ResultsScreen.js
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
@@ -26,6 +26,7 @@ export default function ResultsScreen({ route, navigation }) {
     damagePercent: 0,
     severity: 'None',
     confidence: 0.5,
+    onlineInfo: null,
   };
   const cropLabel = route?.params?.cropLabel ?? t('defaultCropLabel');
 
@@ -33,6 +34,7 @@ export default function ResultsScreen({ route, navigation }) {
   const diseaseName = t(profile.nameKey);
   const diseaseDesc = t(profile.descKey);
   const severityLabel = t(`severity${diagnosis.severity}`);
+  const onlineInfo = diagnosis.onlineInfo;
 
   const activeStage = PROGRESSION_STAGES.find((s) => diagnosis.damagePercent >= s.threshold);
 
@@ -121,6 +123,40 @@ export default function ResultsScreen({ route, navigation }) {
           </View>
         </View>
 
+        {/* ONLINE REFERENCE INFO — from plantInfoLookupService.enrichDiagnosis() */}
+        {onlineInfo && (
+          <View style={styles.card}>
+            <View style={styles.onlineHeaderRow}>
+              <Ionicons name="globe-outline" size={16} color={colors.textMuted} />
+              <Text style={styles.sectionTitle}>{t('referenceInfoTitle')}</Text>
+            </View>
+
+            {onlineInfo.isOffline && (
+              <View style={styles.offlinePill}>
+                <Ionicons name="cloud-offline-outline" size={13} color={colors.textMuted} />
+                <Text style={styles.offlinePillText}>{t('referenceInfoOffline')}</Text>
+              </View>
+            )}
+
+            {onlineInfo.verified === false && (
+              <View style={styles.unverifiedPill}>
+                <Ionicons name="alert-circle-outline" size={14} color={colors.warning} />
+                <Text style={styles.unverifiedPillText}>{t('referenceInfoUnverified')}</Text>
+              </View>
+            )}
+
+            {!!onlineInfo.summary && (
+              <Text style={styles.onlineSummary}>{onlineInfo.summary}</Text>
+            )}
+
+            {!!onlineInfo.sourceUrl && (
+              <TouchableOpacity onPress={() => Linking.openURL(onlineInfo.sourceUrl)}>
+                <Text style={styles.sourceLink}>{t('referenceInfoSourceLink')}</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+
         {diagnosis.diseaseId !== 'healthy' && (
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>{t('diseaseProgression')}</Text>
@@ -194,6 +230,33 @@ const styles = StyleSheet.create({
   confidenceTrack: { height: 8, backgroundColor: colors.border, borderRadius: 4, overflow: 'hidden' },
   confidenceFill: { height: 8, backgroundColor: colors.primary },
   sectionTitle: { fontWeight: '800', fontSize: 16, color: colors.textDark, marginBottom: 14 },
+
+  onlineHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+  offlinePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.border,
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    alignSelf: 'flex-start',
+  },
+  offlinePillText: { fontSize: 11, color: colors.textMuted, fontWeight: '600' },
+  unverifiedPill: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    backgroundColor: colors.warningBg,
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 10,
+  },
+  unverifiedPillText: { flex: 1, fontSize: 12, color: colors.textDark, fontWeight: '600' },
+  onlineSummary: { fontSize: 13, color: colors.textMuted, lineHeight: 19 },
+  sourceLink: { marginTop: 10, fontSize: 12, color: colors.primary, fontWeight: '700' },
+
   progressionRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   dot: { width: 10, height: 10, borderRadius: 5, marginRight: 12 },
   progressionLabel: { fontSize: 14, color: colors.textMuted },

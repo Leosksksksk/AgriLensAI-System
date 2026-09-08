@@ -15,6 +15,7 @@ const ALERT_TYPE_STYLES = {
 };
 
 function interpolate(template, values, t) {
+  if (!template) return '';
   let result = template;
   Object.entries(values || {}).forEach(([key, value]) => {
     const isKeyRef = key.endsWith('NameKey');
@@ -32,9 +33,15 @@ export default function AlertsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Safely fetch alerts and catch network/weather offline errors
   const loadAlerts = useCallback(async () => {
-    const feed = await buildAlertsFeed();
-    setAlerts(feed);
+    try {
+      const feed = await buildAlertsFeed();
+      setAlerts(feed || []);
+    } catch (error) {
+      console.warn('Alerts feed offline/fetch error:', error);
+      // Suppresses uncaught fetch error toasts when offline
+    }
   }, []);
 
   useEffect(() => {
@@ -70,9 +77,16 @@ export default function AlertsScreen() {
             </View>
           ) : (
             alerts.map((alert) => {
-              const style = ALERT_TYPE_STYLES[alert.type];
+              const style = ALERT_TYPE_STYLES[alert.type] || ALERT_TYPE_STYLES.INFO;
+
+              // Interpolate dynamic title values (e.g. {diseaseName} Nearby)
+              const titleTemplate = t(alert.titleKey);
+              const title = interpolate(titleTemplate, alert.titleValues || alert.descValues, t);
+
+              // Interpolate description template
               const descTemplate = t(alert.descKey);
               const desc = interpolate(descTemplate, alert.descValues, t);
+
               return (
                 <View
                   key={alert.id}
@@ -84,7 +98,7 @@ export default function AlertsScreen() {
                     </View>
                     <Text style={styles.time}>{alert.time}</Text>
                   </View>
-                  <Text style={styles.title}>{t(alert.titleKey)}</Text>
+                  <Text style={styles.title}>{title}</Text>
                   <Text style={styles.desc}>{desc}</Text>
                 </View>
               );
@@ -98,7 +112,7 @@ export default function AlertsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  header: { backgroundColor: colors.primaryDark, paddingTop: 54, paddingBottom: 16, paddingHorizontal: 20 },
+  header: { backgroundColor: colors.primaryDark, paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20 },
   headerTitle: { color: colors.white, fontSize: 22, fontWeight: '800' },
   centerFill: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   body: { padding: 20, paddingBottom: 40, flexGrow: 1 },

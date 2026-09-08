@@ -22,25 +22,37 @@ export async function getCurrentCoords() {
 }
 
 export async function fetchWeatherRisk() {
-  const { latitude, longitude } = await getCurrentCoords();
+  try {
+    const { latitude, longitude } = await getCurrentCoords();
 
-  const url =
-    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}` +
-    `&current=temperature_2m,relative_humidity_2m,precipitation_probability` +
-    `&timezone=auto`;
+    const url =
+      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}` +
+      `&current=temperature_2m,relative_humidity_2m,precipitation_probability` +
+      `&timezone=auto`;
 
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Weather API error: HTTP ${response.status}`);
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Weather API error: HTTP ${response.status}`);
 
-  const data = await response.json();
-  const current = data.current ?? {};
+    const data = await response.json();
+    const current = data.current ?? {};
 
-  const temperature = current.temperature_2m ?? 28;
-  const humidity = current.relative_humidity_2m ?? 70;
-  const rainProbability = current.precipitation_probability ?? 0;
+    const temperature = current.temperature_2m ?? 28;
+    const humidity = current.relative_humidity_2m ?? 70;
+    const rainProbability = current.precipitation_probability ?? 0;
 
-  const score = (humidity / 100) * 0.6 + (rainProbability / 100) * 0.4;
-  const riskLevel = score >= 0.65 ? 'High' : score >= 0.4 ? 'Moderate' : 'Low';
+    const score = (humidity / 100) * 0.6 + (rainProbability / 100) * 0.4;
+    const riskLevel = score >= 0.65 ? 'High' : score >= 0.4 ? 'Moderate' : 'Low';
 
-  return { temperature, humidity, rainProbability, riskLevel };
+    return { temperature, humidity, rainProbability, riskLevel };
+  } catch (e) {
+    console.warn('Weather service offline/network error, using safe fallbacks:', e);
+    // Returns default fallback data when offline instead of throwing UnknownHostException to UI
+    return {
+      temperature: 28,
+      humidity: 70,
+      rainProbability: 0,
+      riskLevel: 'Moderate',
+      isOffline: true,
+    };
+  }
 }

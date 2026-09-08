@@ -94,6 +94,12 @@ export const translations = {
     defaultCropLabel: "Tomato Leaf",
     defaultDiseaseDetected: "Early Blight Detected",
 
+    // ---- Reference Info card (Results screen — plantInfoLookupService) ----
+    referenceInfoTitle: "Reference Info",
+    referenceInfoOffline: "Offline — showing saved reference info",
+    referenceInfoUnverified: "Couldn't verify this result against reference data. Consider rescanning with a clearer photo.",
+    referenceInfoSourceLink: "View source ↗",
+
     //Treatment Plan screen
     defaultDisease: "Early Blight",
     defaultCrop: "Tomato",
@@ -365,6 +371,12 @@ export const translations = {
     progSlightDiscoloration: "Bahagyang Pagbabago ng Kulay",
     defaultCropLabel: "Dahon ng Kamatis",
     defaultDiseaseDetected: "Natukoy ang Early Blight",
+
+    // ---- Reference Info card (Results screen — plantInfoLookupService) ----
+    referenceInfoTitle: "Impormasyon sa Sanggunian",
+    referenceInfoOffline: "Offline — ipinapakita ang naka-save na sanggunian",
+    referenceInfoUnverified: "Hindi na-verify ang resultang ito laban sa sanggunian. Subukang mag-scan muli gamit ang mas malinaw na litrato.",
+    referenceInfoSourceLink: "Tingnan ang pinagmulan ↗",
 
     //Treatment Plan screen
     defaultDisease: "Early Blight",
@@ -638,6 +650,12 @@ export const translations = {
     progSlightDiscoloration: "Gamay nga Pagkausab sa Kolor",
     defaultCropLabel: "Dahon sa Kamatis",
     defaultDiseaseDetected: "Nakit-an ang Early Blight",
+
+    // ---- Reference Info card (Results screen — plantInfoLookupService) ----
+    referenceInfoTitle: "Impormasyon sa Sanggunian",
+    referenceInfoOffline: "Offline — gipakita ang na-save nga sanggunian",
+    referenceInfoUnverified: "Wala ma-verify kini nga resulta batok sa sanggunian. Sulayi pag-scan pag-usab gamit ang mas klaro nga litrato.",
+    referenceInfoSourceLink: "Tan-awa ang gigikanan ↗",
 
     //Treatment Plan screen
     defaultDisease: "Early Blight",

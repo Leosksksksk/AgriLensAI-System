@@ -12,6 +12,7 @@ import { supabase } from '../../supabaseClient';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
 import { analyzeLeaf } from '../services/aiEngineService';
+import { enrichDiagnosis } from '../services/plantInfoLookupService';
 import { getDueReminders, dismissReminder } from '../utils/reminderStorage';
 
 export default function ScanScreen({ navigation }) {
@@ -54,7 +55,9 @@ export default function ScanScreen({ navigation }) {
   }
 
   // Runs the real, on-device pixel analysis, including the plant-detection
-  // gate. Returns the result directly so the caller can decide whether to
+  // gate, then enriches a positive plant match with real reference data
+  // (symptom description + plausibility check) from plantInfoLookupService.
+  // Returns the result directly so the caller can decide whether to
   // proceed with upload/navigation without depending on stale React state.
   async function runAnalysis(uri) {
     setAnalyzing(true);
@@ -62,13 +65,20 @@ export default function ScanScreen({ navigation }) {
     setNotPlantWarning(false);
     try {
       const result = await analyzeLeaf(uri);
+
       if (result.isPlant === false) {
         setNotPlantWarning(true);
         setDiagnosis(null);
-      } else {
-        setDiagnosis(result);
+        return result;
       }
-      return result;
+
+      // Enrich with an online reference summary + plausibility check.
+      // enrichDiagnosis() already falls back to local static text and
+      // isOffline: true if there's no connection or the lookup fails,
+      // so this is safe to call unconditionally here.
+      const enrichedResult = await enrichDiagnosis(result);
+      setDiagnosis(enrichedResult);
+      return enrichedResult;
     } catch (e) {
       console.warn('Analysis error:', e);
       setDiagnosis(null);
@@ -114,6 +124,12 @@ export default function ScanScreen({ navigation }) {
           disease_id: diagnosisResult?.diseaseId ?? null,
           damage_percent: diagnosisResult?.damagePercent ?? null,
           severity: diagnosisResult?.severity ?? null,
+          // NOTE: `online_info` isn't in your scan_results schema yet.
+          // Add a jsonb column (e.g. `alter table scan_results add column
+          // online_info jsonb;`) if you want to persist the reference
+          // summary/verification alongside the scan. Left commented out
+          // until that column exists, to avoid breaking the insert:
+          // online_info: diagnosisResult?.onlineInfo ?? null,
         }]);
 
       if (dbError) throw dbError;
