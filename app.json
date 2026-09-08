@@ -27,7 +27,20 @@
       }
     },
     "android": {
-      "package": "com.junrel.agrilensai"
+      "package": "com.junrel.agrilensai",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "runtimeVersion": "1.0.0"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c3941f92-ffaa-4510-aa9e-522a3857bb77"
+    },
+    "ios": {
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     }
   }
 }
