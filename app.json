@@ -12,7 +12,7 @@
         {
           "image": "./assets/icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#09150B"
+          "backgroundColor": "#1B4330"
         }
       ],
       [
@@ -35,7 +35,11 @@
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ],
-      "runtimeVersion": "1.0.0"
+      "runtimeVersion": "1.0.0",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#1B4330"
+      }
     },
     "updates": {
       "url": "https://u.expo.dev/c3941f92-ffaa-4510-aa9e-522a3857bb77"
