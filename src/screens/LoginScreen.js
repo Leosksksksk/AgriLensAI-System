@@ -50,7 +50,7 @@ export default function LoginScreen({ navigation }) {
       navigation.navigate('OtpVerify', { email: email.trim(), phone });
 
     } catch (error) {
-      console.error(error);
+      console.warn(error);
       Alert.alert(t('loginFailedTitle'), error.message);
     } finally {
       setLoading(false);

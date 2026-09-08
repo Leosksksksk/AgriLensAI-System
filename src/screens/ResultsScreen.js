@@ -77,7 +77,7 @@ export default function ResultsScreen({ route, navigation }) {
       Speech.speak(textToRead, {
         language: speechLang,
         voice: maleVoice ? maleVoice.identifier : undefined,
-        pitch: 0.70, // Lower pitch deepens the tone to sound distinctly male
+        pitch: 1.2, // Lower pitch deepens the tone to sound distinctly male
         rate: 0.90, // Slightly lower speed for clarity / reading speed
         onDone: () => setPlaying(false),
         onStopped: () => setPlaying(false),
@@ -141,7 +141,7 @@ export default function ResultsScreen({ route, navigation }) {
         {/* FUNCTIONAL AUDIO DIAGNOSIS BUTTON */}
         <TouchableOpacity
           style={styles.audioBar}
-          activeOpacity={0.85}
+          activeOpacity={0.40}
           onPress={handleToggleAudio}
         >
           <Ionicons name={playing ? 'square' : 'play'} size={20} color={colors.white} />

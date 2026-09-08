@@ -24,6 +24,7 @@ export default function ScanScreen({ navigation }) {
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [diagnosis, setDiagnosis] = useState(null);
+  const [notPlantWarning, setNotPlantWarning] = useState(false);
   const cameraRef = useRef(null);
   const [dueReminders, setDueReminders] = useState([]);
 
@@ -52,15 +53,21 @@ export default function ScanScreen({ navigation }) {
     setShowCamera(true);
   }
 
-  // Runs the real, on-device pixel analysis. Now returns the result
-  // directly so the caller can pass it straight to the upload step,
-  // instead of relying on possibly-stale React state.
+  // Runs the real, on-device pixel analysis, including the plant-detection
+  // gate. Returns the result directly so the caller can decide whether to
+  // proceed with upload/navigation without depending on stale React state.
   async function runAnalysis(uri) {
     setAnalyzing(true);
     setDiagnosis(null);
+    setNotPlantWarning(false);
     try {
       const result = await analyzeLeaf(uri);
-      setDiagnosis(result);
+      if (result.isPlant === false) {
+        setNotPlantWarning(true);
+        setDiagnosis(null);
+      } else {
+        setDiagnosis(result);
+      }
       return result;
     } catch (e) {
       console.warn('Analysis error:', e);
@@ -98,8 +105,6 @@ export default function ScanScreen({ navigation }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No active session. Please log in again.');
 
-      // Store the real on-device diagnosis alongside the scan — this
-      // powers the nearby-outbreak alerts and future history views.
       const { error: dbError } = await supabase
         .from('scan_results')
         .insert([{
@@ -124,9 +129,15 @@ export default function ScanScreen({ navigation }) {
 
   async function handleImageReady(uri) {
     setImageUri(uri);
-    // Wait for analysis to finish before uploading, so the real
-    // diagnosis is available to save alongside the scan record.
     const result = await runAnalysis(uri);
+
+    if (!result || result.isPlant === false) {
+      // Don't waste storage/bandwidth uploading a non-plant photo, and
+      // don't let the farmer proceed to a meaningless diagnosis.
+      Alert.alert(t('notAPlantTitle'), t('notAPlantDesc'));
+      return;
+    }
+
     uploadAndSyncToSupabase(uri, result);
   }
 
@@ -154,6 +165,10 @@ export default function ScanScreen({ navigation }) {
     }
     if (analyzing) {
       Alert.alert('Still analyzing', 'Please wait a moment while we finish analyzing your leaf photo.');
+      return;
+    }
+    if (notPlantWarning) {
+      Alert.alert(t('notAPlantTitle'), t('notAPlantDesc'));
       return;
     }
     if (!diagnosis) {
@@ -249,6 +264,12 @@ export default function ScanScreen({ navigation }) {
               <Text style={styles.analyzingText}>{t('analyzingImage')}</Text>
             </View>
           )}
+          {!analyzing && notPlantWarning && (
+            <View style={styles.notPlantOverlay}>
+              <Ionicons name="alert-circle" size={16} color={colors.white} />
+              <Text style={styles.notPlantText}>{t('notAPlantBanner')}</Text>
+            </View>
+          )}
         </View>
 
         {/* UPLOAD & TAKE PHOTO BUTTONS */}
@@ -336,13 +357,25 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   analyzingText: { color: colors.white, fontSize: 12, fontWeight: '600' },
+  notPlantOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.danger,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    gap: 8,
+  },
+  notPlantText: { color: colors.white, fontSize: 12, fontWeight: '700' },
   cornerTL: { position: 'absolute', top: 20, left: 20, width: 26, height: 26, borderTopWidth: 2, borderLeftWidth: 2, borderColor: colors.white },
   cornerTR: { position: 'absolute', top: 20, right: 20, width: 26, height: 26, borderTopWidth: 2, borderRightWidth: 2, borderColor: colors.white },
   cornerBL: { position: 'absolute', bottom: 20, left: 20, width: 26, height: 26, borderBottomWidth: 2, borderLeftWidth: 2, borderColor: colors.white },
   cornerBR: { position: 'absolute', bottom: 20, right: 20, width: 26, height: 26, borderBottomWidth: 2, borderRightWidth: 2, borderColor: colors.white },
   buttonRow: { flexDirection: 'row', gap: 12, marginBottom: 14 },
 
-  /* Upload Photo (Outline Button) */
   outlineBtn: {
     flex: 1,
     borderWidth: 1,
@@ -354,7 +387,6 @@ const styles = StyleSheet.create({
   },
   outlineBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13 },
 
-  /* Take Photo (Filled Button) */
   filledBtn: {
     flex: 1,
     backgroundColor: '#2E7D32',
@@ -364,7 +396,6 @@ const styles = StyleSheet.create({
   },
   filledBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13 },
 
-  /* Scan Leaf Button */
   scanBtn: {
     backgroundColor: '#4CAF50',
     borderRadius: 10,
@@ -374,7 +405,6 @@ const styles = StyleSheet.create({
   },
   scanBtnText: { color: '#09150B', fontWeight: '800', fontSize: 15 },
 
-  /* Offline AI Button ("Susihon gamit ang Offline AI") */
   analyzeBtn: {
     backgroundColor: '#112214',
     borderWidth: 1,

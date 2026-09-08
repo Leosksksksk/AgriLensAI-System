@@ -6,20 +6,18 @@ import { decode as decodeBase64 } from 'base64-arraybuffer';
 /**
  * On-device leaf analysis engine.
  *
- * IMPORTANT — read before treating this as a trained AI model:
- * This decodes the actual captured photo's pixels and measures real HSV
- * color-discoloration ratios (brown/necrotic = blight, black spotting with
- * yellow halo = leaf spot, white film = powdery mildew, orange pustules =
- * rust) to classify disease + severity. It is a genuine, deterministic
- * analysis of the real image — not a fake/random result — but it is a
- * rule-based heuristic, not a trained convolutional neural network.
- * Training an actual CNN requires a labeled leaf-disease dataset and a
- * training pipeline, which is a separate project on its own.
+ * Plant-detection gate: requires a meaningful proportion of the photo's
+ * pixels to fall into SATURATED leaf-color hues (green, yellow, orange,
+ * brown) — not just any dark or light pixel. Earlier versions treated
+ * "black spot" and "white mildew" matches (essentially: any dark pixel,
+ * any light-gray pixel) as evidence of plant content, which incorrectly
+ * passed non-plant photos containing black/gray/dark elements (keyboards,
+ * electronics, code editor screenshots with colorful syntax highlighting,
+ * etc). Real chromatic content — actual green/brown/yellow/orange hues —
+ * is now required as the primary signal; achromatic buckets only refine
+ * severity once a photo has already qualified as plant-like.
  */
 export async function analyzeLeaf(imageUri) {
-  // Downscale first: faster decode, and normalizes input regardless of
-  // whether the original was JPEG or PNG (manipulateAsync always outputs
-  // the format we ask for).
   const manipulated = await ImageManipulator.manipulateAsync(
     imageUri,
     [{ resize: { width: 200 } }],
@@ -36,7 +34,7 @@ export async function analyzeLeaf(imageUri) {
     throw new Error('Could not analyze this photo. Please try a clearer image.');
   }
 
-  const { width, height, data } = rawImageData; // data = RGBA, 4 bytes per pixel
+  const { width, height, data } = rawImageData;
 
   let totalLeafPixels = 0;
   let healthyGreenPixels = 0;
@@ -46,7 +44,7 @@ export async function analyzeLeaf(imageUri) {
   let orangeRustPixels = 0;
   let yellowChloroticPixels = 0;
 
-  const step = 2; // sample every 2nd pixel for speed — negligible accuracy loss
+  const step = 2;
   for (let y = 0; y < height; y += step) {
     for (let x = 0; x < width; x += step) {
       const idx = (y * width + x) * 4;
@@ -56,7 +54,6 @@ export async function analyzeLeaf(imageUri) {
 
       const [h, s, v] = rgbToHsv(r, g, b);
 
-      // Skip background: near-white or near-black low-saturation pixels
       const isBackground = (v > 0.92 && s < 0.12) || v < 0.06;
       if (isBackground) continue;
 
@@ -90,7 +87,27 @@ export async function analyzeLeaf(imageUri) {
   }
 
   if (totalLeafPixels === 0) {
-    return { diseaseId: 'healthy', damagePercent: 0, severity: 'Unknown', confidence: 0.1 };
+    return { isPlant: false, diseaseId: null, damagePercent: 0, severity: 'Unknown', confidence: 0 };
+  }
+
+  // Chromatic (colorful, saturated) leaf-hue content — the real signal.
+  // Achromatic content (black spots, white film) doesn't count toward
+  // this gate on its own, since grays/blacks/whites appear in countless
+  // non-plant subjects (electronics, fabric, walls, shadows).
+  const chromaticPixels = healthyGreenPixels + yellowChloroticPixels + orangeRustPixels + brownNecroticPixels;
+  const chromaticRatio = chromaticPixels / totalLeafPixels;
+
+  const CHROMATIC_THRESHOLD = 0.20;
+
+  if (chromaticRatio < CHROMATIC_THRESHOLD) {
+    return {
+      isPlant: false,
+      diseaseId: null,
+      damagePercent: 0,
+      severity: 'Unknown',
+      confidence: 0,
+      chromaticRatio: Number(chromaticRatio.toFixed(2)),
+    };
   }
 
   const damagedPixels =
@@ -98,11 +115,23 @@ export async function analyzeLeaf(imageUri) {
 
   const damagePercent = Math.min(100, (damagedPixels / totalLeafPixels) * 100);
 
+    // Mapped to tomato-specific disease ids (per the "tomatoleaf" Kaggle
+  // dataset's 10-class label set) instead of generic names, since these
+  // are the 4 disease signatures this color-based engine can actually
+  // distinguish from each other:
+  //  - brown/necrotic patches      -> Early Blight
+  //  - dark spotting + yellow halo -> Septoria Leaf Spot
+  //  - pale/white surface film     -> Leaf Mold
+  //  - orange/tan concentric marks -> Target Spot
+  // The other 5 tomato diseases in the dataset (Bacterial Spot, Late
+  // Blight, Spider Mites, TYLCV, Mosaic Virus) are NOT visually
+  // distinguishable from these 4 with a color-only heuristic — they
+  // exist in diseaseCatalog.js as reference data only.
   const signatureCounts = {
-    leafBlight: brownNecroticPixels,
-    leafSpot: blackSpotPixels + Math.floor(yellowChloroticPixels / 2),
-    powderyMildew: whiteMildewPixels,
-    leafRust: orangeRustPixels,
+    tomatoEarlyBlight: brownNecroticPixels,
+    tomatoSeptoriaLeafSpot: blackSpotPixels + Math.floor(yellowChloroticPixels / 2),
+    tomatoLeafMold: whiteMildewPixels,
+    tomatoTargetSpot: orangeRustPixels,
   };
 
   let dominantId = 'healthy';
@@ -125,6 +154,7 @@ export async function analyzeLeaf(imageUri) {
       : Math.min(0.9, Math.max(0.55, 0.55 + signalRatio));
 
   return {
+    isPlant: true,
     diseaseId,
     damagePercent: Number(damagePercent.toFixed(1)),
     severity,
