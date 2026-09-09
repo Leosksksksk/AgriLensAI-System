@@ -42,9 +42,7 @@ export default function IntroScreen({ navigation }) {
         return;
       }
 
-      // Check for a real, already-verified session (from a previous
-      // successful email OTP login). If one exists, skip Login entirely
-      // and go straight into the app.
+      // Check for a real, already-verified session
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session && !session.user.is_anonymous) {
@@ -163,7 +161,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   appName: {
-    color: colors.white,
+    color: '#FFFFFF', // Set to explicit pure white hex
     fontSize: 28,
     fontWeight: '800',
     letterSpacing: 0.5,
