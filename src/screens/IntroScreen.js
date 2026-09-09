@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   appName: {
-    color: colors.white,
+    color: '#FFFFFF', // Updated to explicit white hex for full visibility
     fontSize: 28,
     fontWeight: '800',
     letterSpacing: 0.5,
