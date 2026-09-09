@@ -1,11 +1,13 @@
 // App.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import * as Updates from 'expo-updates';
 
-import { LanguageProvider } from './src/context/LanguageContext';
+import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
 import BottomTabBar from './src/components/BottomTabBar';
 import IntroScreen from './src/screens/IntroScreen';
 import LanguageSelectScreen from './src/screens/LanguageSelectScreen';
@@ -41,9 +43,46 @@ function MainTabs() {
   );
 }
 
+function UpdateNotifier() {
+  const { t } = useLanguage();
+
+  useEffect(() => {
+    async function checkForUpdates() {
+      try {
+        if (__DEV__) return;
+
+        const update = await Updates.checkForUpdateAsync();
+
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          
+          Alert.alert(
+            t('updateAvailableTitle'),
+            t('updateAvailableDesc'),
+            [
+              {
+                text: t('updateNow'),
+                onPress: () => Updates.reloadAsync(),
+              },
+            ],
+            { cancelable: false }
+          );
+        }
+      } catch (error) {
+        console.warn('Error checking for updates:', error);
+      }
+    }
+
+    checkForUpdates();
+  }, [t]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <LanguageProvider>
+      <UpdateNotifier />
       <NavigationContainer>
         <StatusBar style="light" />
         <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
