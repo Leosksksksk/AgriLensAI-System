@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import { View, Text, Image, StyleSheet, Animated } from 'react-native';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
+import { supabase } from '../../supabaseClient';
 
 export default function IntroScreen({ navigation }) {
   const { t, hasSelectedLanguage, isLoading } = useLanguage();
@@ -33,9 +34,28 @@ export default function IntroScreen({ navigation }) {
       { iterations: 2 }
     ).start();
 
-    const timer = setTimeout(() => {
-      if (isLoading) return; // wait for AsyncStorage check to finish before routing
-      navigation.replace(hasSelectedLanguage ? 'Login' : 'LanguageSelect');
+    const timer = setTimeout(async () => {
+      if (isLoading) return; // wait for AsyncStorage language check to finish first
+
+      if (!hasSelectedLanguage) {
+        navigation.replace('LanguageSelect');
+        return;
+      }
+
+      // Check for a real, already-verified session (from a previous
+      // successful email OTP login). If one exists, skip Login entirely
+      // and go straight into the app.
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session && !session.user.is_anonymous) {
+          navigation.replace('MainTabs');
+          return;
+        }
+      } catch (e) {
+        console.warn('Session check error:', e);
+      }
+
+      navigation.replace('Login');
     }, 3200);
 
     return () => clearTimeout(timer);
@@ -143,7 +163,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   appName: {
-    color: '#FFFFFF', // Updated to explicit white hex for full visibility
+    color: colors.white,
     fontSize: 28,
     fontWeight: '800',
     letterSpacing: 0.5,

@@ -4,7 +4,6 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { LanguageProvider } from './src/context/LanguageContext';
 import BottomTabBar from './src/components/BottomTabBar';
@@ -22,10 +21,6 @@ import AlertsScreen from './src/screens/AlertsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
-
-// TEMPORARY — clears the stale saved language so LanguageSelect shows again.
-// Remove this line once you've confirmed the picker appears correctly.
-AsyncStorage.removeItem('agrilens_selected_language');
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();

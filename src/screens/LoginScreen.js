@@ -1,8 +1,9 @@
 // src/screens/LoginScreen.js
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../theme/colors';
 import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
@@ -24,15 +25,60 @@ function isValidEmail(email) {
 
 export default function LoginScreen({ navigation }) {
   const { t } = useLanguage();
+  const [fullName, setFullName] = useState('');
+  const [barangay, setBarangay] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  // Load saved user credentials on screen load
+  useEffect(() => {
+    const loadSavedCredentials = async () => {
+      try {
+        const savedName = await AsyncStorage.getItem('userFullName');
+        const savedBarangay = await AsyncStorage.getItem('userBarangay');
+        const savedEmail = await AsyncStorage.getItem('userEmail');
+        const savedPhone = await AsyncStorage.getItem('userPhone');
+
+        if (savedName) setFullName(savedName);
+        if (savedBarangay) setBarangay(savedBarangay);
+        if (savedEmail) setEmail(savedEmail);
+        if (savedPhone) setPhone(savedPhone);
+      } catch (error) {
+        console.warn('Failed to load saved credentials:', error);
+      }
+    };
+
+    loadSavedCredentials();
+  }, []);
+
+  // Handle 60-second cooldown timer for resending OTP
+  useEffect(() => {
+    let timer;
+    if (cooldown > 0) {
+      timer = setInterval(() => {
+        setCooldown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   const handlePhoneChange = (text) => {
     setPhone(formatPhoneNumber(text));
   };
 
   const handleSendOTP = async () => {
+    if (!fullName.trim()) {
+      Alert.alert('Required Field', 'Please enter your Full Name.');
+      return;
+    }
+
+    if (!barangay.trim()) {
+      Alert.alert('Required Field', 'Please enter your Barangay.');
+      return;
+    }
+
     if (!isValidEmail(email)) {
       Alert.alert(t('invalidEmailTitle'), t('invalidEmailDesc'));
       return;
@@ -41,17 +87,55 @@ export default function LoginScreen({ navigation }) {
     try {
       setLoading(true);
 
+      const cleanName = fullName.trim();
+      const cleanBarangay = barangay.trim();
+      const cleanEmail = email.trim();
+      const cleanPhone = phone.trim();
+
+      // Save user profile fields locally to the device
+      await AsyncStorage.setItem('userFullName', cleanName);
+      await AsyncStorage.setItem('userBarangay', cleanBarangay);
+      await AsyncStorage.setItem('userEmail', cleanEmail);
+      if (cleanPhone) {
+        await AsyncStorage.setItem('userPhone', cleanPhone);
+      }
+
+      // Pass user metadata to Supabase Authentication
       const { error } = await supabase.auth.signInWithOtp({
-        email: email.trim(),
+        email: cleanEmail,
+        options: {
+          data: {
+            full_name: cleanName,
+            barangay: cleanBarangay,
+            phone: cleanPhone,
+          },
+        },
       });
 
       if (error) throw error;
 
-      navigation.navigate('OtpVerify', { email: email.trim(), phone });
+      // Activate 60-second button cooldown
+      setCooldown(60);
+
+      navigation.navigate('OtpVerify', { 
+        email: cleanEmail, 
+        phone: cleanPhone,
+        fullName: cleanName,
+        barangay: cleanBarangay,
+      });
 
     } catch (error) {
       console.warn(error);
-      Alert.alert(t('loginFailedTitle'), error.message);
+
+      // Clean alert for Supabase email rate limits
+      if (error.message && error.message.includes('security purposes')) {
+        Alert.alert(
+          'Please Wait',
+          'A verification code was recently requested. Please wait a few seconds before trying again.'
+        );
+      } else {
+        Alert.alert(t('loginFailedTitle'), error.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -59,62 +143,97 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.headerContainer}>
-        <View style={styles.iconCircle}>
-          <Ionicons name="leaf" size={36} color="#4CD964" />
-        </View>
-        <Text style={styles.appName}>{t('appName')}</Text>
-        <Text style={styles.tagline}>{t('signInTagline')}</Text>
-      </View>
-
-      <View style={styles.formContainer}>
-        <Text style={styles.label}>{t('emailAddress')}</Text>
-        <View style={styles.inputWrapper}>
-          <TextInput
-            style={styles.fullInput}
-            placeholder="farmer@example.com"
-            placeholderTextColor={colors.textLight}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-            editable={!loading}
-          />
-        </View>
-        <Text style={styles.helperText}>{t('smsHelperText')}</Text>
-
-        <Text style={styles.label}>{t('mobileNumber')} (Optional)</Text>
-        <View style={styles.phoneRow}>
-          <View style={styles.prefixContainer}>
-            <Text style={styles.prefixText}>+63</Text>
+      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+        <View style={styles.headerContainer}>
+          <View style={styles.iconCircle}>
+            <Ionicons name="leaf" size={36} color="#4CD964" />
           </View>
-          <View style={styles.phoneInputContainer}>
+          <Text style={styles.appName}>{t('appName')}</Text>
+          <Text style={styles.tagline}>{t('signInTagline')}</Text>
+        </View>
+
+        <View style={styles.formContainer}>
+          {/* Full Name Input */}
+          <Text style={styles.label}>Full Name</Text>
+          <View style={styles.inputWrapper}>
             <TextInput
-              style={styles.phoneInput}
-              placeholder="9XX XXX XXXX"
+              style={styles.fullInput}
+              placeholder="Juan Dela Cruz"
               placeholderTextColor={colors.textLight}
-              keyboardType="number-pad"
-              value={phone}
-              onChangeText={handlePhoneChange}
-              maxLength={12}
+              autoCapitalize="words"
+              value={fullName}
+              onChangeText={setFullName}
               editable={!loading}
             />
           </View>
-        </View>
 
-        <TouchableOpacity
-          style={[styles.primaryBtn, loading && styles.btnDisabled]}
-          activeOpacity={0.85}
-          onPress={handleSendOTP}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color={colors.white} />
-          ) : (
-            <Text style={styles.primaryBtnText}>{t('sendVerificationCode')}</Text>
-          )}
-        </TouchableOpacity>
-      </View>
+          {/* Barangay Input */}
+          <Text style={styles.label}>Barangay</Text>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.fullInput}
+              placeholder="e.g. Banban"
+              placeholderTextColor={colors.textLight}
+              autoCapitalize="words"
+              value={barangay}
+              onChangeText={setBarangay}
+              editable={!loading}
+            />
+          </View>
+
+          {/* Email Address Input */}
+          <Text style={styles.label}>{t('emailAddress')}</Text>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.fullInput}
+              placeholder="farmer@example.com"
+              placeholderTextColor={colors.textLight}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
+              editable={!loading}
+            />
+          </View>
+          <Text style={styles.helperText}>{t('smsHelperText')}</Text>
+
+          {/* Mobile Number Input */}
+          <Text style={styles.label}>{t('mobileNumber')} (Optional)</Text>
+          <View style={styles.phoneRow}>
+            <View style={styles.prefixContainer}>
+              <Text style={styles.prefixText}>+63</Text>
+            </View>
+            <View style={styles.phoneInputContainer}>
+              <TextInput
+                style={styles.phoneInput}
+                placeholder="9XX XXX XXXX"
+                placeholderTextColor={colors.textLight}
+                keyboardType="number-pad"
+                value={phone}
+                onChangeText={handlePhoneChange}
+                maxLength={12}
+                editable={!loading}
+              />
+            </View>
+          </View>
+
+          {/* Submit Button */}
+          <TouchableOpacity
+            style={[styles.primaryBtn, (loading || cooldown > 0) && styles.btnDisabled]}
+            activeOpacity={0.85}
+            onPress={handleSendOTP}
+            disabled={loading || cooldown > 0}
+          >
+            {loading ? (
+              <ActivityIndicator color={colors.white} />
+            ) : (
+              <Text style={styles.primaryBtnText}>
+                {cooldown > 0 ? `Resend code in ${cooldown}s` : t('sendVerificationCode')}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -124,12 +243,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.primaryDark,
   },
+  scrollContainer: {
+    flexGrow: 1,
+  },
   headerContainer: {
     backgroundColor: colors.primaryDark,
     alignItems: 'center',
-    paddingVertical: 40,
+    paddingVertical: 30,
     paddingHorizontal: 20,
-    position: 'relative',
   },
   iconCircle: {
     width: 70,
@@ -155,7 +276,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
     paddingHorizontal: 24,
-    paddingTop: 32,
+    paddingTop: 24,
+    paddingBottom: 32,
   },
   label: {
     fontSize: 13,
@@ -163,7 +285,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   inputWrapper: {
-    marginBottom: 8,
+    marginBottom: 16,
   },
   fullInput: {
     borderWidth: 1,
@@ -177,7 +299,7 @@ const styles = StyleSheet.create({
   },
   phoneRow: {
     flexDirection: 'row',
-    marginBottom: 32,
+    marginBottom: 24,
   },
   prefixContainer: {
     borderWidth: 1,
@@ -211,13 +333,15 @@ const styles = StyleSheet.create({
   helperText: {
     fontSize: 12,
     color: colors.textMuted,
-    marginBottom: 20,
+    marginTop: -8,
+    marginBottom: 16,
   },
   primaryBtn: {
     backgroundColor: colors.primary,
     borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
+    marginTop: 8,
     marginBottom: 12,
   },
   primaryBtnText: {

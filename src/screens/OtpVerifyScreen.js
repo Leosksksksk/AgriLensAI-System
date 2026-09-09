@@ -32,6 +32,18 @@ export default function OtpVerifyScreen({ route, navigation }) {
 
       const userId = data.session.user.id;
 
+      // Check BEFORE upserting whether a profile already existed — this
+      // tells us if this is a first-time signup (send to Onboarding to
+      // collect name/barangay) or a returning farmer (skip straight to
+      // MainTabs, since they already filled that in before).
+      const { data: existingFarmer } = await supabase
+        .from('farmers')
+        .select('id, full_name')
+        .eq('id', userId)
+        .maybeSingle();
+
+      const isReturningUser = !!existingFarmer?.full_name;
+
       const { error: upsertError } = await supabase.from('farmers').upsert(
         { id: userId, email, phone, preferred_language: language },
         { onConflict: 'id' }
@@ -39,7 +51,7 @@ export default function OtpVerifyScreen({ route, navigation }) {
 
       if (upsertError) throw upsertError;
 
-      navigation.replace('MainTabs');
+      navigation.replace(isReturningUser ? 'MainTabs' : 'Onboarding');
 
     } catch (error) {
       Alert.alert(t('verificationFailedTitle'), error.message);

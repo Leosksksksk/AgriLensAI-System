@@ -276,6 +276,14 @@ export const translations = {
     mosaicVirusAction1: "Remove and destroy infected plants immediately.",
     mosaicVirusAction2: "Disinfect tools and hands between handling different plants.",
     mosaicVirusAction3: "Use resistant varieties and control aphid populations.",
+
+    //onboarding screen
+    tellUsAboutYou: "Tell us about you",
+    fullNamePlaceholder: "e.g. Juan Dela Cruz",
+    barangayPlaceholder: "e.g. Bogo City, Cebu",
+    onboardingSaveErrorTitle: "Could Not Save",
+    nameRequiredTitle: "Full Name Required",
+    nameRequiredDesc: "Please enter your full name to continue.",
   },
 
 
@@ -555,6 +563,14 @@ export const translations = {
     mosaicVirusAction1: "Alisin at itapon agad ang apektadong tanim.",
     mosaicVirusAction2: "Linisin ang mga kagamitan at kamay sa pagitan ng paghawak ng ibang tanim.",
     mosaicVirusAction3: "Gumamit ng matibay na variety at kontrolin ang aphid.",
+
+    //onboarding screen
+    tellUsAboutYou: "Ikwento mo ang iyong sarili",
+    fullNamePlaceholder: "hal. Juan Dela Cruz",
+    barangayPlaceholder: "hal. Bogo City, Cebu",
+    onboardingSaveErrorTitle: "Hindi Na-save",
+    nameRequiredTitle: "Kailangan ng Buong Pangalan",
+    nameRequiredDesc: "Ilagay ang iyong buong pangalan para magpatuloy.",
   },
 
   ceb: {
@@ -834,6 +850,14 @@ export const translations = {
     mosaicVirusAction1: "Kuhaa ug ilabay dayon ang naapektuhan nga tanom.",
     mosaicVirusAction2: "Limpyoi ang mga gamit ug kamot sa pagbalhin gikan sa lain nga tanom.",
     mosaicVirusAction3: "Gamit og lig-on nga variety ug kontrolaha ang aphid.",
+
+    //onboarding screen
+    tellUsAboutYou: "Isulti kanamo bahin nimo",
+    fullNamePlaceholder: "pananglitan Juan Dela Cruz",
+    barangayPlaceholder: "pananglitan Bogo City, Cebu",
+    onboardingSaveErrorTitle: "Wala Na-save",
+    nameRequiredTitle: "Kinahanglan ang Bug-os nga Ngalan",
+    nameRequiredDesc: "Isulod ang imong bug-os nga ngalan para makapadayon.",
   },
 };
 

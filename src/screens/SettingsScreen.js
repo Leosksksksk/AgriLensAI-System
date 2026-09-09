@@ -1,18 +1,21 @@
 // src/screens/SettingsScreen.js
 import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Alert, Modal, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Alert, Modal, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { CommonActions } from '@react-navigation/native';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
+import { supabase } from '../../supabaseClient';
 
-export default function SettingsScreen() {
-  const { language, setLanguage, languages, languageLabels } = useLanguage();
+export default function SettingsScreen({ navigation }) {
+  const { language, setLanguage, languages, languageLabels, resetLanguageSelection } = useLanguage();
 
   const [notifications, setNotifications] = useState(true);
   const [offlineMode, setOfflineMode] = useState(true);
   const [cameraQuality, setCameraQuality] = useState('High');
   const [languagePickerVisible, setLanguagePickerVisible] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   function selectLanguage(lang) {
     setLanguage(lang);
@@ -25,10 +28,32 @@ export default function SettingsScreen() {
     setCameraQuality(options[(idx + 1) % options.length]);
   }
 
+    async function performLogOut() {
+    setLoggingOut(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      await resetLanguageSelection();
+
+      const rootNavigation = navigation.getParent() ?? navigation;
+      rootNavigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'LanguageSelect' }],
+        })
+      );
+    } catch (e) {
+      Alert.alert('Log Out Failed', e.message ?? 'Please try again.');
+    } finally {
+      setLoggingOut(false);
+    }
+  }
+
   function handleLogOut() {
     Alert.alert('Log out', 'Are you sure you want to log out?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Log Out', style: 'destructive', onPress: () => {} },
+      { text: 'Log Out', style: 'destructive', onPress: performLogOut },
     ]);
   }
 
@@ -104,8 +129,17 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogOut} activeOpacity={0.8}>
-          <Text style={styles.logoutText}>Log Out</Text>
+        <TouchableOpacity
+          style={[styles.logoutBtn, loggingOut && styles.logoutBtnDisabled]}
+          onPress={handleLogOut}
+          activeOpacity={0.8}
+          disabled={loggingOut}
+        >
+          {loggingOut ? (
+            <ActivityIndicator color={colors.danger} />
+          ) : (
+            <Text style={styles.logoutText}>Log Out</Text>
+          )}
         </TouchableOpacity>
       </ScrollView>
 
@@ -151,7 +185,8 @@ const styles = StyleSheet.create({
   headerTitle: { color: colors.white, fontSize: 22, fontWeight: '800' },
   body: { padding: 20, paddingBottom: 40 },
   sectionLabel: { fontSize: 11, fontWeight: '800', color: colors.textLight, marginBottom: 8, marginTop: 12, letterSpacing: 0.5 },
-  card: { backgroundColor: colors.card, borderRadius: 14, paddingHorizontal: 16 },  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14 },
+  card: { backgroundColor: colors.card, borderRadius: 14, paddingHorizontal: 16 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14 },
   rowLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   rowLabel: { fontSize: 14, color: colors.textDark, fontWeight: '600' },
   rowRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
@@ -165,6 +200,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 24,
   },
+  logoutBtnDisabled: { opacity: 0.6 },
   logoutText: { color: colors.danger, fontWeight: '800', fontSize: 15 },
   modalOverlay: {
     flex: 1,

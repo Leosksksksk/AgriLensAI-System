@@ -15,13 +15,9 @@ export function LanguageProvider({ children }) {
     (async () => {
       try {
         const saved = await AsyncStorage.getItem(STORAGE_KEY);
-        console.log('🔍 AsyncStorage saved language value:', JSON.stringify(saved));
         if (saved && LANGUAGES.includes(saved)) {
-          console.log('🔍 Found valid saved language — skipping LanguageSelect');
           setLanguageState(saved);
           setHasSelectedLanguage(true);
-        } else {
-          console.log('🔍 No valid saved language — LanguageSelect should show');
         }
       } catch (e) {
         console.warn('Could not load saved language:', e);
@@ -41,9 +37,22 @@ export function LanguageProvider({ children }) {
     }
   }
 
+  // Clears the saved language choice entirely, so the next launch (or
+  // an immediate re-visit to LanguageSelect) starts genuinely fresh —
+  // used on logout.
+  async function resetLanguageSelection() {
+    setHasSelectedLanguage(false);
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.warn('Could not reset saved language:', e);
+    }
+  }
+
   const value = {
     language,
     setLanguage,
+    resetLanguageSelection,
     hasSelectedLanguage,
     isLoading,
     languages: LANGUAGES,
