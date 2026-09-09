@@ -1,6 +1,6 @@
 // src/screens/AlertsScreen.js
 import { useState, useCallback, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,7 +10,7 @@ import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
 import { buildAlertsFeed } from '../services/alertsService';
 
-// 🔑 Confirmed OpenWeatherMap API Key
+// 🔑 OpenWeatherMap API Key
 const OPENWEATHER_API_KEY = 'f62d5ddae8ba892c756cbec5931b2feb';
 
 const ALERT_TYPE_STYLES = {
@@ -44,7 +44,6 @@ const ALERT_TYPE_STYLES = {
   },
 };
 
-// Dark map silver/dark theme style array
 const DARK_MAP_STYLE = [
   { elementType: 'geometry', stylers: [{ color: '#1d2c1d' }] },
   { elementType: 'labels.text.fill', stylers: [{ color: '#8ec3b9' }] },
@@ -69,6 +68,19 @@ function interpolate(template, values, t) {
 export default function AlertsScreen() {
   const { t } = useLanguage();
 
+  // Helper function to force clean titles instead of raw camelCase keys
+  const getLabel = (key, fallback) => {
+    try {
+      const res = t(key);
+      if (!res || res === key || res.includes('climateRisk') || res.includes('diseaseRiskForecast')) {
+        return fallback;
+      }
+      return res;
+    } catch {
+      return fallback;
+    }
+  };
+
   const [alerts, setAlerts] = useState([]);
   const [weatherData, setWeatherData] = useState({
     condition: 'Loading...',
@@ -76,8 +88,7 @@ export default function AlertsScreen() {
     humidity: '--',
     windSpeed: '--',
   });
-  
-  // Default Map Coordinates (Fallback: Bogo City, Cebu)
+
   const [region, setRegion] = useState({
     latitude: 11.0514,
     longitude: 124.0055,
@@ -89,7 +100,6 @@ export default function AlertsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Fetch Live Weather & Coordinates from OpenWeatherMap
   const fetchLiveWeather = async () => {
     let lat = null;
     let lon = null;
@@ -110,12 +120,11 @@ export default function AlertsScreen() {
         }));
       }
     } catch (e) {
-      console.warn('GPS location permission or retrieval failed:', e);
+      console.warn('GPS location retrieval failed:', e);
     }
 
     try {
       let url = '';
-
       if (lat !== null && lon !== null) {
         url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${OPENWEATHER_API_KEY}`;
       } else {
@@ -152,10 +161,7 @@ export default function AlertsScreen() {
   const loadData = useCallback(async () => {
     try {
       const [feed, liveWeather] = await Promise.all([
-        buildAlertsFeed().catch((err) => {
-          console.warn('buildAlertsFeed offline error:', err);
-          return null;
-        }),
+        buildAlertsFeed().catch(() => null),
         fetchLiveWeather(),
       ]);
 
@@ -171,7 +177,7 @@ export default function AlertsScreen() {
       const now = new Date();
       setLastUpdated(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     } catch (error) {
-      console.warn('Alerts feed / Weather fetch error:', error);
+      console.warn('Load data error:', error);
     }
   }, []);
 
@@ -188,7 +194,7 @@ export default function AlertsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.headerTitle}>{t('climateRisk') || t('alerts') || 'Climate Risk'}</Text>
+        <Text style={styles.headerTitle}>{getLabel('climateRisk', 'Climate Risk')}</Text>
         <TouchableOpacity 
           style={styles.refreshBtn} 
           onPress={handleRefresh}
@@ -205,7 +211,7 @@ export default function AlertsScreen() {
 
       {loading ? (
         <View style={styles.centerFill}>
-          <ActivityIndicator size="large" color={colors.primary || '#4CD964'} />
+          <ActivityIndicator size="large" color="#4CD964" />
         </View>
       ) : (
         <ScrollView
@@ -229,7 +235,7 @@ export default function AlertsScreen() {
               <View style={styles.metricItem}>
                 <Ionicons name="water-outline" size={22} color="#FFFFFF" />
                 <Text style={styles.metricValue}>{weatherData.humidity}%</Text>
-                <Text style={styles.metricLabel}>{t('humidity') || 'Humidity'}</Text>
+                <Text style={styles.metricLabel}>{getLabel('humidity', 'Humidity')}</Text>
               </View>
 
               {/* Divider */}
@@ -239,15 +245,15 @@ export default function AlertsScreen() {
               <View style={styles.metricItem}>
                 <Ionicons name="navigate-outline" size={22} color="#FFFFFF" style={{ transform: [{ rotate: '45deg' }] }} />
                 <Text style={styles.metricValue}>{weatherData.windSpeed}</Text>
-                <Text style={styles.metricLabel}>{t('windKm') || 'Wind km/h'}</Text>
+                <Text style={styles.metricLabel}>{getLabel('windKm', 'Wind km/h')}</Text>
               </View>
             </View>
           </View>
 
-          {/* 🎯 Interactive Disease Risk Map Section */}
+          {/* Interactive Outbreak & Risk Map */}
           <View style={styles.mapCardHeader}>
-            <Text style={styles.sectionTitle}>Outbreak & Risk Map</Text>
-            <Text style={styles.mapBadgeText}>{alerts.length} Active Hotspots</Text>
+            <Text style={styles.sectionTitle}>{getLabel('outbreakMap', 'Outbreak & Risk Map')}</Text>
+            <Text style={styles.mapBadgeText}>{alerts.length} {getLabel('activeHotspots', 'Active Hotspots')}</Text>
           </View>
 
           <View style={styles.mapContainer}>
@@ -259,10 +265,8 @@ export default function AlertsScreen() {
               showsUserLocation={true}
               showsMyLocationButton={false}
             >
-              {/* Map Hotspot Pins for Alerts */}
               {alerts.map((alert, index) => {
                 const style = ALERT_TYPE_STYLES[alert.type] || ALERT_TYPE_STYLES.INFO;
-                // Offset pins slightly around user center for visualization
                 const latOffset = (index === 0 ? 0.008 : index === 1 ? -0.012 : 0.015);
                 const lonOffset = (index === 0 ? 0.012 : index === 1 ? -0.008 : -0.015);
 
@@ -274,7 +278,7 @@ export default function AlertsScreen() {
 
                 return (
                   <Marker
-                    key={alert.id || index}
+                    key={alert.id || index.toString()}
                     coordinate={{ latitude: markerLat, longitude: markerLon }}
                     pinColor={style.pinColor}
                   >
@@ -293,17 +297,17 @@ export default function AlertsScreen() {
           </View>
 
           {/* Section Title */}
-          <Text style={styles.sectionTitle}>{t('diseaseRiskForecast') || 'Disease Risk Forecast'}</Text>
+          <Text style={styles.sectionTitle}>{getLabel('diseaseRiskForecast', 'Disease Risk Forecast')}</Text>
 
           {/* Forecast Alert Cards */}
           {alerts.length === 0 ? (
             <View style={styles.emptyState}>
-              <Ionicons name="checkmark-circle-outline" size={48} color={colors.textMuted || '#527258'} />
-              <Text style={styles.emptyTitle}>{t('noAlertsTitle') || 'No Active Alerts'}</Text>
-              <Text style={styles.emptyDesc}>{t('noAlertsDesc') || 'Your crops are currently in low-risk climate conditions.'}</Text>
+              <Ionicons name="checkmark-circle-outline" size={48} color="#527258" />
+              <Text style={styles.emptyTitle}>{getLabel('noAlertsTitle', 'No Active Alerts')}</Text>
+              <Text style={styles.emptyDesc}>{getLabel('noAlertsDesc', 'Your crops are currently in low-risk climate conditions.')}</Text>
             </View>
           ) : (
-            alerts.map((alert) => {
+            alerts.map((alert, idx) => {
               const style = ALERT_TYPE_STYLES[alert.type] || ALERT_TYPE_STYLES.INFO;
 
               const titleTemplate = alert.titleKey ? t(alert.titleKey) : alert.title;
@@ -314,10 +318,10 @@ export default function AlertsScreen() {
 
               const badgeText = alert.tagKey 
                 ? t(alert.tagKey) 
-                : (alert.riskLevel || t(style.badgeLabelKey) || 'Info');
+                : (alert.riskLevel || getLabel(style.badgeLabelKey, 'Info'));
 
               return (
-                <View key={alert.id || alert.title} style={styles.alertCard}>
+                <View key={alert.id || idx.toString()} style={styles.alertCard}>
                   <View style={[styles.accentStrip, { backgroundColor: style.stripColor }]} />
                   <View style={styles.cardContent}>
                     <View style={styles.cardHeader}>
@@ -345,203 +349,39 @@ export default function AlertsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#0A1C10' 
-  },
-  headerRow: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    paddingHorizontal: 20, 
-    paddingTop: 12, 
-    paddingBottom: 12 
-  },
-  headerTitle: { 
-    fontSize: 26, 
-    fontWeight: '800', 
-    color: '#FFFFFF', 
-    letterSpacing: 0.3 
-  },
-  refreshBtn: { 
-    width: 38, 
-    height: 38, 
-    borderRadius: 12, 
-    backgroundColor: 'rgba(255, 255, 255, 0.08)', 
-    justifyContent: 'center', 
-    alignItems: 'center' 
-  },
-  centerFill: { 
-    flex: 1, 
-    alignItems: 'center', 
-    justifyContent: 'center' 
-  },
-  body: { 
-    paddingHorizontal: 20, 
-    paddingBottom: 32 
-  },
-  weatherCard: {
-    backgroundColor: '#4E9E5B',
-    borderRadius: 22,
-    paddingVertical: 24,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    marginBottom: 24,
-    marginTop: 8,
-  },
-  conditionText: {
-    color: '#E0F2E3',
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 6,
-  },
-  tempText: {
-    color: '#FFFFFF',
-    fontSize: 48,
-    fontWeight: '800',
-    marginBottom: 18,
-  },
-  metricsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    width: '100%',
-    paddingTop: 4,
-  },
-  metricItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  metricValue: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '800',
-    marginTop: 6,
-  },
-  metricLabel: {
-    color: '#E0F2E3',
-    fontSize: 12,
-    marginTop: 2,
-  },
-  metricDivider: {
-    width: 1,
-    height: 38,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
-  },
-  mapCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  mapBadgeText: {
-    color: '#4CD964',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  mapContainer: {
-    height: 200,
-    borderRadius: 18,
-    overflow: 'hidden',
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  map: {
-    width: '100%',
-    height: '100%',
-  },
-  calloutContainer: {
-    padding: 6,
-    minWidth: 120,
-  },
-  calloutView: {
-    alignItems: 'center',
-  },
-  calloutTitle: {
-    fontWeight: '800',
-    fontSize: 13,
-    color: '#112516',
-  },
-  calloutSub: {
-    fontSize: 11,
-    color: '#E67E22',
-    marginTop: 2,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginBottom: 16,
-  },
-  emptyState: { 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    paddingVertical: 40, 
-    gap: 10 
-  },
-  emptyTitle: { 
-    fontSize: 17, 
-    fontWeight: '800', 
-    color: '#FFFFFF' 
-  },
-  emptyDesc: { 
-    fontSize: 13, 
-    color: '#8BA992', 
-    textAlign: 'center', 
-    paddingHorizontal: 20 
-  },
-  alertCard: {
-    backgroundColor: '#112516',
-    borderRadius: 14,
-    marginBottom: 14,
-    overflow: 'hidden',
-    position: 'relative',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  accentStrip: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 5,
-  },
-  cardContent: {
-    paddingVertical: 16,
-    paddingHorizontal: 18,
-    paddingLeft: 22,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  alertTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  badge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  badgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  alertDescription: {
-    fontSize: 13.5,
-    color: '#8BA992',
-    lineHeight: 20,
-  },
-  timestamp: {
-    textAlign: 'center',
-    color: '#527258',
-    fontSize: 12,
-    marginTop: 16,
-    marginBottom: 8,
-  },
+  container: { flex: 1, backgroundColor: '#0A1C10' },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 12, paddingBottom: 12 },
+  headerTitle: { fontSize: 26, fontWeight: '800', color: '#FFFFFF', letterSpacing: 0.3 },
+  refreshBtn: { width: 38, height: 38, borderRadius: 12, backgroundColor: 'rgba(255, 255, 255, 0.08)', justifyContent: 'center', alignItems: 'center' },
+  centerFill: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  body: { paddingHorizontal: 20, paddingBottom: 32 },
+  weatherCard: { backgroundColor: '#4E9E5B', borderRadius: 22, paddingVertical: 24, paddingHorizontal: 20, alignItems: 'center', marginBottom: 24, marginTop: 8 },
+  conditionText: { color: '#E0F2E3', fontSize: 16, fontWeight: '600', marginBottom: 6 },
+  tempText: { color: '#FFFFFF', fontSize: 48, fontWeight: '800', marginBottom: 18 },
+  metricsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', paddingTop: 4 },
+  metricItem: { alignItems: 'center', flex: 1 },
+  metricValue: { color: '#FFFFFF', fontSize: 20, fontWeight: '800', marginTop: 6 },
+  metricLabel: { color: '#E0F2E3', fontSize: 12, marginTop: 2 },
+  metricDivider: { width: 1, height: 38, backgroundColor: 'rgba(255, 255, 255, 0.35)' },
+  mapCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  mapBadgeText: { color: '#4CD964', fontSize: 12, fontWeight: '700' },
+  mapContainer: { height: 200, borderRadius: 18, overflow: 'hidden', marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.1)' },
+  map: { width: '100%', height: '100%' },
+  calloutContainer: { padding: 6, minWidth: 120 },
+  calloutView: { alignItems: 'center' },
+  calloutTitle: { fontWeight: '800', fontSize: 13, color: '#112516' },
+  calloutSub: { fontSize: 11, color: '#E67E22', marginTop: 2 },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#FFFFFF', marginBottom: 16 },
+  emptyState: { alignItems: 'center', justifyContent: 'center', paddingVertical: 40, gap: 10 },
+  emptyTitle: { fontSize: 17, fontWeight: '800', color: '#FFFFFF' },
+  emptyDesc: { fontSize: 13, color: '#8BA992', textAlign: 'center', paddingHorizontal: 20 },
+  alertCard: { backgroundColor: '#112516', borderRadius: 14, marginBottom: 14, overflow: 'hidden', position: 'relative', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.05)' },
+  accentStrip: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 5 },
+  cardContent: { paddingVertical: 16, paddingHorizontal: 18, paddingLeft: 22 },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  alertTitle: { fontSize: 17, fontWeight: '700', color: '#FFFFFF' },
+  badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20 },
+  badgeText: { fontSize: 12, fontWeight: '700' },
+  alertDescription: { fontSize: 13.5, color: '#8BA992', lineHeight: 20 },
+  timestamp: { textAlign: 'center', color: '#527258', fontSize: 12, marginTop: 16, marginBottom: 8 },
 });

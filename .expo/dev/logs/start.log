@@ -6365,3 +6365,126 @@
 {"_e":"metro:bundling:progress","_t":1788940878754,"id":"2","progress":0.999,"total":1221,"current":1221}
 {"_e":"metro:bundling:progress","_t":1788940878855,"id":"2","progress":0.999,"total":1232,"current":1232}
 {"_e":"metro:bundling:done","_t":1788940879097,"id":"2","total":1232,"ms":10208.0062}
+{"_e":"root:init","_t":1788952302285,"format":"v0-jsonl","version":"57.0.23"}
+{"_e":"env:mode","_t":1788952302285,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1788952302287,"mode":"development","files":[],"env":{}}
+{"_e":"devserver:start","_t":1788952302634,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1788952302921,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"expo:dev-tools-plugin:load","_t":1788952303242,"plugins":[]}
+{"_e":"metro:instantiate","_t":1788952308785,"atlas":false,"workers":6,"host":"::","port":8081}
+{"_e":"metro:bundling:started","_t":1788952323845,"id":"2","platform":"android","environment":null,"entry":"node_modules\\expo\\AppEntry.js"}
+{"_e":"metro:bundling:progress","_t":1788952323845,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1788952323850,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1788952324347,"id":"2","progress":0.010000000000000002,"total":1,"current":1}
+{"_e":"metro:bundling:progress","_t":1788952324463,"id":"2","progress":0.010000000000000002,"total":3,"current":1}
+{"_e":"metro:bundling:progress","_t":1788952324485,"id":"2","progress":0.04000000000000001,"total":3,"current":2}
+{"_e":"metro:bundling:progress","_t":1788952324593,"id":"2","progress":0.04000000000000001,"total":27,"current":4}
+{"_e":"metro:bundling:progress","_t":1788952324697,"id":"2","progress":0.04000000000000001,"total":33,"current":5}
+{"_e":"metro:bundling:progress","_t":1788952324802,"id":"2","progress":0.04238754325259515,"total":34,"current":7}
+{"_e":"metro:bundling:progress","_t":1788952324945,"id":"2","progress":0.05536332179930796,"total":34,"current":8}
+{"_e":"metro:bundling:progress","_t":1788952324976,"id":"2","progress":0.07006920415224914,"total":34,"current":9}
+{"_e":"metro:bundling:progress","_t":1788952325079,"id":"2","progress":0.07006920415224914,"total":43,"current":10}
+{"_e":"metro:bundling:progress","_t":1788952325182,"id":"2","progress":0.07787993510005409,"total":43,"current":12}
+{"_e":"metro:bundling:progress","_t":1788952325283,"id":"2","progress":0.09140075716603568,"total":43,"current":13}
+{"_e":"metro:bundling:progress","_t":1788952325393,"id":"2","progress":0.12168739859383451,"total":43,"current":15}
+{"_e":"metro:bundling:progress","_t":1788952325451,"id":"2","progress":0.1384532179556517,"total":43,"current":16}
+{"_e":"metro:bundling:progress","_t":1788952325558,"id":"2","progress":0.15433673469387754,"total":56,"current":22}
+{"_e":"metro:bundling:progress","_t":1788952325677,"id":"2","progress":0.15433673469387754,"total":75,"current":26}
+{"_e":"metro:bundling:progress","_t":1788952325818,"id":"2","progress":0.15433673469387754,"total":101,"current":31}
+{"_e":"metro:bundling:progress","_t":1788952325934,"id":"2","progress":0.15433673469387754,"total":208,"current":39}
+{"_e":"metro:bundling:progress","_t":1788952326034,"id":"2","progress":0.15433673469387754,"total":243,"current":50}
+{"_e":"metro:bundling:progress","_t":1788952326134,"id":"2","progress":0.15433673469387754,"total":260,"current":63}
+{"_e":"metro:bundling:progress","_t":1788952326234,"id":"2","progress":0.15433673469387754,"total":277,"current":77}
+{"_e":"metro:bundling:progress","_t":1788952326351,"id":"2","progress":0.15433673469387754,"total":339,"current":96}
+{"_e":"metro:bundling:progress","_t":1788952326455,"id":"2","progress":0.15433673469387754,"total":344,"current":102}
+{"_e":"metro:bundling:progress","_t":1788952326562,"id":"2","progress":0.15433673469387754,"total":351,"current":109}
+{"_e":"metro:bundling:progress","_t":1788952326661,"id":"2","progress":0.15433673469387754,"total":376,"current":120}
+{"_e":"metro:bundling:progress","_t":1788952326761,"id":"2","progress":0.15433673469387754,"total":381,"current":125}
+{"_e":"metro:bundling:progress","_t":1788952326869,"id":"2","progress":0.15433673469387754,"total":393,"current":138}
+{"_e":"metro:bundling:progress","_t":1788952326970,"id":"2","progress":0.15433673469387754,"total":423,"current":160}
+{"_e":"metro:bundling:progress","_t":1788952327071,"id":"2","progress":0.16685766103316327,"total":448,"current":183}
+{"_e":"metro:bundling:progress","_t":1788952327174,"id":"2","progress":0.1998843116308795,"total":463,"current":207}
+{"_e":"metro:bundling:progress","_t":1788952327276,"id":"2","progress":0.1998843116308795,"total":493,"current":219}
+{"_e":"metro:bundling:progress","_t":1788952327377,"id":"2","progress":0.21006944444444442,"total":504,"current":231}
+{"_e":"metro:bundling:progress","_t":1788952327480,"id":"2","progress":0.21812945762002545,"total":531,"current":248}
+{"_e":"metro:bundling:progress","_t":1788952327584,"id":"2","progress":0.2554444864392863,"total":554,"current":280}
+{"_e":"metro:bundling:progress","_t":1788952327684,"id":"2","progress":0.27885811018775003,"total":570,"current":301}
+{"_e":"metro:bundling:progress","_t":1788952327785,"id":"2","progress":0.29598110016376283,"total":579,"current":315}
+{"_e":"metro:bundling:progress","_t":1788952327884,"id":"2","progress":0.3287111111111111,"total":600,"current":344}
+{"_e":"metro:bundling:progress","_t":1788952327986,"id":"2","progress":0.35200659325564887,"total":627,"current":372}
+{"_e":"metro:bundling:progress","_t":1788952328087,"id":"2","progress":0.37944055188136916,"total":638,"current":393}
+{"_e":"metro:bundling:progress","_t":1788952328190,"id":"2","progress":0.3849978226157643,"total":664,"current":412}
+{"_e":"metro:bundling:progress","_t":1788952328290,"id":"2","progress":0.385500643674491,"total":699,"current":434}
+{"_e":"metro:bundling:progress","_t":1788952328404,"id":"2","progress":0.3861855150054586,"total":737,"current":458}
+{"_e":"metro:bundling:progress","_t":1788952328504,"id":"2","progress":0.3998702422145328,"total":748,"current":473}
+{"_e":"metro:bundling:progress","_t":1788952328604,"id":"2","progress":0.4297918317111815,"total":752,"current":493}
+{"_e":"metro:bundling:progress","_t":1788952328712,"id":"2","progress":0.4297918317111815,"total":773,"current":504}
+{"_e":"metro:bundling:progress","_t":1788952328819,"id":"2","progress":0.4548404542996214,"total":774,"current":522}
+{"_e":"metro:bundling:progress","_t":1788952328928,"id":"2","progress":0.4548404542996214,"total":803,"current":537}
+{"_e":"metro:bundling:progress","_t":1788952329029,"id":"2","progress":0.4548404542996214,"total":829,"current":559}
+{"_e":"metro:bundling:progress","_t":1788952329132,"id":"2","progress":0.4893271542159763,"total":832,"current":582}
+{"_e":"metro:bundling:progress","_t":1788952329233,"id":"2","progress":0.5080353100950656,"total":846,"current":603}
+{"_e":"metro:bundling:progress","_t":1788952329338,"id":"2","progress":0.5187330014367336,"total":865,"current":623}
+{"_e":"metro:bundling:progress","_t":1788952329438,"id":"2","progress":0.5483171896888208,"total":867,"current":642}
+{"_e":"metro:bundling:progress","_t":1788952329555,"id":"2","progress":0.5672241632653061,"total":875,"current":659}
+{"_e":"metro:bundling:progress","_t":1788952329655,"id":"2","progress":0.5709394920468941,"total":892,"current":674}
+{"_e":"metro:bundling:progress","_t":1788952329759,"id":"2","progress":0.6138442681760204,"total":896,"current":702}
+{"_e":"metro:bundling:progress","_t":1788952329859,"id":"2","progress":0.6400000000000001,"total":900,"current":720}
+{"_e":"metro:bundling:progress","_t":1788952329959,"id":"2","progress":0.6758475016025152,"total":905,"current":744}
+{"_e":"metro:bundling:progress","_t":1788952330062,"id":"2","progress":0.6947507381641502,"total":907,"current":756}
+{"_e":"metro:bundling:progress","_t":1788952330176,"id":"2","progress":0.7029614233138193,"total":916,"current":768}
+{"_e":"metro:bundling:progress","_t":1788952330276,"id":"2","progress":0.7265357925832342,"total":928,"current":791}
+{"_e":"metro:bundling:progress","_t":1788952330376,"id":"2","progress":0.7265357925832342,"total":1010,"current":803}
+{"_e":"metro:bundling:progress","_t":1788952330477,"id":"2","progress":0.7265357925832342,"total":1012,"current":821}
+{"_e":"metro:bundling:progress","_t":1788952330577,"id":"2","progress":0.7265357925832342,"total":1021,"current":846}
+{"_e":"metro:bundling:progress","_t":1788952330681,"id":"2","progress":0.7265357925832342,"total":1033,"current":870}
+{"_e":"metro:bundling:progress","_t":1788952330781,"id":"2","progress":0.7265357925832342,"total":1049,"current":888}
+{"_e":"metro:bundling:progress","_t":1788952330882,"id":"2","progress":0.7328519631954504,"total":1063,"current":910}
+{"_e":"metro:bundling:progress","_t":1788952330989,"id":"2","progress":0.7328519631954504,"total":1085,"current":922}
+{"_e":"metro:bundling:progress","_t":1788952331092,"id":"2","progress":0.7439260141092734,"total":1091,"current":941}
+{"_e":"metro:bundling:progress","_t":1788952331192,"id":"2","progress":0.7684269189763676,"total":1094,"current":959}
+{"_e":"metro:bundling:progress","_t":1788952331292,"id":"2","progress":0.7904826446280991,"total":1100,"current":978}
+{"_e":"metro:bundling:progress","_t":1788952331392,"id":"2","progress":0.827194365389734,"total":1105,"current":1005}
+{"_e":"metro:bundling:progress","_t":1788952331494,"id":"2","progress":0.8432976415717699,"total":1114,"current":1023}
+{"_e":"metro:bundling:progress","_t":1788952331593,"id":"2","progress":0.8559956990918455,"total":1123,"current":1039}
+{"_e":"metro:bundling:progress","_t":1788952331698,"id":"2","progress":0.863767625959247,"total":1133,"current":1053}
+{"_e":"metro:bundling:progress","_t":1788952331800,"id":"2","progress":0.863767625959247,"total":1159,"current":1075}
+{"_e":"metro:bundling:progress","_t":1788952331906,"id":"2","progress":0.863767625959247,"total":1177,"current":1090}
+{"_e":"metro:bundling:progress","_t":1788952332006,"id":"2","progress":0.863767625959247,"total":1190,"current":1103}
+{"_e":"metro:bundling:progress","_t":1788952332108,"id":"2","progress":0.8782187797075565,"total":1193,"current":1118}
+{"_e":"metro:bundling:progress","_t":1788952332210,"id":"2","progress":0.888125311802364,"total":1198,"current":1129}
+{"_e":"metro:bundling:progress","_t":1788952332328,"id":"2","progress":0.8965968216800674,"total":1205,"current":1141}
+{"_e":"metro:bundling:progress","_t":1788952332460,"id":"2","progress":0.8965968216800674,"total":1213,"current":1148}
+{"_e":"metro:bundling:progress","_t":1788952332561,"id":"2","progress":0.8982397334443982,"total":1225,"current":1161}
+{"_e":"metro:bundling:progress","_t":1788952332666,"id":"2","progress":0.9125685769052813,"total":1230,"current":1175}
+{"_e":"metro:bundling:progress","_t":1788952332767,"id":"2","progress":0.9251566716562658,"total":1232,"current":1185}
+{"_e":"metro:bundling:progress","_t":1788952332882,"id":"2","progress":0.9408370140411536,"total":1232,"current":1195}
+{"_e":"metro:bundling:progress","_t":1788952332982,"id":"2","progress":0.955133980755945,"total":1234,"current":1206}
+{"_e":"metro:bundling:progress","_t":1788952333084,"id":"2","progress":0.9617260612849775,"total":1242,"current":1218}
+{"_e":"metro:bundling:progress","_t":1788952333185,"id":"2","progress":0.9698070706364932,"total":1249,"current":1230}
+{"_e":"metro:bundling:progress","_t":1788952333286,"id":"2","progress":0.992028728475334,"total":1252,"current":1247}
+{"_e":"metro:bundling:progress","_t":1788952333390,"id":"2","progress":0.9968102093682265,"total":1253,"current":1251}
+{"_e":"metro:bundling:progress","_t":1788952333583,"id":"2","progress":0.9984044677450894,"total":1253,"current":1252}
+{"_e":"metro:bundling:progress","_t":1788952333698,"id":"2","progress":0.9984082772120573,"total":1256,"current":1255}
+{"_e":"metro:bundling:progress","_t":1788952334244,"id":"2","progress":0.999,"total":1256,"current":1256}
+{"_e":"metro:bundling:progress","_t":1788952334345,"id":"2","progress":0.999,"total":1267,"current":1267}
+{"_e":"metro:bundling:done","_t":1788952334658,"id":"2","total":1267,"ms":10812.7539}
+{"_e":"metro:bundling:started","_t":1788952412506,"id":"3","platform":"android","environment":null,"entry":"node_modules\\expo\\AppEntry.js"}
+{"_e":"metro:bundling:progress","_t":1788952412506,"id":"3","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1788952412548,"id":"3","total":1,"ms":41.5262}
+{"_e":"metro:client_log","_t":1788952477488,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name AIRMap]"]}
+{"_e":"metro:client_log","_t":1788952477619,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name AIRMap]"]}
+{"_e":"metro:client_log","_t":1788952477619,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name AIRMap]"]}
+{"_e":"metro:client_log","_t":1788952477619,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name RNMapsGooglePolygon]"]}
+{"_e":"metro:client_log","_t":1788952477619,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name RNMapsMarker]"]}
+{"_e":"metro:client_log","_t":1788952477619,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name RNMapsUrlTile]"]}
+{"_e":"metro:client_log","_t":1788952477619,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name RNMapsWMSTile]"]}
+{"_e":"metro:client_log","_t":1788952477619,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name RNMapsCallout]"]}
+{"_e":"metro:client_log","_t":1788952477665,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name RNMapsPolyline]"]}
+{"_e":"metro:client_log","_t":1788952477665,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name RNMapsCircle]"]}
+{"_e":"metro:client_log","_t":1788952477665,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name RNMapsOverlay]"]}
+{"_e":"metro:client_log","_t":1788952477666,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name AIRMap]"]}
+{"_e":"metro:client_log","_t":1788952477666,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name RNMapsMapView]"]}
+{"_e":"metro:client_log","_t":1788952477666,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name RNMapsGoogleMapView]"]}
+{"_e":"metro:client_log","_t":1788952477666,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name AIRMap]"]}
+{"_e":"metro:client_log","_t":1788952477716,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name AIRMap]"]}
