@@ -1,10 +1,11 @@
 // src/screens/AlertsScreen.js
 import { useState, useCallback, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
+import MapView, { Marker, Callout, PROVIDER_DEFAULT } from 'react-native-maps';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
 import { buildAlertsFeed } from '../services/alertsService';
@@ -18,26 +19,40 @@ const ALERT_TYPE_STYLES = {
     badgeBg: 'rgba(230, 126, 34, 0.22)',
     textColor: '#E67E22',
     badgeLabelKey: 'high',
+    pinColor: '#E67E22',
   },
   WARNING: {
     stripColor: '#F1C40F',
     badgeBg: 'rgba(241, 196, 15, 0.22)',
     textColor: '#F1C40F',
     badgeLabelKey: 'medium',
+    pinColor: '#F1C40F',
   },
   INFO: {
     stripColor: '#2ECC71',
     badgeBg: 'rgba(46, 204, 113, 0.22)',
     textColor: '#2ECC71',
     badgeLabelKey: 'low',
+    pinColor: '#2ECC71',
   },
   REMINDER: {
     stripColor: '#2ECC71',
     badgeBg: 'rgba(46, 204, 113, 0.22)',
     textColor: '#2ECC71',
     badgeLabelKey: 'info',
+    pinColor: '#2ECC71',
   },
 };
+
+// Dark map silver/dark theme style array
+const DARK_MAP_STYLE = [
+  { elementType: 'geometry', stylers: [{ color: '#1d2c1d' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#8ec3b9' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#1a361a' }] },
+  { featureType: 'administrative.country', elementType: 'geometry.stroke', stylers: [{ color: '#4b687a' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0e1710' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2c4a2e' }] },
+];
 
 function interpolate(template, values, t) {
   if (!template) return '';
@@ -61,16 +76,24 @@ export default function AlertsScreen() {
     humidity: '--',
     windSpeed: '--',
   });
+  
+  // Default Map Coordinates (Fallback: Bogo City, Cebu)
+  const [region, setRegion] = useState({
+    latitude: 11.0514,
+    longitude: 124.0055,
+    latitudeDelta: 0.05,
+    longitudeDelta: 0.05,
+  });
+
   const [lastUpdated, setLastUpdated] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Fetch Live Weather from OpenWeatherMap
+  // Fetch Live Weather & Coordinates from OpenWeatherMap
   const fetchLiveWeather = async () => {
     let lat = null;
     let lon = null;
 
-    // 1. Request GPS Position
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status === 'granted') {
@@ -79,12 +102,17 @@ export default function AlertsScreen() {
         });
         lat = location.coords.latitude;
         lon = location.coords.longitude;
+
+        setRegion((prev) => ({
+          ...prev,
+          latitude: lat,
+          longitude: lon,
+        }));
       }
     } catch (e) {
       console.warn('GPS location permission or retrieval failed:', e);
     }
 
-    // 2. Fetch OpenWeatherMap (GPS Coordinates vs Barangay Fallback)
     try {
       let url = '';
 
@@ -92,7 +120,7 @@ export default function AlertsScreen() {
         url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${OPENWEATHER_API_KEY}`;
       } else {
         const savedBarangay = await AsyncStorage.getItem('userBarangay');
-        const searchLocation = savedBarangay ? `${savedBarangay}, PH` : 'Cebu, PH';
+        const searchLocation = savedBarangay ? `${savedBarangay}, PH` : 'Bogo City, PH';
         url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(searchLocation)}&units=metric&appid=${OPENWEATHER_API_KEY}`;
       }
 
@@ -100,11 +128,19 @@ export default function AlertsScreen() {
       const data = await response.json();
 
       if (response.ok && data.main) {
+        if (data.coord) {
+          setRegion((prev) => ({
+            ...prev,
+            latitude: data.coord.lat,
+            longitude: data.coord.lon,
+          }));
+        }
+
         return {
           condition: data.weather[0]?.main || 'Clear',
           temp: data.main.temp.toFixed(1),
           humidity: data.main.humidity.toString(),
-          windSpeed: (data.wind.speed * 3.6).toFixed(1), // Convert m/s to km/h
+          windSpeed: (data.wind.speed * 3.6).toFixed(1),
         };
       }
     } catch (error) {
@@ -113,7 +149,6 @@ export default function AlertsScreen() {
     return null;
   };
 
-  // Main Data Load Handler
   const loadData = useCallback(async () => {
     try {
       const [feed, liveWeather] = await Promise.all([
@@ -184,7 +219,7 @@ export default function AlertsScreen() {
             />
           }
         >
-          {/* Dynamic Weather Card */}
+          {/* Weather Card */}
           <View style={styles.weatherCard}>
             <Text style={styles.conditionText}>{weatherData.condition}</Text>
             <Text style={styles.tempText}>{weatherData.temp}°C</Text>
@@ -207,6 +242,54 @@ export default function AlertsScreen() {
                 <Text style={styles.metricLabel}>{t('windKm') || 'Wind km/h'}</Text>
               </View>
             </View>
+          </View>
+
+          {/* 🎯 Interactive Disease Risk Map Section */}
+          <View style={styles.mapCardHeader}>
+            <Text style={styles.sectionTitle}>Outbreak & Risk Map</Text>
+            <Text style={styles.mapBadgeText}>{alerts.length} Active Hotspots</Text>
+          </View>
+
+          <View style={styles.mapContainer}>
+            <MapView
+              provider={PROVIDER_DEFAULT}
+              style={styles.map}
+              region={region}
+              customMapStyle={DARK_MAP_STYLE}
+              showsUserLocation={true}
+              showsMyLocationButton={false}
+            >
+              {/* Map Hotspot Pins for Alerts */}
+              {alerts.map((alert, index) => {
+                const style = ALERT_TYPE_STYLES[alert.type] || ALERT_TYPE_STYLES.INFO;
+                // Offset pins slightly around user center for visualization
+                const latOffset = (index === 0 ? 0.008 : index === 1 ? -0.012 : 0.015);
+                const lonOffset = (index === 0 ? 0.012 : index === 1 ? -0.008 : -0.015);
+
+                const markerLat = region.latitude + latOffset;
+                const markerLon = region.longitude + lonOffset;
+
+                const titleTemplate = alert.titleKey ? t(alert.titleKey) : alert.title;
+                const title = interpolate(titleTemplate, alert.titleValues || alert.descValues, t) || alert.title;
+
+                return (
+                  <Marker
+                    key={alert.id || index}
+                    coordinate={{ latitude: markerLat, longitude: markerLon }}
+                    pinColor={style.pinColor}
+                  >
+                    <Callout style={styles.calloutContainer}>
+                      <View style={styles.calloutView}>
+                        <Text style={styles.calloutTitle}>{title}</Text>
+                        <Text style={styles.calloutSub}>
+                          {alert.riskLevel || 'Active Alert'}
+                        </Text>
+                      </View>
+                    </Callout>
+                  </Marker>
+                );
+              })}
+            </MapView>
           </View>
 
           {/* Section Title */}
@@ -344,6 +427,46 @@ const styles = StyleSheet.create({
     width: 1,
     height: 38,
     backgroundColor: 'rgba(255, 255, 255, 0.35)',
+  },
+  mapCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  mapBadgeText: {
+    color: '#4CD964',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  mapContainer: {
+    height: 200,
+    borderRadius: 18,
+    overflow: 'hidden',
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  map: {
+    width: '100%',
+    height: '100%',
+  },
+  calloutContainer: {
+    padding: 6,
+    minWidth: 120,
+  },
+  calloutView: {
+    alignItems: 'center',
+  },
+  calloutTitle: {
+    fontWeight: '800',
+    fontSize: 13,
+    color: '#112516',
+  },
+  calloutSub: {
+    fontSize: 11,
+    color: '#E67E22',
+    marginTop: 2,
   },
   sectionTitle: {
     fontSize: 18,

@@ -1,7 +1,7 @@
-//translations.js
+// translations.js
 export const translations = {
   en: {
-    // ---- your existing keys (unchanged) ----
+    // ---- app branding & basic controls ----
     appName: "AgriLens AI",
     scanLeaf: "Scan Leaf (Offline Mode)",
     takePhoto: "Take Photo",
@@ -19,7 +19,7 @@ export const translations = {
     history: "Inspection History",
     language: "Language / Lingwahe",
 
-    // ---- new keys for the redesigned screens ----
+    // ---- dynamic screen controls ----
     pointCamera: "Point the camera at the leaf.",
     noInternet: "No Internet Connection",
     scanLeafBtn: "Scan the Leaf",
@@ -62,7 +62,15 @@ export const translations = {
     continueAsGuest: "Continue as Guest",
     howItWorks: "How it works",
 
-    // ---- Alerts screen ----
+    // ---- Alerts & Climate Risk screen ----
+    climateRisk: "Climate Risk",
+    diseaseRiskForecast: "Disease Risk Forecast",
+    outbreakMap: "Outbreak & Risk Map",
+    activeHotspots: "Active Hotspots",
+    windKm: "Wind km/h",
+    high: "High",
+    medium: "Medium",
+    low: "Low",
     tagWarning: "WARNING",
     tagInfo: "INFO",
     tagReminder: "REMINDER",
@@ -75,7 +83,7 @@ export const translations = {
     alertFungicideTitle: "Apply Fungicide Today",
     alertFungicideDesc: "Scheduled treatment for your tomato crops in Barangay Bogo.",
 
-    //Climate screen
+    // ---- Climate screen ----
     temperature: "Temperature",
     humidity: "Humidity",
     rainfall: "Rainfall",
@@ -85,7 +93,7 @@ export const translations = {
     riskLow: "Low Risk",
     riskModerate: "Moderate Risk",
 
-    //Results screen
+    // ---- Results screen ----
     viewTreatmentPlan: "View Treatment Plan",
     progSevereDamage: "Severe Leaf Damage",
     progSpreadStems: "Spread to Stems",
@@ -94,13 +102,13 @@ export const translations = {
     defaultCropLabel: "Tomato Leaf",
     defaultDiseaseDetected: "Early Blight Detected",
 
-    // ---- Reference Info card (Results screen — plantInfoLookupService) ----
+    // ---- Reference Info card ----
     referenceInfoTitle: "Reference Info",
     referenceInfoOffline: "Offline — showing saved reference info",
     referenceInfoUnverified: "Couldn't verify this result against reference data. Consider rescanning with a clearer photo.",
     referenceInfoSourceLink: "View source ↗",
 
-    //Treatment Plan screen
+    // ---- Treatment Plan screen ----
     defaultDisease: "Early Blight",
     defaultCrop: "Tomato",
     action1: "Remove and destroy affected lower leaves.",
@@ -112,7 +120,7 @@ export const translations = {
     organicNeemName: "Neem Oil Solution",
     organicNeemDesc: "Prevents fungal spore germination. Apply in cool evening hours to prevent leaf burn.",
 
-    //profile screen
+    // ---- profile screen ----
     farmLabel: "FARM",
     cropTomato: "Tomato Leaf",
     cropRice: "Rice Plant",
@@ -121,7 +129,7 @@ export const translations = {
     cropBanana: "Banana",
     cropMango: "Mango",
 
-    //translations for HistoryScreen
+    // ---- HistoryScreen ----
     statusHealthy: "Healthy",
     statusEarlyBlight: "Early Blight",
     statusLeafSpot: "Leaf Spot",
@@ -135,15 +143,15 @@ export const translations = {
     totalSuffix: "total",
     noMatchingScans: "No matching scans.",
 
-    //Intro screen
+    // ---- Intro screen ----
     scanningCropHealth: "Scanning Crop Health...",
 
-    //login screen
+    // ---- login screen ----
     signInTagline: "Sign in to secure crop data",
     mobileNumber: "Mobile Number",
     smsHelperText: "We will email you a one-time verification code.",
 
-    //onboarding screen
+    // ---- onboarding screen ----
     onboardingSubheading: "Identify and address diseases in three easy steps",
     step1Title: "1. Scan your leaf",
     step1Desc: "Position your crop's leaf in the camera viewfinder.",
@@ -152,12 +160,12 @@ export const translations = {
     step3Title: "3. Follow treatment guide",
     step3Desc: "Apply recommended actions and organic solutions.",
 
-    //first-time language selection screen
+    // ---- first-time language selection screen ----
     chooseLanguageTitle: "Choose Your Language",
     chooseLanguageSubtitle: "You can change this anytime in Settings.",
     continueBtn: "Continue",
 
-    //OTP verification screen
+    // ---- OTP verification screen ----
     checkYourEmail: "Check your email",
     otpSentTo: "We sent a 6-digit verification code to",
     verifyCode: "Verify Code",
@@ -166,7 +174,7 @@ export const translations = {
     invalidCodeDesc: "Please enter the 6-digit code sent to your email.",
     verificationFailedTitle: "Verification Failed",
 
-    //Image translation
+    // ---- Image translation ----
     analyzingImage: "Analyzing leaf photo...",
     severityNone: "None",
     severityMild: "Mild",
@@ -194,7 +202,7 @@ export const translations = {
     rustAction2: "Apply a rust-labeled fungicide as soon as pustules are confirmed.",
     rustAction3: "Avoid dense planting to reduce humidity buildup.",
 
-    //Schedule Reminder Dashboard
+    // ---- Schedule Reminder Dashboard ----
     reminderPermissionTitle: "Notifications Disabled",
     reminderPermissionDesc: "Enable notifications in your device settings to receive treatment reminders.",
     reminderScheduledTitle: "Reminder Set",
@@ -204,7 +212,7 @@ export const translations = {
     reminderAlreadySetDesc: "You already have a reminder scheduled for this treatment.",
     schedulingReminder: "Scheduling...",
 
-    //Email OTP verification screen
+    // ---- Email OTP verification screen ----
     emailAddress: "Email Address",
     sendingCode: "Sending...",
     sendVerificationCode: "Send Verification Code",
@@ -212,7 +220,7 @@ export const translations = {
     invalidEmailDesc: "Please enter a valid email address.",
     loginFailedTitle: "Login Failed",
 
-    //weather risk screen
+    // ---- weather risk screen ----
     alertWeatherRiskDesc: "{temp}°C, {humidity}% humidity, {rain}% chance of rain — conditions favor rapid disease spread.",
     alertBlightNearbyDesc: "{count} farm(s) in your barangay reported {disease} recently. Protect your crops.",
     alertPendingDescDynamic: "You have {count} record(s) waiting to sync. Connect to internet to sync now.",
@@ -220,19 +228,19 @@ export const translations = {
     noAlertsTitle: "All Clear",
     noAlertsDesc: "No active alerts right now. We'll notify you when something needs your attention.",
 
-    //profile screen
+    // ---- profile screen ----
     savingProfile: "Saving...",
     profileSavedTitle: "Profile Saved",
     profileSavedDesc: "Your profile has been updated.",
     profileErrorTitle: "Could Not Save",
     profileLoadErrorTitle: "Could Not Load Profile",
 
-    //plant clasiffier screen
+    // ---- plant classifier screen ----
     notAPlantTitle: "Not a Leaf",
     notAPlantDesc: "This photo doesn't look like a plant leaf. Please take or upload a clear photo of a single leaf.",
     notAPlantBanner: "No leaf detected in this photo",
 
-    // ---- Tomato disease reference data (from tomatoleaf dataset) ----
+    // ---- Tomato disease reference data ----
     diseaseEarlyBlight: "Early Blight",
     diseaseEarlyBlightDesc: "Irregular brown, dry-looking patches with darker concentric rings, often starting on older, lower leaves. Caused by the fungus Alternaria solani.",
     diseaseSeptoria: "Septoria Leaf Spot",
@@ -277,7 +285,7 @@ export const translations = {
     mosaicVirusAction2: "Disinfect tools and hands between handling different plants.",
     mosaicVirusAction3: "Use resistant varieties and control aphid populations.",
 
-    //onboarding screen
+    // ---- onboarding screen ----
     tellUsAboutYou: "Tell us about you",
     fullNamePlaceholder: "e.g. Juan Dela Cruz",
     barangayPlaceholder: "e.g. Bogo City, Cebu",
@@ -286,9 +294,8 @@ export const translations = {
     nameRequiredDesc: "Please enter your full name to continue.",
   },
 
-
   fil: {
-    // ---- your existing keys (unchanged) ----
+    // ---- your existing keys ----
     appName: "AgriLens AI",
     scanLeaf: "Suriin ang Dahon (Offline Mode)",
     takePhoto: "Kumuha ng Litrato",
@@ -349,7 +356,15 @@ export const translations = {
     continueAsGuest: "Magpatuloy bilang Bisita",
     howItWorks: "Paano ito gumagana",
 
-    // ---- Alerts screen ----
+    // ---- Alerts & Climate Risk screen ----
+    climateRisk: "Panganib sa Klima",
+    diseaseRiskForecast: "Pagtataya sa Panganib ng Sakit",
+    outbreakMap: "Mapa ng Pagkalat at Panganib",
+    activeHotspots: "Mga Aktibong Hotspot",
+    windKm: "Kusog ng Hangin km/h",
+    high: "Mataas",
+    medium: "Katamtaman",
+    low: "Mababa",
     tagWarning: "BABALA",
     tagInfo: "IMPORMASYON",
     tagReminder: "PAALALA",
@@ -362,7 +377,7 @@ export const translations = {
     alertFungicideTitle: "Maglagay ng Fungicide Ngayon",
     alertFungicideDesc: "Nakaiskedyul na paggamot para sa inyong pananim na kamatis sa Barangay Bogo.",
 
-    //Climate screen
+    // ---- Climate screen ----
     temperature: "Temperatura",
     humidity: "Halumigmig",
     rainfall: "Ulan",
@@ -371,7 +386,8 @@ export const translations = {
     riskHigh: "Mataas na Panganib",
     riskLow: "Mababang Panganib",
     riskModerate: "Katamtamang Panganib",
-    //Results screen
+
+    // ---- Results screen ----
     viewTreatmentPlan: "Tingnan ang Plano sa Paggamot",
     progSevereDamage: "Matinding Pinsala sa Dahon",
     progSpreadStems: "Kumalat sa mga Sanga",
@@ -380,13 +396,13 @@ export const translations = {
     defaultCropLabel: "Dahon ng Kamatis",
     defaultDiseaseDetected: "Natukoy ang Early Blight",
 
-    // ---- Reference Info card (Results screen — plantInfoLookupService) ----
+    // ---- Reference Info card ----
     referenceInfoTitle: "Impormasyon sa Sanggunian",
     referenceInfoOffline: "Offline — ipinapakita ang naka-save na sanggunian",
     referenceInfoUnverified: "Hindi na-verify ang resultang ito laban sa sanggunian. Subukang mag-scan muli gamit ang mas malinaw na litrato.",
     referenceInfoSourceLink: "Tingnan ang pinagmulan ↗",
 
-    //Treatment Plan screen
+    // ---- Treatment Plan screen ----
     defaultDisease: "Early Blight",
     defaultCrop: "Kamatis",
     action1: "Alisin at itapon ang apektadong mababang dahon.",
@@ -398,7 +414,7 @@ export const translations = {
     organicNeemName: "Neem Oil Solution",
     organicNeemDesc: "Pumipigil sa pagsibol ng fungal spore. Ilagay sa malamig na gabi para maiwasan ang pagkasunog ng dahon.",
 
-    //profile screen
+    // ---- profile screen ----
     farmLabel: "SAKAHAN",
     cropTomato: "Dahon ng Kamatis",
     cropRice: "Halamang Palay",
@@ -407,7 +423,7 @@ export const translations = {
     cropBanana: "Saging",
     cropMango: "Mangga",
 
-    //translations for HistoryScreen
+    // ---- HistoryScreen ----
     statusHealthy: "Malusog",
     statusEarlyBlight: "Early Blight",
     statusLeafSpot: "Leaf Spot",
@@ -421,16 +437,15 @@ export const translations = {
     totalSuffix: "kabuuan",
     noMatchingScans: "Walang nahanap na scan.",
 
-    //Intro screen
+    // ---- Intro screen ----
     scanningCropHealth: "Sinusuri ang Kalusugan ng Pananim...",
 
-    //login screen
+    // ---- login screen ----
     signInTagline: "Mag-sign in para sa ligtas na datos ng pananim",
     mobileNumber: "Numero ng Mobile",
-    smsHelperText: "Magpapadala kami ng one-time verification SMS.",
     smsHelperText: "Magpapadala kami sa iyo ng one-time verification code sa email.",
-    
-    //onboarding screen
+
+    // ---- onboarding screen ----
     onboardingSubheading: "Tukuyin at tugunan ang mga sakit sa tatlong madaling hakbang",
     step1Title: "1. I-scan ang iyong dahon",
     step1Desc: "Ilagay ang dahon ng iyong pananim sa camera viewfinder.",
@@ -439,12 +454,12 @@ export const translations = {
     step3Title: "3. Sundin ang gabay sa paggamot",
     step3Desc: "Ilapat ang mga inirerekomendang hakbang at organikong solusyon.",
 
-    //first-time language selection screen
+    // ---- first-time language selection screen ----
     chooseLanguageTitle: "Piliin ang Wika",
     chooseLanguageSubtitle: "Puwede mo itong baguhin anumang oras sa Settings.",
     continueBtn: "Magpatuloy",
 
-    //OTP verification screen
+    // ---- OTP verification screen ----
     checkYourEmail: "Tingnan ang iyong email",
     otpSentTo: "Nagpadala kami ng 6-digit na verification code sa",
     verifyCode: "I-verify ang Code",
@@ -453,7 +468,7 @@ export const translations = {
     invalidCodeDesc: "Ilagay ang 6-digit na code na ipinadala sa iyong email.",
     verificationFailedTitle: "Hindi Na-verify",
 
-    //Image translation
+    // ---- Image translation ----
     analyzingImage: "Sinusuri ang litrato ng dahon...",
     severityNone: "Wala",
     severityMild: "Banayad",
@@ -481,7 +496,7 @@ export const translations = {
     rustAction2: "Maglagay ng fungicide na para sa kalawang kapag napagtibay na ang bukol.",
     rustAction3: "Iwasang siksikan ang pagtatanim para mabawasan ang halumigmig.",
 
-    //Schedule Reminder Dashboard
+    // ---- Schedule Reminder Dashboard ----
     reminderPermissionTitle: "Naka-disable ang Notifications",
     reminderPermissionDesc: "I-enable ang notifications sa settings ng iyong device para makatanggap ng paalala sa paggamot.",
     reminderScheduledTitle: "Naka-set na ang Paalala",
@@ -490,8 +505,8 @@ export const translations = {
     reminderAlreadySet: "May Naka-set nang Paalala",
     reminderAlreadySetDesc: "May naka-schedule ka nang paalala para sa paggamot na ito.",
     schedulingReminder: "Nag-i-schedule...",
-    
-    //Email OTP verification screen
+
+    // ---- Email OTP verification screen ----
     emailAddress: "Email Address",
     sendingCode: "Ipinapadala...",
     sendVerificationCode: "Ipadala ang Verification Code",
@@ -499,7 +514,7 @@ export const translations = {
     invalidEmailDesc: "Maglagay ng wastong email address.",
     loginFailedTitle: "Hindi Naka-login",
 
-    //weather risk screen
+    // ---- weather risk screen ----
     alertWeatherRiskDesc: "{temp}°C, {humidity}% halumigmig, {rain}% tsansa ng ulan — paborable ang kondisyon para sa mabilis na paglaganap ng sakit.",
     alertBlightNearbyDesc: "{count} sakahan sa inyong barangay ang nag-ulat ng {disease} kamakailan. Protektahan ang inyong pananim.",
     alertPendingDescDynamic: "May {count} record kayong naghihintay i-sync. Kumonekta sa internet para i-sync ngayon.",
@@ -507,19 +522,19 @@ export const translations = {
     noAlertsTitle: "Wala Pang Alerto",
     noAlertsDesc: "Walang aktibong alerto sa ngayon. Aabisuhan ka namin kapag may kailangang pansinin.",
 
-    //profile screen
+    // ---- profile screen ----
     savingProfile: "Sini-save...",
     profileSavedTitle: "Na-save ang Profile",
     profileSavedDesc: "Na-update na ang iyong profile.",
     profileErrorTitle: "Hindi Na-save",
     profileLoadErrorTitle: "Hindi Na-load ang Profile",
 
-    //plant clasiffier screen
+    // ---- plant classifier screen ----
     notAPlantTitle: "Hindi Dahon",
     notAPlantDesc: "Mukhang hindi ito litrato ng dahon ng halaman. Kumuha o mag-upload ng malinaw na litrato ng isang dahon.",
     notAPlantBanner: "Walang natukoy na dahon sa litrato",
 
-    // ---- Tomato disease reference data (from tomatoleaf dataset) ----
+    // ---- Tomato disease reference data ----
     diseaseEarlyBlight: "Early Blight",
     diseaseEarlyBlightDesc: "Hindi regular na kayumangging, tuyong batik na may mas maitim na bilog na guhit, kadalasang nagsisimula sa matatandang dahon sa ibaba. Dulot ng fungus na Alternaria solani.",
     diseaseSeptoria: "Septoria Leaf Spot",
@@ -564,7 +579,7 @@ export const translations = {
     mosaicVirusAction2: "Linisin ang mga kagamitan at kamay sa pagitan ng paghawak ng ibang tanim.",
     mosaicVirusAction3: "Gumamit ng matibay na variety at kontrolin ang aphid.",
 
-    //onboarding screen
+    // ---- onboarding screen ----
     tellUsAboutYou: "Ikwento mo ang iyong sarili",
     fullNamePlaceholder: "hal. Juan Dela Cruz",
     barangayPlaceholder: "hal. Bogo City, Cebu",
@@ -574,7 +589,7 @@ export const translations = {
   },
 
   ceb: {
-    // ---- your existing keys (unchanged) ----
+    // ---- your existing keys ----
     appName: "AgriLens AI",
     scanLeaf: "Susiha ang Dahon (Offline Mode)",
     takePhoto: "Kahuha og Litrato",
@@ -635,7 +650,15 @@ export const translations = {
     continueAsGuest: "Padayon isip Bisita",
     howItWorks: "Giunsa kini paglihok",
 
-    // ---- Alerts screen ----
+    // ---- Alerts & Climate Risk screen ----
+    climateRisk: "Risgo sa Klima",
+    diseaseRiskForecast: "Panagna sa Risgo sa Sakit",
+    outbreakMap: "Mapa sa Pagtakboy ug Risgo",
+    activeHotspots: "Mga Aktibong Hotspot",
+    windKm: "Kusog sa Hangin km/h",
+    high: "Taas",
+    medium: "Katunga",
+    low: "Ubos",
     tagWarning: "PASIDAAN",
     tagInfo: "IMPORMASYON",
     tagReminder: "PAHINUMDOM",
@@ -648,7 +671,7 @@ export const translations = {
     alertFungicideTitle: "Ibutang ang Fungicide Karon",
     alertFungicideDesc: "Naka-iskedyul nga tambal para sa inyong tanom nga kamatis sa Barangay Bogo.",
 
-    //Climate screen
+    // ---- Climate screen ----
     temperature: "Temperatura",
     humidity: "Kaumog",
     rainfall: "Ulan",
@@ -658,7 +681,7 @@ export const translations = {
     riskLow: "Ubos nga Peligro",
     riskModerate: "Katunga nga Peligro",
 
-    //Results screen
+    // ---- Results screen ----
     viewTreatmentPlan: "Tan-awa ang Plano sa Tambal",
     progSevereDamage: "Grabe nga Kadaot sa Dahon",
     progSpreadStems: "Mikaylap sa mga Sanga",
@@ -667,13 +690,13 @@ export const translations = {
     defaultCropLabel: "Dahon sa Kamatis",
     defaultDiseaseDetected: "Nakit-an ang Early Blight",
 
-    // ---- Reference Info card (Results screen — plantInfoLookupService) ----
+    // ---- Reference Info card ----
     referenceInfoTitle: "Impormasyon sa Sanggunian",
     referenceInfoOffline: "Offline — gipakita ang na-save nga sanggunian",
     referenceInfoUnverified: "Wala ma-verify kini nga resulta batok sa sanggunian. Sulayi pag-scan pag-usab gamit ang mas klaro nga litrato.",
     referenceInfoSourceLink: "Tan-awa ang gigikanan ↗",
 
-    //Treatment Plan screen
+    // ---- Treatment Plan screen ----
     defaultDisease: "Early Blight",
     defaultCrop: "Kamatis",
     action1: "Kuhaa ug laglaga ang naapektuhang ubos nga mga dahon.",
@@ -685,7 +708,7 @@ export const translations = {
     organicNeemName: "Neem Oil Solution",
     organicNeemDesc: "Nagapugong sa pagturok sa fungal spore. I-apply sa bugnaw nga gabii aron malikayan ang pagkasunog sa dahon.",
 
-    //profile screen
+    // ---- profile screen ----
     farmLabel: "UMA",
     cropTomato: "Dahon sa Kamatis",
     cropRice: "Tanom nga Humay",
@@ -694,7 +717,7 @@ export const translations = {
     cropBanana: "Saging",
     cropMango: "Mangga",
 
-    //translations for HistoryScreen
+    // ---- HistoryScreen ----
     statusHealthy: "Himsog",
     statusEarlyBlight: "Early Blight",
     statusLeafSpot: "Leaf Spot",
@@ -708,15 +731,15 @@ export const translations = {
     totalSuffix: "tanan",
     noMatchingScans: "Walay natukma nga scan.",
 
-    //Intro screen
+    // ---- Intro screen ----
     scanningCropHealth: "Gisusi ang Panglawas sa Tanom...",
 
-    //login screen
+    // ---- login screen ----
     signInTagline: "Sign in para sa protektado nga datos sa tanom",
     mobileNumber: "Numero sa Mobile",
     smsHelperText: "Magpadala kami kanimo og one-time verification code sa email.",
 
-    //onboarding screen
+    // ---- onboarding screen ----
     onboardingSubheading: "Ilhon ug atimana ang mga sakit sa tulo ka sayon nga lakang",
     step1Title: "1. I-scan ang imong dahon",
     step1Desc: "Ibutang ang dahon sa imong tanom sa camera viewfinder.",
@@ -725,12 +748,12 @@ export const translations = {
     step3Title: "3. Sunda ang giya sa tambal",
     step3Desc: "I-apply ang girekomendar nga mga lihok ug organikong solusyon.",
 
-    //first-time language selection screen
+    // ---- first-time language selection screen ----
     chooseLanguageTitle: "Pilia ang Pinulongan",
     chooseLanguageSubtitle: "Mahimo nimo kini usbon bisan kanus-a sa Settings.",
     continueBtn: "Padayon",
 
-    //OTP verification screen
+    // ---- OTP verification screen ----
     checkYourEmail: "Susiha ang imong email",
     otpSentTo: "Nagpadala kami og 6-digit nga verification code sa",
     verifyCode: "I-verify ang Code",
@@ -739,7 +762,7 @@ export const translations = {
     invalidCodeDesc: "Isulod ang 6-digit nga code nga gipadala sa imong email.",
     verificationFailedTitle: "Wala Na-verify",
 
-    //Image translation
+    // ---- Image translation ----
     analyzingImage: "Gisusi ang litrato sa dahon...",
     severityNone: "Wala",
     severityMild: "Gamay",
@@ -767,7 +790,7 @@ export const translations = {
     rustAction2: "Pag-aplay og fungicide para sa taya sa dihang makumpirma ang bukol.",
     rustAction3: "Likayi ang siksik nga pagtanom para mikunhod ang umog.",
 
-    //Schedule Reminder Dashboard
+    // ---- Schedule Reminder Dashboard ----
     reminderPermissionTitle: "Naka-disable ang Notifications",
     reminderPermissionDesc: "I-enable ang notifications sa settings sa imong device para makadawat og pahinumdom sa tambal.",
     reminderScheduledTitle: "Naka-set na ang Pahinumdom",
@@ -777,7 +800,7 @@ export const translations = {
     reminderAlreadySetDesc: "Naa na kay naka-schedule nga pahinumdom para niini nga tambal.",
     schedulingReminder: "Nag-i-schedule...",
 
-    //Email OTP verification screen
+    // ---- Email OTP verification screen ----
     emailAddress: "Email Address",
     sendingCode: "Gipadala...",
     sendVerificationCode: "Ipadala ang Verification Code",
@@ -785,28 +808,27 @@ export const translations = {
     invalidEmailDesc: "Palihug pagbutang og sakto nga email address.",
     loginFailedTitle: "Wala Naka-login",
 
-
-    //weather risk screen
+    // ---- weather risk screen ----
     alertWeatherRiskDesc: "{temp}°C, {humidity}% kaumog, {rain}% tsansa sa ulan — paborable ang kondisyon para sa paspas nga pagkatap sa sakit.",
     alertBlightNearbyDesc: "{count} ka uma sa inyong barangay ang nagreport og {disease} bag-ohay. Panalipdi ang inyong tanom.",
     alertPendingDescDynamic: "Naa moy {count} ka record nga naghulat i-sync. Konekta sa internet para i-sync karon.",
     alertReminderDesc: "Naka-iskedyul nga pahinumdom sa tambal para sa inyong {crop} bahin sa {disease}.",
     noAlertsTitle: "Walay Alerto",
     noAlertsDesc: "Walay aktibo nga alerto karon. Pahibaw-on ka namo kung naa nay kinahanglan tagdon.",
-    
-    //profile screen
+
+    // ---- profile screen ----
     savingProfile: "Gina-save...",
     profileSavedTitle: "Na-save ang Profile",
     profileSavedDesc: "Na-update na ang imong profile.",
     profileErrorTitle: "Wala Na-save",
     profileLoadErrorTitle: "Wala Na-load ang Profile",
 
-    //plant clasiffier screen
+    // ---- plant classifier screen ----
     notAPlantTitle: "Dili Dahon",
     notAPlantDesc: "Kini nga litrato dili murag dahon sa tanom. Palihug pagkuha o pag-upload og klaro nga litrato sa usa ka dahon.",
     notAPlantBanner: "Walay nakit-an nga dahon sa litrato",
 
-    // ---- Tomato disease reference data (from tomatoleaf dataset) ----
+    // ---- Tomato disease reference data ----
     diseaseEarlyBlight: "Early Blight",
     diseaseEarlyBlightDesc: "Dili regular nga kolor kape, uga nga batik nga may mas ngitngit nga lingin nga guhit, kasagaran nagsugod sa tigulang nga mga dahon sa ubos. Hinungdan sa fungus nga Alternaria solani.",
     diseaseSeptoria: "Septoria Leaf Spot",
@@ -851,7 +873,7 @@ export const translations = {
     mosaicVirusAction2: "Limpyoi ang mga gamit ug kamot sa pagbalhin gikan sa lain nga tanom.",
     mosaicVirusAction3: "Gamit og lig-on nga variety ug kontrolaha ang aphid.",
 
-    //onboarding screen
+    // ---- onboarding screen ----
     tellUsAboutYou: "Isulti kanamo bahin nimo",
     fullNamePlaceholder: "pananglitan Juan Dela Cruz",
     barangayPlaceholder: "pananglitan Bogo City, Cebu",
@@ -861,11 +883,11 @@ export const translations = {
   },
 };
 
-// Display labels for the language codes (used in pills/dropdowns).
+// Display labels for the language codes
 export const LANGUAGE_LABELS = { en: "ENGLISH", fil: "FILIPINO", ceb: "BISAYA" };
 export const LANGUAGES = Object.keys(translations); // ['en', 'fil', 'ceb']
 
-// Lookup helper: t('scanLeaf', 'fil') -> "Suriin ang Dahon (Offline Mode)"
+// Lookup helper
 export function t(key, lang = "en") {
   const dict = translations[lang] ? lang : "en";
   return translations[dict][key] ?? translations.en[key] ?? key;
