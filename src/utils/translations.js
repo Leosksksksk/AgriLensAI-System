@@ -292,6 +292,11 @@ export const translations = {
     onboardingSaveErrorTitle: "Could Not Save",
     nameRequiredTitle: "Full Name Required",
     nameRequiredDesc: "Please enter your full name to continue.",
+
+    // ---- offline warning ----
+    uploadFailedTitle: "Upload Failed",
+    uploadFailedNetwork: "Unable to connect to the server. Please check your internet connection and try again.",
+    uploadFailedGeneric: "Something went wrong while uploading. Please try again."
   },
 
   fil: {
@@ -586,6 +591,11 @@ export const translations = {
     onboardingSaveErrorTitle: "Hindi Na-save",
     nameRequiredTitle: "Kailangan ng Buong Pangalan",
     nameRequiredDesc: "Ilagay ang iyong buong pangalan para magpatuloy.",
+
+    // ---- offline warning ----
+    uploadFailedTitle: "Bigo ang Pag-upload",
+    uploadFailedNetwork: "Hindi makakonekta sa server. Pakisuri ang iyong internet connection at subukang muli.",
+    uploadFailedGeneric: "May nangyaring mali habang nag-a-upload. Mangyaring subukang muli."
   },
 
   ceb: {
@@ -826,7 +836,7 @@ export const translations = {
     // ---- plant classifier screen ----
     notAPlantTitle: "Dili Dahon",
     notAPlantDesc: "Kini nga litrato dili murag dahon sa tanom. Palihug pagkuha o pag-upload og klaro nga litrato sa usa ka dahon.",
-    notAPlantBanner: "Walay nakit-an nga dahon sa litrato",
+    notAPlantBanner: "Walang nakit-an nga dahon sa litrato",
 
     // ---- Tomato disease reference data ----
     diseaseEarlyBlight: "Early Blight",
@@ -880,6 +890,11 @@ export const translations = {
     onboardingSaveErrorTitle: "Wala Na-save",
     nameRequiredTitle: "Kinahanglan ang Bug-os nga Ngalan",
     nameRequiredDesc: "Isulod ang imong bug-os nga ngalan para makapadayon.",
+
+    // ---- offline warning ----
+    uploadFailedTitle: "Pakyas ang Pag-upload",
+    uploadFailedNetwork: "Wala makakonekta sa server. Palihug susiha ang imong internet connection ug sulayi pag-usab.",
+    uploadFailedGeneric: "Adunay nahitabo nga sayop sa pag-upload. Palihug sulayi pag-usab."
   },
 };
 

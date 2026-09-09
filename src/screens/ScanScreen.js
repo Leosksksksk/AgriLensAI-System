@@ -124,12 +124,6 @@ export default function ScanScreen({ navigation }) {
           disease_id: diagnosisResult?.diseaseId ?? null,
           damage_percent: diagnosisResult?.damagePercent ?? null,
           severity: diagnosisResult?.severity ?? null,
-          // NOTE: `online_info` isn't in your scan_results schema yet.
-          // Add a jsonb column (e.g. `alter table scan_results add column
-          // online_info jsonb;`) if you want to persist the reference
-          // summary/verification alongside the scan. Left commented out
-          // until that column exists, to avoid breaking the insert:
-          // online_info: diagnosisResult?.onlineInfo ?? null,
         }]);
 
       if (dbError) throw dbError;
@@ -137,7 +131,27 @@ export default function ScanScreen({ navigation }) {
       Alert.alert('Synced!', 'Image successfully saved to Supabase bucket and database.');
     } catch (error) {
       console.error('Supabase Sync Error:', error);
-      Alert.alert('Upload Failed', error.message);
+
+      // Convert error message to a lowercase string safely
+      const errorMsg = (error?.message || String(error)).toLowerCase();
+
+      // Check if it's a network/offline exception (like UnknownHostException)
+      if (
+        errorMsg.includes('unknownhostexception') || 
+        errorMsg.includes('network request failed') || 
+        errorMsg.includes('fetch failed')
+      ) {
+        Alert.alert(
+          t('uploadFailedTitle'), 
+          t('uploadFailedNetwork')
+        );
+      } else {
+        // Fallback for other errors
+        Alert.alert(
+          t('uploadFailedTitle'), 
+          t('uploadFailedGeneric')
+        );
+      }
     } finally {
       setUploading(false);
     }
