@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
-import MapView, { Marker, Callout, PROVIDER_DEFAULT } from 'react-native-maps';
+import { WebView } from 'react-native-webview';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
 import { buildAlertsFeed } from '../services/alertsService';
@@ -19,39 +19,26 @@ const ALERT_TYPE_STYLES = {
     badgeBg: 'rgba(230, 126, 34, 0.22)',
     textColor: '#E67E22',
     badgeLabelKey: 'high',
-    pinColor: '#E67E22',
   },
   WARNING: {
     stripColor: '#F1C40F',
     badgeBg: 'rgba(241, 196, 15, 0.22)',
     textColor: '#F1C40F',
     badgeLabelKey: 'medium',
-    pinColor: '#F1C40F',
   },
   INFO: {
     stripColor: '#2ECC71',
     badgeBg: 'rgba(46, 204, 113, 0.22)',
     textColor: '#2ECC71',
     badgeLabelKey: 'low',
-    pinColor: '#2ECC71',
   },
   REMINDER: {
     stripColor: '#2ECC71',
     badgeBg: 'rgba(46, 204, 113, 0.22)',
     textColor: '#2ECC71',
     badgeLabelKey: 'info',
-    pinColor: '#2ECC71',
   },
 };
-
-const DARK_MAP_STYLE = [
-  { elementType: 'geometry', stylers: [{ color: '#1d2c1d' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#8ec3b9' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#1a361a' }] },
-  { featureType: 'administrative.country', elementType: 'geometry.stroke', stylers: [{ color: '#4b687a' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0e1710' }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2c4a2e' }] },
-];
 
 function interpolate(template, values, t) {
   if (!template) return '';
@@ -68,7 +55,6 @@ function interpolate(template, values, t) {
 export default function AlertsScreen() {
   const { t } = useLanguage();
 
-  // Helper function to force clean titles instead of raw camelCase keys
   const getLabel = (key, fallback) => {
     try {
       const res = t(key);
@@ -89,11 +75,9 @@ export default function AlertsScreen() {
     windSpeed: '--',
   });
 
-  const [region, setRegion] = useState({
+  const [locationCoords, setLocationCoords] = useState({
     latitude: 11.0514,
     longitude: 124.0055,
-    latitudeDelta: 0.05,
-    longitudeDelta: 0.05,
   });
 
   const [lastUpdated, setLastUpdated] = useState('');
@@ -112,12 +96,7 @@ export default function AlertsScreen() {
         });
         lat = location.coords.latitude;
         lon = location.coords.longitude;
-
-        setRegion((prev) => ({
-          ...prev,
-          latitude: lat,
-          longitude: lon,
-        }));
+        setLocationCoords({ latitude: lat, longitude: lon });
       }
     } catch (e) {
       console.warn('GPS location retrieval failed:', e);
@@ -138,11 +117,7 @@ export default function AlertsScreen() {
 
       if (response.ok && data.main) {
         if (data.coord) {
-          setRegion((prev) => ({
-            ...prev,
-            latitude: data.coord.lat,
-            longitude: data.coord.lon,
-          }));
+          setLocationCoords({ latitude: data.coord.lat, longitude: data.coord.lon });
         }
 
         return {
@@ -190,6 +165,59 @@ export default function AlertsScreen() {
     await loadData();
     setRefreshing(false);
   }
+
+  // HTML + Leaflet JS for WebView Rendering (Dark Map + OpenStreetMap tiles)
+  const generateLeafletHTML = () => {
+    const markersJS = alerts.map((alert, index) => {
+      const latOffset = (index === 0 ? 0.008 : index === 1 ? -0.012 : 0.015);
+      const lonOffset = (index === 0 ? 0.012 : index === 1 ? -0.008 : -0.015);
+      const markerLat = locationCoords.latitude + latOffset;
+      const markerLon = locationCoords.longitude + lonOffset;
+
+      const titleTemplate = alert.titleKey ? t(alert.titleKey) : alert.title;
+      const title = interpolate(titleTemplate, alert.titleValues || alert.descValues, t) || alert.title;
+
+      return `
+        L.marker([${markerLat}, ${markerLon}]).addTo(map)
+          .bindPopup("<b>${title}</b><br><span style='color:#E67E22;'>${alert.riskLevel || 'Active Hotspot'}</span>");
+      `;
+    }).join('\n');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <style>
+          body, html, #map { margin: 0; padding: 0; height: 100%; width: 100%; background: #112516; }
+          .leaflet-tile { filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7); }
+          .leaflet-container { background: #112516 !important; }
+        </style>
+      </head>
+      <body>
+        <div id="map"></div>
+        <script>
+          var map = L.map('map', { zoomControl: false }).setView([${locationCoords.latitude}, ${locationCoords.longitude}], 13);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+          }).addTo(map);
+
+          L.circle([${locationCoords.latitude}, ${locationCoords.longitude}], {
+            color: '#4CD964',
+            fillColor: '#4CD964',
+            fillOpacity: 0.3,
+            radius: 300
+          }).addTo(map);
+
+          ${markersJS}
+        </script>
+      </body>
+      </html>
+    `;
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -250,50 +278,19 @@ export default function AlertsScreen() {
             </View>
           </View>
 
-          {/* Interactive Outbreak & Risk Map */}
+          {/* Interactive Outbreak & Risk Map Section */}
           <View style={styles.mapCardHeader}>
             <Text style={styles.sectionTitle}>{getLabel('outbreakMap', 'Outbreak & Risk Map')}</Text>
             <Text style={styles.mapBadgeText}>{alerts.length} {getLabel('activeHotspots', 'Active Hotspots')}</Text>
           </View>
 
           <View style={styles.mapContainer}>
-            <MapView
-              provider={PROVIDER_DEFAULT}
+            <WebView
+              originWhitelist={['*']}
+              source={{ html: generateLeafletHTML() }}
               style={styles.map}
-              region={region}
-              customMapStyle={DARK_MAP_STYLE}
-              showsUserLocation={true}
-              showsMyLocationButton={false}
-            >
-              {alerts.map((alert, index) => {
-                const style = ALERT_TYPE_STYLES[alert.type] || ALERT_TYPE_STYLES.INFO;
-                const latOffset = (index === 0 ? 0.008 : index === 1 ? -0.012 : 0.015);
-                const lonOffset = (index === 0 ? 0.012 : index === 1 ? -0.008 : -0.015);
-
-                const markerLat = region.latitude + latOffset;
-                const markerLon = region.longitude + lonOffset;
-
-                const titleTemplate = alert.titleKey ? t(alert.titleKey) : alert.title;
-                const title = interpolate(titleTemplate, alert.titleValues || alert.descValues, t) || alert.title;
-
-                return (
-                  <Marker
-                    key={alert.id || index.toString()}
-                    coordinate={{ latitude: markerLat, longitude: markerLon }}
-                    pinColor={style.pinColor}
-                  >
-                    <Callout style={styles.calloutContainer}>
-                      <View style={styles.calloutView}>
-                        <Text style={styles.calloutTitle}>{title}</Text>
-                        <Text style={styles.calloutSub}>
-                          {alert.riskLevel || 'Active Alert'}
-                        </Text>
-                      </View>
-                    </Callout>
-                  </Marker>
-                );
-              })}
-            </MapView>
+              scrollEnabled={false}
+            />
           </View>
 
           {/* Section Title */}
@@ -365,12 +362,8 @@ const styles = StyleSheet.create({
   metricDivider: { width: 1, height: 38, backgroundColor: 'rgba(255, 255, 255, 0.35)' },
   mapCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   mapBadgeText: { color: '#4CD964', fontSize: 12, fontWeight: '700' },
-  mapContainer: { height: 200, borderRadius: 18, overflow: 'hidden', marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.1)' },
-  map: { width: '100%', height: '100%' },
-  calloutContainer: { padding: 6, minWidth: 120 },
-  calloutView: { alignItems: 'center' },
-  calloutTitle: { fontWeight: '800', fontSize: 13, color: '#112516' },
-  calloutSub: { fontSize: 11, color: '#E67E22', marginTop: 2 },
+  mapContainer: { height: 200, borderRadius: 18, overflow: 'hidden', marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.1)', backgroundColor: '#112516' },
+  map: { width: '100%', height: '100%', backgroundColor: '#112516' },
   sectionTitle: { fontSize: 18, fontWeight: '700', color: '#FFFFFF', marginBottom: 16 },
   emptyState: { alignItems: 'center', justifyContent: 'center', paddingVertical: 40, gap: 10 },
   emptyTitle: { fontSize: 17, fontWeight: '800', color: '#FFFFFF' },

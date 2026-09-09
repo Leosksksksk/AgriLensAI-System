@@ -22,6 +22,12 @@
           "cameraPermission": "AgriLens AI needs camera access to capture leaf images."
         }
       ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "AgriLens AI needs location access to map crop disease risk hotspots near your farm."
+        }
+      ],
       "expo-status-bar",
       "expo-font"
     ],
@@ -33,7 +39,9 @@
     "android": {
       "package": "com.junrel.agrilensai",
       "permissions": [
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
       ],
       "runtimeVersion": "1.0.0",
       "adaptiveIcon": {

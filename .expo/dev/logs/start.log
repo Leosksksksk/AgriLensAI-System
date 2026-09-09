@@ -6488,3 +6488,13 @@
 {"_e":"metro:client_log","_t":1788952477666,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name RNMapsGoogleMapView]"]}
 {"_e":"metro:client_log","_t":1788952477666,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name AIRMap]"]}
 {"_e":"metro:client_log","_t":1788952477716,"level":"error","data":["[Invariant Violation: Tried to register two views with the same name AIRMap]"]}
+{"_e":"root:init","_t":1788952560691,"format":"v0-jsonl","version":"57.0.23"}
+{"_e":"env:mode","_t":1788952560691,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1788952560693,"mode":"development","files":[],"env":{}}
+{"_e":"devserver:start","_t":1788952561115,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1788952561409,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"expo:dev-tools-plugin:load","_t":1788952561655,"plugins":[]}
+{"_e":"metro:instantiate","_t":1788952566787,"atlas":false,"workers":6,"host":"::","port":8081}
+{"_e":"metro:bundling:started","_t":1788952608141,"id":"2","platform":"android","environment":null,"entry":"node_modules\\expo\\AppEntry.js"}
+{"_e":"metro:bundling:progress","_t":1788952608144,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1788952611622,"id":"2","total":1,"ms":3479.3178}
