@@ -1,7 +1,6 @@
 // src/screens/IntroScreen.js
 import { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, Image, StyleSheet, Animated } from 'react-native';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -55,7 +54,11 @@ export default function IntroScreen({ navigation }) {
 
           <View style={styles.phoneScreen}>
             <View style={styles.plantContainer}>
-              <Ionicons name="leaf" size={60} color="#4CD964" />
+              <Image
+                source={require('../../assets/icon.png')}
+                style={styles.logoInPhone}
+                resizeMode="contain"
+              />
             </View>
 
             <Animated.View
@@ -122,6 +125,10 @@ const styles = StyleSheet.create({
   plantContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  logoInPhone: {
+    width: 70,
+    height: 70,
   },
   scanLine: {
     position: 'absolute',
