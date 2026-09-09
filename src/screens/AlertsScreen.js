@@ -1,17 +1,42 @@
 // src/screens/AlertsScreen.js
 import { useState, useCallback, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
 import { buildAlertsFeed } from '../services/alertsService';
 
+// 🔑 Confirmed OpenWeatherMap API Key
+const OPENWEATHER_API_KEY = 'f62d5ddae8ba892c756cbec5931b2feb';
+
 const ALERT_TYPE_STYLES = {
-  HIGH_RISK: { bg: colors.dangerBg, border: colors.danger, tag: colors.danger },
-  WARNING: { bg: colors.warningBg, border: colors.warning, tag: colors.warning },
-  INFO: { bg: colors.infoBg, border: colors.info, tag: colors.info },
-  REMINDER: { bg: colors.okBg, border: colors.ok, tag: colors.ok },
+  HIGH_RISK: {
+    stripColor: '#E67E22',
+    badgeBg: 'rgba(230, 126, 34, 0.22)',
+    textColor: '#E67E22',
+    badgeLabelKey: 'high',
+  },
+  WARNING: {
+    stripColor: '#F1C40F',
+    badgeBg: 'rgba(241, 196, 15, 0.22)',
+    textColor: '#F1C40F',
+    badgeLabelKey: 'medium',
+  },
+  INFO: {
+    stripColor: '#2ECC71',
+    badgeBg: 'rgba(46, 204, 113, 0.22)',
+    textColor: '#2ECC71',
+    badgeLabelKey: 'low',
+  },
+  REMINDER: {
+    stripColor: '#2ECC71',
+    badgeBg: 'rgba(46, 204, 113, 0.22)',
+    textColor: '#2ECC71',
+    badgeLabelKey: 'info',
+  },
 };
 
 function interpolate(template, values, t) {
@@ -30,80 +55,206 @@ export default function AlertsScreen() {
   const { t } = useLanguage();
 
   const [alerts, setAlerts] = useState([]);
+  const [weatherData, setWeatherData] = useState({
+    condition: 'Loading...',
+    temp: '--',
+    humidity: '--',
+    windSpeed: '--',
+  });
+  const [lastUpdated, setLastUpdated] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Safely fetch alerts and catch network/weather offline errors
-  const loadAlerts = useCallback(async () => {
+  // Fetch Live Weather from OpenWeatherMap
+  const fetchLiveWeather = async () => {
+    let lat = null;
+    let lon = null;
+
+    // 1. Request GPS Position
     try {
-      const feed = await buildAlertsFeed();
-      setAlerts(feed || []);
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        const location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+        lat = location.coords.latitude;
+        lon = location.coords.longitude;
+      }
+    } catch (e) {
+      console.warn('GPS location permission or retrieval failed:', e);
+    }
+
+    // 2. Fetch OpenWeatherMap (GPS Coordinates vs Barangay Fallback)
+    try {
+      let url = '';
+
+      if (lat !== null && lon !== null) {
+        url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${OPENWEATHER_API_KEY}`;
+      } else {
+        const savedBarangay = await AsyncStorage.getItem('userBarangay');
+        const searchLocation = savedBarangay ? `${savedBarangay}, PH` : 'Cebu, PH';
+        url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(searchLocation)}&units=metric&appid=${OPENWEATHER_API_KEY}`;
+      }
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (response.ok && data.main) {
+        return {
+          condition: data.weather[0]?.main || 'Clear',
+          temp: data.main.temp.toFixed(1),
+          humidity: data.main.humidity.toString(),
+          windSpeed: (data.wind.speed * 3.6).toFixed(1), // Convert m/s to km/h
+        };
+      }
     } catch (error) {
-      console.warn('Alerts feed offline/fetch error:', error);
-      // Suppresses uncaught fetch error toasts when offline
+      console.warn('Failed to fetch OpenWeatherMap data:', error);
+    }
+    return null;
+  };
+
+  // Main Data Load Handler
+  const loadData = useCallback(async () => {
+    try {
+      const [feed, liveWeather] = await Promise.all([
+        buildAlertsFeed().catch((err) => {
+          console.warn('buildAlertsFeed offline error:', err);
+          return null;
+        }),
+        fetchLiveWeather(),
+      ]);
+
+      if (liveWeather) {
+        setWeatherData(liveWeather);
+      } else if (feed?.weather) {
+        setWeatherData(feed.weather);
+      }
+
+      const alertItems = Array.isArray(feed) ? feed : (feed?.alerts || []);
+      setAlerts(alertItems);
+
+      const now = new Date();
+      setLastUpdated(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+    } catch (error) {
+      console.warn('Alerts feed / Weather fetch error:', error);
     }
   }, []);
 
   useEffect(() => {
-    loadAlerts().finally(() => setLoading(false));
-  }, [loadAlerts]);
+    loadData().finally(() => setLoading(false));
+  }, [loadData]);
 
   async function handleRefresh() {
     setRefreshing(true);
-    await loadAlerts();
+    await loadData();
     setRefreshing(false);
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('alerts')}</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.headerTitle}>{t('climateRisk') || t('alerts') || 'Climate Risk'}</Text>
+        <TouchableOpacity 
+          style={styles.refreshBtn} 
+          onPress={handleRefresh}
+          activeOpacity={0.7}
+          disabled={refreshing}
+        >
+          {refreshing ? (
+            <ActivityIndicator size="small" color="#4CD964" />
+          ) : (
+            <Ionicons name="refresh-outline" size={20} color="#4CD964" />
+          )}
+        </TouchableOpacity>
       </View>
 
       {loading ? (
         <View style={styles.centerFill}>
-          <ActivityIndicator color={colors.primary} />
+          <ActivityIndicator size="large" color={colors.primary || '#4CD964'} />
         </View>
       ) : (
         <ScrollView
           contentContainerStyle={styles.body}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl 
+              refreshing={refreshing} 
+              onRefresh={handleRefresh} 
+              tintColor="#4CD964"
+            />
+          }
         >
+          {/* Dynamic Weather Card */}
+          <View style={styles.weatherCard}>
+            <Text style={styles.conditionText}>{weatherData.condition}</Text>
+            <Text style={styles.tempText}>{weatherData.temp}°C</Text>
+
+            <View style={styles.metricsRow}>
+              {/* Humidity */}
+              <View style={styles.metricItem}>
+                <Ionicons name="water-outline" size={22} color="#FFFFFF" />
+                <Text style={styles.metricValue}>{weatherData.humidity}%</Text>
+                <Text style={styles.metricLabel}>{t('humidity') || 'Humidity'}</Text>
+              </View>
+
+              {/* Divider */}
+              <View style={styles.metricDivider} />
+
+              {/* Wind */}
+              <View style={styles.metricItem}>
+                <Ionicons name="navigate-outline" size={22} color="#FFFFFF" style={{ transform: [{ rotate: '45deg' }] }} />
+                <Text style={styles.metricValue}>{weatherData.windSpeed}</Text>
+                <Text style={styles.metricLabel}>{t('windKm') || 'Wind km/h'}</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Section Title */}
+          <Text style={styles.sectionTitle}>{t('diseaseRiskForecast') || 'Disease Risk Forecast'}</Text>
+
+          {/* Forecast Alert Cards */}
           {alerts.length === 0 ? (
             <View style={styles.emptyState}>
-              <Ionicons name="checkmark-circle-outline" size={48} color={colors.textMuted} />
-              <Text style={styles.emptyTitle}>{t('noAlertsTitle')}</Text>
-              <Text style={styles.emptyDesc}>{t('noAlertsDesc')}</Text>
+              <Ionicons name="checkmark-circle-outline" size={48} color={colors.textMuted || '#527258'} />
+              <Text style={styles.emptyTitle}>{t('noAlertsTitle') || 'No Active Alerts'}</Text>
+              <Text style={styles.emptyDesc}>{t('noAlertsDesc') || 'Your crops are currently in low-risk climate conditions.'}</Text>
             </View>
           ) : (
             alerts.map((alert) => {
               const style = ALERT_TYPE_STYLES[alert.type] || ALERT_TYPE_STYLES.INFO;
 
-              // Interpolate dynamic title values (e.g. {diseaseName} Nearby)
-              const titleTemplate = t(alert.titleKey);
-              const title = interpolate(titleTemplate, alert.titleValues || alert.descValues, t);
+              const titleTemplate = alert.titleKey ? t(alert.titleKey) : alert.title;
+              const title = interpolate(titleTemplate, alert.titleValues || alert.descValues, t) || alert.title;
 
-              // Interpolate description template
-              const descTemplate = t(alert.descKey);
-              const desc = interpolate(descTemplate, alert.descValues, t);
+              const descTemplate = alert.descKey ? t(alert.descKey) : alert.description;
+              const desc = interpolate(descTemplate, alert.descValues, t) || alert.description;
+
+              const badgeText = alert.tagKey 
+                ? t(alert.tagKey) 
+                : (alert.riskLevel || t(style.badgeLabelKey) || 'Info');
 
               return (
-                <View
-                  key={alert.id}
-                  style={[styles.card, { backgroundColor: style.bg, borderLeftColor: style.border }]}
-                >
-                  <View style={styles.cardTopRow}>
-                    <View style={[styles.tag, { backgroundColor: style.tag }]}>
-                      <Text style={styles.tagText}>{t(alert.tagKey)}</Text>
+                <View key={alert.id || alert.title} style={styles.alertCard}>
+                  <View style={[styles.accentStrip, { backgroundColor: style.stripColor }]} />
+                  <View style={styles.cardContent}>
+                    <View style={styles.cardHeader}>
+                      <Text style={styles.alertTitle}>{title}</Text>
+                      <View style={[styles.badge, { backgroundColor: style.badgeBg }]}>
+                        <Text style={[styles.badgeText, { color: style.textColor }]}>
+                          {badgeText}
+                        </Text>
+                      </View>
                     </View>
-                    <Text style={styles.time}>{alert.time}</Text>
+                    <Text style={styles.alertDescription}>{desc}</Text>
                   </View>
-                  <Text style={styles.title}>{title}</Text>
-                  <Text style={styles.desc}>{desc}</Text>
                 </View>
               );
             })
           )}
+
+          {/* Timestamp */}
+          {lastUpdated ? <Text style={styles.timestamp}>Updated: {lastUpdated}</Text> : null}
+
         </ScrollView>
       )}
     </SafeAreaView>
@@ -111,19 +262,163 @@ export default function AlertsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: { backgroundColor: colors.primaryDark, paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20 },
-  headerTitle: { color: colors.white, fontSize: 22, fontWeight: '800' },
-  centerFill: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  body: { padding: 20, paddingBottom: 40, flexGrow: 1 },
-  emptyState: { alignItems: 'center', justifyContent: 'center', paddingTop: 80, gap: 10 },
-  emptyTitle: { fontSize: 17, fontWeight: '800', color: colors.white },
-  emptyDesc: { fontSize: 13, color: colors.textMuted, textAlign: 'center', paddingHorizontal: 30 },
-  card: { borderRadius: 12, padding: 16, marginBottom: 14, borderLeftWidth: 4 },
-  cardTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  tag: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6 },
-  tagText: { color: colors.white, fontSize: 10, fontWeight: '800' },
-  time: { fontSize: 11, color: colors.textMuted },
-  title: { fontWeight: '800', fontSize: 15, color: colors.textDark, marginBottom: 4 },
-  desc: { fontSize: 13, color: colors.textMuted, lineHeight: 18 },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#0A1C10' 
+  },
+  headerRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    paddingHorizontal: 20, 
+    paddingTop: 12, 
+    paddingBottom: 12 
+  },
+  headerTitle: { 
+    fontSize: 26, 
+    fontWeight: '800', 
+    color: '#FFFFFF', 
+    letterSpacing: 0.3 
+  },
+  refreshBtn: { 
+    width: 38, 
+    height: 38, 
+    borderRadius: 12, 
+    backgroundColor: 'rgba(255, 255, 255, 0.08)', 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+  centerFill: { 
+    flex: 1, 
+    alignItems: 'center', 
+    justifyContent: 'center' 
+  },
+  body: { 
+    paddingHorizontal: 20, 
+    paddingBottom: 32 
+  },
+  weatherCard: {
+    backgroundColor: '#4E9E5B',
+    borderRadius: 22,
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    marginBottom: 24,
+    marginTop: 8,
+  },
+  conditionText: {
+    color: '#E0F2E3',
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  tempText: {
+    color: '#FFFFFF',
+    fontSize: 48,
+    fontWeight: '800',
+    marginBottom: 18,
+  },
+  metricsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    width: '100%',
+    paddingTop: 4,
+  },
+  metricItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  metricValue: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: '800',
+    marginTop: 6,
+  },
+  metricLabel: {
+    color: '#E0F2E3',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  metricDivider: {
+    width: 1,
+    height: 38,
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 16,
+  },
+  emptyState: { 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    paddingVertical: 40, 
+    gap: 10 
+  },
+  emptyTitle: { 
+    fontSize: 17, 
+    fontWeight: '800', 
+    color: '#FFFFFF' 
+  },
+  emptyDesc: { 
+    fontSize: 13, 
+    color: '#8BA992', 
+    textAlign: 'center', 
+    paddingHorizontal: 20 
+  },
+  alertCard: {
+    backgroundColor: '#112516',
+    borderRadius: 14,
+    marginBottom: 14,
+    overflow: 'hidden',
+    position: 'relative',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  accentStrip: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 5,
+  },
+  cardContent: {
+    paddingVertical: 16,
+    paddingHorizontal: 18,
+    paddingLeft: 22,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  alertTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  badge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  alertDescription: {
+    fontSize: 13.5,
+    color: '#8BA992',
+    lineHeight: 20,
+  },
+  timestamp: {
+    textAlign: 'center',
+    color: '#527258',
+    fontSize: 12,
+    marginTop: 16,
+    marginBottom: 8,
+  },
 });
