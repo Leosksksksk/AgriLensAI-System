@@ -4,11 +4,15 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated, Refresh
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import NetInfo from '@react-native-community/netinfo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../theme/colors';
-import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
+import { syncOfflineScans } from '../services/syncService';
+
+const QUEUE_KEY = '@offline_scan_queue';
 
 function timeAgo(dateString) {
+  if (!dateString) return 'just now';
   const diffMs = Date.now() - new Date(dateString).getTime();
   const mins = Math.floor(diffMs / 60000);
   if (mins < 1) return 'just now';
@@ -38,26 +42,16 @@ export default function SyncScreen() {
 
   const fetchPendingRecords = useCallback(async () => {
     setErrorMsg(null);
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      setPendingRecords([]);
+    try {
+      const existingQueue = await AsyncStorage.getItem(QUEUE_KEY);
+      const queue = existingQueue ? JSON.parse(existingQueue) : [];
+      setPendingRecords(queue);
+      return queue;
+    } catch (e) {
+      console.error('Failed to load local queue:', e);
+      setErrorMsg('Failed to load local offline queue.');
       return [];
     }
-
-    const { data, error } = await supabase
-      .from('scan_results')
-      .select('id, image_url, status, created_at')
-      .eq('status', 'Pending AI Analysis')
-      .eq('farmer_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      setErrorMsg(error.message);
-      return [];
-    }
-    setPendingRecords(data ?? []);
-    return data ?? [];
   }, []);
 
   // Load once on mount
@@ -80,6 +74,9 @@ export default function SyncScreen() {
     loop.start();
 
     try {
+      // Execute the sync service to upload queued offline scans to Supabase
+      await syncOfflineScans();
+      // Refresh the local queue list view
       await fetchPendingRecords();
       setLastSyncedAt(new Date().toISOString());
     } catch (e) {
@@ -136,19 +133,19 @@ export default function SyncScreen() {
 
           {pendingRecords.length === 0 ? (
             <Text style={styles.emptyText}>
-              {syncing || refreshing ? '...' : 'All caught up — nothing pending.'}
+              {syncing || refreshing ? '...' : 'All caught up — nothing pending in queue.'}
             </Text>
           ) : (
-            pendingRecords.map((item) => (
-              <View key={item.id} style={styles.queueRow}>
+            pendingRecords.map((item, index) => (
+              <View key={item.id || index} style={styles.queueRow}>
                 <View style={styles.clockIconWrap}>
                   <Ionicons name="time-outline" size={16} color={colors.warning} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.queueItemTitle}>Scan #{item.id}</Text>
-                  <Text style={styles.queueItemStatus}>{item.status}</Text>
+                  <Text style={styles.queueItemTitle}>Scan #{item.id.slice(-4)}</Text>
+                  <Text style={styles.queueItemStatus}>Pending Offline Upload</Text>
                 </View>
-                <Text style={styles.queueItemTime}>{timeAgo(item.created_at)}</Text>
+                <Text style={styles.queueItemTime}>{timeAgo(item.timestamp)}</Text>
               </View>
             ))
           )}
