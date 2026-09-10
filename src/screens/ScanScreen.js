@@ -1,4 +1,5 @@
 // src/screens/ScanScreen.js
+import { saveScanOffline } from '../services/syncService';
 import { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -54,11 +55,6 @@ export default function ScanScreen({ navigation }) {
     setShowCamera(true);
   }
 
-  // Runs the real, on-device pixel analysis, including the plant-detection
-  // gate, then enriches a positive plant match with real reference data
-  // (symptom description + plausibility check) from plantInfoLookupService.
-  // Returns the result directly so the caller can decide whether to
-  // proceed with upload/navigation without depending on stale React state.
   async function runAnalysis(uri) {
     setAnalyzing(true);
     setDiagnosis(null);
@@ -72,11 +68,15 @@ export default function ScanScreen({ navigation }) {
         return result;
       }
 
-      // Enrich with an online reference summary + plausibility check.
-      // enrichDiagnosis() already falls back to local static text and
-      // isOffline: true if there's no connection or the lookup fails,
-      // so this is safe to call unconditionally here.
-      const enrichedResult = await enrichDiagnosis(result);
+      let enrichedResult = result;
+      if (isOnline) {
+        try {
+          enrichedResult = await enrichDiagnosis(result);
+        } catch (err) {
+          console.log('Online enrichment skipped due to connection state, using local model result.');
+        }
+      }
+
       setDiagnosis(enrichedResult);
       return enrichedResult;
     } catch (e) {
@@ -88,10 +88,13 @@ export default function ScanScreen({ navigation }) {
     }
   }
 
-  // Helper function to handle the Supabase storage upload and database sync
   async function uploadAndSyncToSupabase(uri, diagnosisResult) {
     try {
       setUploading(true);
+
+      if (!isOnline) {
+        throw new Error('Network request failed (offline)');
+      }
 
       const base64 = await FileSystem.readAsStringAsync(uri, {
         encoding: 'base64',
@@ -132,21 +135,20 @@ export default function ScanScreen({ navigation }) {
     } catch (error) {
       console.error('Supabase Sync Error:', error);
 
-      // Convert error message to a lowercase string safely
       const errorMsg = (error?.message || String(error)).toLowerCase();
 
-      // Check if it's a network/offline exception (like UnknownHostException)
       if (
+        !isOnline ||
         errorMsg.includes('unknownhostexception') || 
         errorMsg.includes('network request failed') || 
         errorMsg.includes('fetch failed')
       ) {
+        await saveScanOffline(uri, diagnosisResult);
         Alert.alert(
-          t('uploadFailedTitle'), 
-          t('uploadFailedNetwork')
+          'Saved Offline', 
+          'No internet connection detected. Your scan has been saved locally and will automatically sync once you are back online.'
         );
       } else {
-        // Fallback for other errors
         Alert.alert(
           t('uploadFailedTitle'), 
           t('uploadFailedGeneric')
@@ -162,8 +164,6 @@ export default function ScanScreen({ navigation }) {
     const result = await runAnalysis(uri);
 
     if (!result || result.isPlant === false) {
-      // Don't waste storage/bandwidth uploading a non-plant photo, and
-      // don't let the farmer proceed to a meaningless diagnosis.
       Alert.alert(t('notAPlantTitle'), t('notAPlantDesc'));
       return;
     }

@@ -6,8 +6,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as Updates from 'expo-updates';
+import NetInfo from '@react-native-community/netinfo';
 
 import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
+import { syncOfflineScans } from './src/services/syncService';
 import BottomTabBar from './src/components/BottomTabBar';
 import IntroScreen from './src/screens/IntroScreen';
 import LanguageSelectScreen from './src/screens/LanguageSelectScreen';
@@ -80,6 +82,18 @@ function UpdateNotifier() {
 }
 
 export default function App() {
+  // Listen globally for internet restoration to auto-sync offline scans
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      if (state.isConnected) {
+        console.log('Internet restored! Triggering background sync for offline scans...');
+        syncOfflineScans();
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
     <LanguageProvider>
       <UpdateNotifier />
