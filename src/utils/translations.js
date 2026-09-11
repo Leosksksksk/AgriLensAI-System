@@ -299,6 +299,12 @@ export const translations = {
     uploadFailedGeneric: "Something went wrong while uploading. Please try again."
   },
 
+  //sync message
+    syncSuccessTitle: 'Synced!',
+    syncSuccessDesc: 'Image successfully saved to Supabase bucket and database.',
+    savedOfflineTitle: 'Saved Offline',
+    savedOfflineDesc: 'No internet connection detected. Your scan has been saved locally and will automatically sync once you are back online.',
+
   fil: {
     // ---- your existing keys ----
     appName: "AgriLens AI",
@@ -595,7 +601,14 @@ export const translations = {
     // ---- offline warning ----
     uploadFailedTitle: "Bigo ang Pag-upload",
     uploadFailedNetwork: "Hindi makakonekta sa server. Pakisuri ang iyong internet connection at subukang muli.",
-    uploadFailedGeneric: "May nangyaring mali habang nag-a-upload. Mangyaring subukang muli."
+    uploadFailedGeneric: "May nangyaring mali habang nag-a-upload. Mangyaring subukang muli.",
+
+    //sync message
+    syncSuccessTitle: 'Naka-sync na!',
+    syncSuccessDesc: 'Matagumpay na nai-save ang larawan sa Supabase bucket at database.',
+    savedOfflineTitle: 'Na-save Offline',
+    savedOfflineDesc: 'Walang koneksyon sa internet. Na-save ang iyong scan at awtomatikong magsi-sync kapag online ka na.',
+
   },
 
   ceb: {
@@ -894,7 +907,13 @@ export const translations = {
     // ---- offline warning ----
     uploadFailedTitle: "Pakyas ang Pag-upload",
     uploadFailedNetwork: "Wala makakonekta sa server. Palihug susiha ang imong internet connection ug sulayi pag-usab.",
-    uploadFailedGeneric: "Adunay nahitabo nga sayop sa pag-upload. Palihug sulayi pag-usab."
+    uploadFailedGeneric: "Adunay nahitabo nga sayop sa pag-upload. Palihug sulayi pag-usab.",
+
+    //sync message
+    syncSuccessTitle: 'Na-sync na!',
+    syncSuccessDesc: 'Malamposon nga na-save ang hulagway sa Supabase bucket ug database.',
+    savedOfflineTitle: 'Na-save sa Offline',
+    savedOfflineDesc: 'Walay koneksyon sa internet. Na-save ang imong scan ug awtomatik nga mo-sync inig balik nimo og online.',
   },
 };
 

@@ -1,5 +1,5 @@
 // App.js
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -82,13 +82,20 @@ function UpdateNotifier() {
 }
 
 export default function App() {
+  // Use a ref to track the previous network state without causing re-renders
+  const wasOffline = useRef(false);
+
   // Listen globally for internet restoration to auto-sync offline scans
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
-      if (state.isConnected) {
+      // Only sync if we are connected NOW, but were offline BEFORE
+      if (state.isConnected && wasOffline.current) {
         console.log('Internet restored! Triggering background sync for offline scans...');
         syncOfflineScans();
       }
+      
+      // Update our tracker for the next network change
+      wasOffline.current = !state.isConnected;
     });
 
     return () => unsubscribe();

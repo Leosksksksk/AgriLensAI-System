@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
@@ -35,27 +36,43 @@ export default function ProfileScreen() {
   async function loadProfile() {
     setLoading(true);
     try {
+      // 1. Load local storage values first (from Login / Onboarding)
+      const localName = await AsyncStorage.getItem('user_full_name');
+      const localPhone = await AsyncStorage.getItem('user_phone');
+      const localBarangay = await AsyncStorage.getItem('user_barangay');
+      const localFarmSize = await AsyncStorage.getItem('user_farm_size');
+      const localCrops = await AsyncStorage.getItem('user_crop_types');
+
+      if (localName) setFullName(localName);
+      if (localPhone) setPhone(localPhone);
+      if (localBarangay) setBarangay(localBarangay);
+      if (localFarmSize) setFarmSize(localFarmSize);
+      if (localCrops) {
+        try { setSelectedCropIds(JSON.parse(localCrops)); } catch (err) {}
+      }
+
+      // 2. Fetch from Supabase, but let local storage take precedence if it exists
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No active session.');
+      if (user) {
+        const { data, error } = await supabase
+          .from('farmers')
+          .select('full_name, phone, barangay, farm_size, crop_types')
+          .eq('id', user.id)
+          .maybeSingle();
 
-      const { data, error } = await supabase
-        .from('farmers')
-        .select('full_name, phone, barangay, farm_size, crop_types')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (data) {
-        setFullName(data.full_name ?? '');
-        setPhone(data.phone ?? '');
-        setBarangay(data.barangay ?? '');
-        setFarmSize(data.farm_size ?? '');
-        setSelectedCropIds(data.crop_types ?? []);
+        if (!error && data) {
+          // Prioritize local storage (what the user just typed), fallback to DB
+          setFullName(localName || data.full_name || '');
+          setPhone(localPhone || data.phone || '');
+          setBarangay(localBarangay || data.barangay || '');
+          setFarmSize(localFarmSize || data.farm_size || '');
+          setSelectedCropIds(
+            localCrops ? JSON.parse(localCrops) : (data.crop_types?.length ? data.crop_types : [])
+          );
+        }
       }
     } catch (e) {
       console.warn('Profile load error:', e);
-      Alert.alert(t('profileLoadErrorTitle'), e.message);
     } finally {
       setLoading(false);
     }
@@ -64,22 +81,30 @@ export default function ProfileScreen() {
   async function handleSave() {
     setSaving(true);
     try {
+      // Save locally
+      await AsyncStorage.setItem('user_full_name', fullName);
+      await AsyncStorage.setItem('user_phone', phone);
+      await AsyncStorage.setItem('user_barangay', barangay);
+      await AsyncStorage.setItem('user_farm_size', farmSize);
+      await AsyncStorage.setItem('user_crop_types', JSON.stringify(selectedCropIds));
+
+      // Upsert to Supabase so the database is updated with the user's new inputs
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No active session.');
+      if (user) {
+        const { error } = await supabase.from('farmers').upsert(
+          {
+            id: user.id,
+            full_name: fullName,
+            phone,
+            barangay,
+            farm_size: farmSize,
+            crop_types: selectedCropIds,
+          },
+          { onConflict: 'id' }
+        );
 
-      const { error } = await supabase.from('farmers').upsert(
-        {
-          id: user.id,
-          full_name: fullName,
-          phone,
-          barangay,
-          farm_size: farmSize,
-          crop_types: selectedCropIds,
-        },
-        { onConflict: 'id' }
-      );
-
-      if (error) throw error;
+        if (error) throw error;
+      }
 
       Alert.alert(t('profileSavedTitle'), t('profileSavedDesc'));
     } catch (e) {

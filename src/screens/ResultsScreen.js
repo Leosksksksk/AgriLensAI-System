@@ -38,6 +38,41 @@ export default function ResultsScreen({ route, navigation }) {
 
   const activeStage = PROGRESSION_STAGES.find((s) => diagnosis.damagePercent >= s.threshold);
 
+  // NEW: State to hold the translated summary text
+  const [localizedSummary, setLocalizedSummary] = useState(onlineInfo?.summary || '');
+
+  // NEW: Automatically translate the summary text when the screen loads
+  useEffect(() => {
+    async function translateSummary() {
+      if (!onlineInfo?.summary) return;
+
+      let targetLang = 'en';
+      if (language === 'fil' || language === 'tl' || language === 'filipino') targetLang = 'tl';
+      else if (language === 'bis' || language === 'ceb' || language === 'bisaya') targetLang = 'ceb';
+
+      if (targetLang === 'en') {
+        setLocalizedSummary(onlineInfo.summary);
+        return;
+      }
+
+      try {
+        // Use Google's free translation endpoint
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(onlineInfo.summary)}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        // Combine the translated sentence chunks
+        const translatedText = data[0].map((item) => item[0]).join('');
+        setLocalizedSummary(translatedText);
+      } catch (error) {
+        console.error("Translation error:", error);
+        setLocalizedSummary(onlineInfo.summary); // Fallback to English if it fails
+      }
+    }
+
+    translateSummary();
+  }, [onlineInfo?.summary, language]);
+
   // Stop audio playback if the user leaves this screen
   useEffect(() => {
     return () => {
@@ -54,16 +89,12 @@ export default function ResultsScreen({ route, navigation }) {
     } else {
       const textToRead = `${diseaseName}. ${diseaseDesc}`;
 
-      // Map app language to device Text-To-Speech locales
       let speechLang = 'en-US';
       if (language === 'ceb' || language === 'bis' || language === 'fil') {
-        speechLang = 'fil-PH'; // Philippines locale voice engine
+        speechLang = 'fil-PH';
       }
 
-      // Fetch installed voices on the user's phone
       const availableVoices = await Speech.getAvailableVoicesAsync();
-
-      // Search for a male voice identifier installed on the device
       const maleVoice = availableVoices.find(
         (v) =>
           v.language.startsWith(speechLang.slice(0, 2)) &&
@@ -79,12 +110,30 @@ export default function ResultsScreen({ route, navigation }) {
       Speech.speak(textToRead, {
         language: speechLang,
         voice: maleVoice ? maleVoice.identifier : undefined,
-        pitch: 1.2, // Lower pitch deepens the tone to sound distinctly male
-        rate: 0.90, // Slightly lower speed for clarity / reading speed
+        pitch: 1.2, 
+        rate: 0.90, 
         onDone: () => setPlaying(false),
         onStopped: () => setPlaying(false),
         onError: () => setPlaying(false),
       });
+    }
+  };
+
+  const handleOpenSourceUrl = async (sourceUrl) => {
+    if (!sourceUrl) return;
+
+    let targetLang = 'en'; 
+    if (language === 'fil' || language === 'tl' || language === 'filipino') targetLang = 'tl';
+    else if (language === 'bis' || language === 'ceb' || language === 'bisaya') targetLang = 'ceb';
+
+    const finalUrl = targetLang === 'en' 
+      ? sourceUrl 
+      : `https://translate.google.com/translate?sl=en&tl=${targetLang}&u=${encodeURIComponent(sourceUrl)}`;
+
+    try {
+      await Linking.openURL(finalUrl);
+    } catch (error) {
+      console.error("Failed to open URL:", error);
     }
   };
 
@@ -123,7 +172,6 @@ export default function ResultsScreen({ route, navigation }) {
           </View>
         </View>
 
-        {/* ONLINE REFERENCE INFO — from plantInfoLookupService.enrichDiagnosis() */}
         {onlineInfo && (
           <View style={styles.card}>
             <View style={styles.onlineHeaderRow}>
@@ -145,12 +193,13 @@ export default function ResultsScreen({ route, navigation }) {
               </View>
             )}
 
-            {!!onlineInfo.summary && (
-              <Text style={styles.onlineSummary}>{onlineInfo.summary}</Text>
+            {/* Display the locally translated summary instead of the raw English one */}
+            {!!localizedSummary && (
+              <Text style={styles.onlineSummary}>{localizedSummary}</Text>
             )}
 
             {!!onlineInfo.sourceUrl && (
-              <TouchableOpacity onPress={() => Linking.openURL(onlineInfo.sourceUrl)}>
+              <TouchableOpacity onPress={() => handleOpenSourceUrl(onlineInfo.sourceUrl)}>
                 <Text style={styles.sourceLink}>{t('referenceInfoSourceLink')}</Text>
               </TouchableOpacity>
             )}
@@ -174,7 +223,6 @@ export default function ResultsScreen({ route, navigation }) {
           </View>
         )}
 
-        {/* FUNCTIONAL AUDIO DIAGNOSIS BUTTON */}
         <TouchableOpacity
           style={styles.audioBar}
           activeOpacity={0.40}

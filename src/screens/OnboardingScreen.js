@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
@@ -28,14 +29,24 @@ export default function OnboardingScreen({ navigation }) {
 
     setSaving(true);
     try {
+      const trimmedName = fullName.trim();
+      const trimmedBarangay = barangay.trim() || '';
+
+      // 1. Save locally to AsyncStorage so ProfileScreen reads it instantly
+      await AsyncStorage.setItem('user_full_name', trimmedName);
+      if (trimmedBarangay) {
+        await AsyncStorage.setItem('user_barangay', trimmedBarangay);
+      }
+
+      // 2. Sync with Supabase database
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No active session.');
 
       const { error } = await supabase.from('farmers').upsert(
         {
           id: user.id,
-          full_name: fullName.trim(),
-          barangay: barangay.trim() || null,
+          full_name: trimmedName,
+          barangay: trimmedBarangay || null,
         },
         { onConflict: 'id' }
       );

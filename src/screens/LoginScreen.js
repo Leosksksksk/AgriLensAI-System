@@ -32,14 +32,14 @@ export default function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
 
-  // Load saved user credentials on screen load
+  // Load saved user credentials on screen load using MATCHING keys
   useEffect(() => {
     const loadSavedCredentials = async () => {
       try {
-        const savedName = await AsyncStorage.getItem('userFullName');
-        const savedBarangay = await AsyncStorage.getItem('userBarangay');
-        const savedEmail = await AsyncStorage.getItem('userEmail');
-        const savedPhone = await AsyncStorage.getItem('userPhone');
+        const savedName = await AsyncStorage.getItem('user_full_name');
+        const savedBarangay = await AsyncStorage.getItem('user_barangay');
+        const savedEmail = await AsyncStorage.getItem('user_email');
+        const savedPhone = await AsyncStorage.getItem('user_phone');
 
         if (savedName) setFullName(savedName);
         if (savedBarangay) setBarangay(savedBarangay);
@@ -92,12 +92,12 @@ export default function LoginScreen({ navigation }) {
       const cleanEmail = email.trim();
       const cleanPhone = phone.trim();
 
-      // Save user profile fields locally to the device
-      await AsyncStorage.setItem('userFullName', cleanName);
-      await AsyncStorage.setItem('userBarangay', cleanBarangay);
-      await AsyncStorage.setItem('userEmail', cleanEmail);
+      // Save user profile fields locally using MATCHING keys for the Profile Dashboard
+      await AsyncStorage.setItem('user_full_name', cleanName);
+      await AsyncStorage.setItem('user_barangay', cleanBarangay);
+      await AsyncStorage.setItem('user_email', cleanEmail);
       if (cleanPhone) {
-        await AsyncStorage.setItem('userPhone', cleanPhone);
+        await AsyncStorage.setItem('user_phone', cleanPhone);
       }
 
       // Pass user metadata to Supabase Authentication

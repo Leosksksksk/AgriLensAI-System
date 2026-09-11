@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "allowJs": true,
+    "checkJs": false,
+    "jsx": "react-native"
+  },
+  "exclude": ["node_modules", "dist", "build", ".expo"]
+}

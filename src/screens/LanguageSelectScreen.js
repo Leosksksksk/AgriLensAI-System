@@ -6,9 +6,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
 
+// Explicitly define only the real language choices here
+const AVAILABLE_LANGUAGES = [
+  { id: 'en', label: 'ENGLISH' },
+  { id: 'fil', label: 'FILIPINO' },
+  { id: 'ceb', label: 'BISAYA' },
+];
+
 export default function LanguageSelectScreen({ navigation }) {
-  const { language, setLanguage, languages, languageLabels, t } = useLanguage();
-  const [selected, setSelected] = useState(language);
+  const { language, setLanguage, t } = useLanguage();
+  const [selected, setSelected] = useState(language || 'en');
 
   function handleContinue() {
     setLanguage(selected);
@@ -19,24 +26,24 @@ export default function LanguageSelectScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.logoCircle}>
-          <Ionicons name="globe-outline" size={32} color={colors.primaryLight} />
+          <Ionicons name="globe-outline" size={32} color={colors.primaryLight || colors.primary} />
         </View>
 
         <Text style={styles.title}>{t('chooseLanguageTitle')}</Text>
         <Text style={styles.subtitle}>{t('chooseLanguageSubtitle')}</Text>
 
         <View style={styles.optionsList}>
-          {languages.map((lang) => {
-            const active = selected === lang;
+          {AVAILABLE_LANGUAGES.map((lang) => {
+            const active = selected === lang.id;
             return (
               <TouchableOpacity
-                key={lang}
+                key={lang.id}
                 style={[styles.option, active && styles.optionActive]}
-                onPress={() => setSelected(lang)}
+                onPress={() => setSelected(lang.id)}
                 activeOpacity={0.8}
               >
                 <Text style={[styles.optionText, active && styles.optionTextActive]}>
-                  {languageLabels[lang]}
+                  {lang.label}
                 </Text>
                 {active && (
                   <Ionicons name="checkmark-circle" size={22} color={colors.white} />

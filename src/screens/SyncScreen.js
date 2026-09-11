@@ -59,7 +59,7 @@ export default function SyncScreen() {
     fetchPendingRecords();
   }, [fetchPendingRecords]);
 
-  async function handleSync() {
+   async function handleSync() {
     if (!isOnline) {
       setErrorMsg('No internet connection. Connect and try again.');
       return;
@@ -74,11 +74,16 @@ export default function SyncScreen() {
     loop.start();
 
     try {
-      // Execute the sync service to upload queued offline scans to Supabase
-      await syncOfflineScans();
-      // Refresh the local queue list view
+      const summary = await syncOfflineScans();
       await fetchPendingRecords();
       setLastSyncedAt(new Date().toISOString());
+
+      if (summary.failed > 0) {
+        const firstReason = summary.errors[0]?.reason ?? 'Unknown error';
+        setErrorMsg(
+          `${summary.synced} synced, ${summary.failed} failed. (${firstReason})`
+        );
+      }
     } catch (e) {
       setErrorMsg(e.message ?? 'Sync failed.');
     } finally {
