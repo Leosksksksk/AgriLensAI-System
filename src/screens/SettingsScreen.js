@@ -28,7 +28,7 @@ export default function SettingsScreen({ navigation }) {
     setCameraQuality(options[(idx + 1) % options.length]);
   }
 
-    async function performLogOut() {
+  async function performLogOut() {
     setLoggingOut(true);
     try {
       const { error } = await supabase.auth.signOut();
@@ -57,6 +57,11 @@ export default function SettingsScreen({ navigation }) {
     ]);
   }
 
+  // STRICT FILTER: Only allow languages that actually exist and have a valid label
+  const validLanguages = ['en', 'fil', 'ceb'].filter(
+    (lang) => languageLabels && languageLabels[lang]
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -72,7 +77,7 @@ export default function SettingsScreen({ navigation }) {
               <Text style={styles.rowLabel}>Language</Text>
             </View>
             <View style={styles.rowRight}>
-              <Text style={styles.rowValue}>{languageLabels[language]}</Text>
+              <Text style={styles.rowValue}>{languageLabels[language] || 'ENGLISH'}</Text>
               <Ionicons name="chevron-down" size={16} color={colors.textLight} />
             </View>
           </TouchableOpacity>
@@ -152,7 +157,7 @@ export default function SettingsScreen({ navigation }) {
         <Pressable style={styles.modalOverlay} onPress={() => setLanguagePickerVisible(false)}>
           <Pressable style={styles.modalSheet} onPress={() => {}}>
             <Text style={styles.modalTitle}>Select Language</Text>
-            {languages.map((lang) => (
+            {validLanguages.map((lang) => (
               <TouchableOpacity
                 key={lang}
                 style={styles.modalOption}
