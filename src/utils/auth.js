@@ -1,18 +1,29 @@
 // src/utils/auth.js
 import { supabase } from '../../supabaseClient';
+import NetInfo from '@react-native-community/netinfo';
 
 export async function getValidUserSession(requireAuth = true) {
+  const netInfo = await NetInfo.fetch();
+  const isOnline = !!netInfo.isConnected;
+  
   let { data: { session } } = await supabase.auth.getSession();
   
   if (!session) {
-    const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
-    if (refreshError || !refreshedSession) {
+    if (isOnline) {
+      const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError || !refreshedSession) {
+        if (requireAuth) {
+          return { user: null, session: null, reason: 'no_session' };
+        }
+        return { user: null, session: null, reason: 'no_session' };
+      }
+      session = refreshedSession;
+    } else {
       if (requireAuth) {
         return { user: null, session: null, reason: 'no_session' };
       }
       return { user: null, session: null, reason: 'no_session' };
     }
-    session = refreshedSession;
   }
   
   const { data: { user } } = await supabase.auth.getUser();
