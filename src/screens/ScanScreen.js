@@ -15,6 +15,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { analyzeLeaf } from '../services/aiEngineService';
 import { enrichDiagnosis } from '../services/plantInfoLookupService';
 import { getDueReminders, dismissReminder } from '../utils/reminderStorage';
+import { getValidUserSession } from '../utils/auth';
 
 export default function ScanScreen({ navigation }) {
   const { language, languageLabels, t } = useLanguage();
@@ -96,6 +97,11 @@ export default function ScanScreen({ navigation }) {
         throw new Error('Network request failed (offline)');
       }
 
+      const { user } = await getValidUserSession();
+      if (!user) {
+        throw new Error('No active session. Please log in again.');
+      }
+
       const base64 = await FileSystem.readAsStringAsync(uri, {
         encoding: 'base64',
       });
@@ -114,9 +120,6 @@ export default function ScanScreen({ navigation }) {
         .getPublicUrl(filename);
 
       const publicUrl = publicUrlData.publicUrl;
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No active session. Please log in again.');
 
       const { error: dbError } = await supabase
         .from('scan_results')

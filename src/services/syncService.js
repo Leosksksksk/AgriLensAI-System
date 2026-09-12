@@ -4,6 +4,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import NetInfo from '@react-native-community/netinfo';
 import { decode } from 'base64-arraybuffer';
 import { supabase } from '../../supabaseClient';
+import { getValidUserSession } from '../utils/auth';
 
 const QUEUE_KEY = '@offline_scan_queue';
 
@@ -63,11 +64,9 @@ export const syncOfflineScans = async (options = {}) => {
     return { attempted: true, synced: 0, failed: 0, errors: [], reason: 'empty_queue' };
   }
 
-  if (requireAuth) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return { attempted: false, synced: 0, failed: 0, errors: [], reason: 'no_session' };
-    }
+  const { user, reason: authReason } = await getValidUserSession(requireAuth);
+  if (!user) {
+    return { attempted: false, synced: 0, failed: 0, errors: [], reason: authReason || 'no_session' };
   }
 
   let synced = 0;
@@ -89,9 +88,6 @@ export const syncOfflineScans = async (options = {}) => {
       const arrayBuffer = decode(base64);
 
       const filename = `agrilens_scan_${scan.id}.jpg`;
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No active session. User must be logged in.');
 
       const { error: storageError } = await supabase.storage
         .from('scans')

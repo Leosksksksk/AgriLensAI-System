@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
+import { getValidUserSession } from '../utils/auth';
 
 const ALL_CROPS = [
   { id: 'tomato', labelKey: 'cropTomato' },
@@ -52,7 +53,7 @@ export default function ProfileScreen() {
       }
 
       // 2. Fetch from Supabase, but let local storage take precedence if it exists
-      const { data: { user } } = await supabase.auth.getUser();
+      const { user } = await getValidUserSession(false);
       if (user) {
         const { data, error } = await supabase
           .from('farmers')
@@ -89,7 +90,7 @@ export default function ProfileScreen() {
       await AsyncStorage.setItem('user_crop_types', JSON.stringify(selectedCropIds));
 
       // Upsert to Supabase so the database is updated with the user's new inputs
-      const { data: { user } } = await supabase.auth.getUser();
+      const { user } = await getValidUserSession();
       if (user) {
         const { error } = await supabase.from('farmers').upsert(
           {

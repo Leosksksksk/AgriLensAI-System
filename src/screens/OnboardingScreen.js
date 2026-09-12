@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
+import { getValidUserSession } from '../utils/auth';
 
 export default function OnboardingScreen({ navigation }) {
   const { t } = useLanguage();
@@ -39,8 +40,8 @@ export default function OnboardingScreen({ navigation }) {
       }
 
       // 2. Sync with Supabase database
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No active session.');
+      const { user } = await getValidUserSession();
+      if (!user) throw new Error('No active session. Please log in again.');
 
       const { error } = await supabase.from('farmers').upsert(
         {

@@ -4,6 +4,7 @@ import { View, Text, Image, StyleSheet, Animated } from 'react-native';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
+import { getValidUserSession } from '../utils/auth';
 
 export default function IntroScreen({ navigation }) {
   const { t, hasSelectedLanguage, isLoading } = useLanguage();
@@ -44,8 +45,8 @@ export default function IntroScreen({ navigation }) {
 
       // Check for a real, already-verified session
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session && !session.user.is_anonymous) {
+        const { user } = await getValidUserSession(false);
+        if (user) {
           navigation.replace('MainTabs');
           return;
         }

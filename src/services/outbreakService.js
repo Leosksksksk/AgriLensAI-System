@@ -1,8 +1,9 @@
 // src/services/outbreakService.js
 import { supabase } from '../../supabaseClient';
+import { getValidUserSession } from '../utils/auth';
 
 export async function fetchNearbyOutbreaks() {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { user } = await getValidUserSession(false);
   if (!user) return [];
 
   const { data: farmerRow, error: farmerError } = await supabase
@@ -26,7 +27,7 @@ export async function fetchNearbyOutbreaks() {
 }
 
 export async function fetchPendingScanCount() {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { user } = await getValidUserSession(false);
   if (!user) return 0;
 
   const { count, error } = await supabase
