@@ -33,6 +33,7 @@ export async function buildAlertsFeed() {
           temp: Math.round(weather.temperature),
           humidity: Math.round(weather.humidity),
           rain: Math.round(weather.rainProbability),
+          wind: Math.round(weather.windSpeedKmh),
         },
         sortTime: now.getTime(),
       });

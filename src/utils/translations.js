@@ -221,7 +221,7 @@ export const translations = {
     loginFailedTitle: "Login Failed",
 
     // ---- weather risk screen ----
-    alertWeatherRiskDesc: "{temp}°C, {humidity}% humidity, {rain}% chance of rain — conditions favor rapid disease spread.",
+    alertWeatherRiskDesc: "{temp}°C, {humidity}% humidity, {wind} km/h wind, {rain}% chance of rain — conditions favor rapid disease spread.",
     alertBlightNearbyDesc: "{count} farm(s) in your barangay reported {disease} recently. Protect your crops.",
     alertPendingDescDynamic: "You have {count} record(s) waiting to sync. Connect to internet to sync now.",
     alertReminderDesc: "Scheduled treatment reminder for your {crop} regarding {disease}.",
@@ -532,7 +532,7 @@ export const translations = {
     loginFailedTitle: "Hindi Naka-login",
 
     // ---- weather risk screen ----
-    alertWeatherRiskDesc: "{temp}°C, {humidity}% halumigmig, {rain}% tsansa ng ulan — paborable ang kondisyon para sa mabilis na paglaganap ng sakit.",
+    alertWeatherRiskDesc: "{temp}°C, {humidity}% halumigmig, {wind} km/h hangin, {rain}% tsansa ng ulan — paborable ang kondisyon para sa mabilis na paglaganap ng sakit.",
     alertBlightNearbyDesc: "{count} sakahan sa inyong barangay ang nag-ulat ng {disease} kamakailan. Protektahan ang inyong pananim.",
     alertPendingDescDynamic: "May {count} record kayong naghihintay i-sync. Kumonekta sa internet para i-sync ngayon.",
     alertReminderDesc: "Naka-iskedyul na paalala sa paggamot para sa inyong {crop} tungkol sa {disease}.",
@@ -843,7 +843,7 @@ export const translations = {
     loginFailedTitle: "Wala Naka-login",
 
     // ---- weather risk screen ----
-    alertWeatherRiskDesc: "{temp}°C, {humidity}% kaumog, {rain}% tsansa sa ulan — paborable ang kondisyon para sa paspas nga pagkatap sa sakit.",
+    alertWeatherRiskDesc: "{temp}°C, {humidity}% kaumog, {wind} km/h hangin, {rain}% tsansa sa ulan — paborable ang kondisyon para sa paspas nga pagkatap sa sakit.",
     alertBlightNearbyDesc: "{count} ka uma sa inyong barangay ang nagreport og {disease} bag-ohay. Panalipdi ang inyong tanom.",
     alertPendingDescDynamic: "Naa moy {count} ka record nga naghulat i-sync. Konekta sa internet para i-sync karon.",
     alertReminderDesc: "Naka-iskedyul nga pahinumdom sa tambal para sa inyong {crop} bahin sa {disease}.",
