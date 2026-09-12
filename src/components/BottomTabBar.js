@@ -2,6 +2,7 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../theme/colors';
 
 const TABS = [
@@ -14,10 +15,11 @@ const TABS = [
 ];
 
 export default function BottomTabBar({ state, navigation }) {
+  const insets = useSafeAreaInsets();
   const activeRouteName = state.routes[state.index].name;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingBottom: insets.bottom + 10 }]}>
       {TABS.map((tab) => {
         const isActive = activeRouteName === tab.key;
         return (
@@ -47,7 +49,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
     paddingTop: 8,
-    paddingBottom: 10,
   },
   tabItem: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
   label: { fontSize: 11, color: colors.textLight, marginTop: 2 },

@@ -296,14 +296,20 @@ export const translations = {
     // ---- offline warning ----
     uploadFailedTitle: "Upload Failed",
     uploadFailedNetwork: "Unable to connect to the server. Please check your internet connection and try again.",
-    uploadFailedGeneric: "Something went wrong while uploading. Please try again."
-  },
+    uploadFailedGeneric: "Something went wrong while uploading. Please try again.",
 
-  //sync message
+    //app update notification
+    updateAvailableTitle: "Update Available",
+    updateAvailableDesc: "A new version of AgriLens AI is available. Please update to get the latest features.",
+    updateNow: "Update Now",
+
+    //sync message
     syncSuccessTitle: 'Synced!',
     syncSuccessDesc: 'Image successfully saved to Supabase bucket and database.',
     savedOfflineTitle: 'Saved Offline',
     savedOfflineDesc: 'No internet connection detected. Your scan has been saved locally and will automatically sync once you are back online.',
+
+  },
 
   fil: {
     // ---- your existing keys ----
@@ -608,6 +614,11 @@ export const translations = {
     syncSuccessDesc: 'Matagumpay na nai-save ang larawan sa Supabase bucket at database.',
     savedOfflineTitle: 'Na-save Offline',
     savedOfflineDesc: 'Walang koneksyon sa internet. Na-save ang iyong scan at awtomatikong magsi-sync kapag online ka na.',
+
+    //app update notification
+    updateAvailableTitle: "May Bagong Update",
+    updateAvailableDesc: "May bagong bersyon ang AgriLens AI. Mangyaring mag-update para sa mga pinakabagong feature.",
+    updateNow: "I-update Na",
 
   },
 
@@ -914,6 +925,11 @@ export const translations = {
     syncSuccessDesc: 'Malamposon nga na-save ang hulagway sa Supabase bucket ug database.',
     savedOfflineTitle: 'Na-save sa Offline',
     savedOfflineDesc: 'Walay koneksyon sa internet. Na-save ang imong scan ug awtomatik nga mo-sync inig balik nimo og online.',
+
+    //app update notification
+    updateAvailableTitle: "Adunay Bag-ong Update",
+    updateAvailableDesc: "Adunay bag-ong bersyon ang AgriLens AI. Palihug pag-update aron makuha ang pinakabag-ong feature.",
+    updateNow: "I-update Karon",
   },
 };
 
