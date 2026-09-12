@@ -1,5 +1,5 @@
 // App.js
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -7,6 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as Updates from 'expo-updates';
 import NetInfo from '@react-native-community/netinfo';
+import { supabase } from './supabaseClient';
 
 import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
 import { syncOfflineScans } from './src/services/syncService';
@@ -81,29 +82,86 @@ function UpdateNotifier() {
   return null;
 }
 
-export default function App() {
-  // Use a ref to track the previous network state without causing re-renders
+function AuthSyncTrigger() {
+  const [synced, setSynced] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkSessionAndSync = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session && !synced && isMounted) {
+          console.log('User session detected, triggering offline scan sync...');
+          const result = await syncOfflineScans({ requireAuth: true });
+          if (result.attempted) {
+            console.log(`Auth-triggered sync complete: ${result.synced} synced, ${result.failed} failed`);
+          }
+          setSynced(true);
+        }
+      } catch (error) {
+        console.warn('Auth sync trigger error:', error);
+      }
+    };
+
+    checkSessionAndSync();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session && !synced && isMounted) {
+        console.log('User signed in, triggering offline scan sync...');
+        syncOfflineScans({ requireAuth: true }).then(result => {
+          if (result.attempted) {
+            console.log(`Sign-in triggered sync complete: ${result.synced} synced, ${result.failed} failed`);
+          }
+        });
+        setSynced(true);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [synced]);
+
+  return null;
+}
+
+function NetworkSyncTrigger() {
   const wasOffline = useRef(false);
 
-  // Listen globally for internet restoration to auto-sync offline scans
   useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener(state => {
-      // Only sync if we are connected NOW, but were offline BEFORE
+    const unsubscribe = NetInfo.addEventListener(async (state) => {
       if (state.isConnected && wasOffline.current) {
-        console.log('Internet restored! Triggering background sync for offline scans...');
-        syncOfflineScans();
+        console.log('Internet restored! Checking for offline scans to sync...');
+        
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          console.log('Active session found, triggering background sync...');
+          const result = await syncOfflineScans({ requireAuth: true });
+          if (result.attempted) {
+            console.log(`Network-restored sync complete: ${result.synced} synced, ${result.failed} failed`);
+          }
+        } else {
+          console.log('No active session, skipping background sync. Will sync when user logs in.');
+        }
       }
       
-      // Update our tracker for the next network change
       wasOffline.current = !state.isConnected;
     });
 
     return () => unsubscribe();
   }, []);
 
+  return null;
+}
+
+export default function App() {
   return (
     <LanguageProvider>
       <UpdateNotifier />
+      <AuthSyncTrigger />
+      <NetworkSyncTrigger />
       <NavigationContainer>
         <StatusBar style="light" />
         <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
