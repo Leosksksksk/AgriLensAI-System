@@ -1,4 +1,6 @@
 // src/screens/IntroScreen.js
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
 import { useEffect, useRef } from 'react';
 import { View, Text, Image, StyleSheet, Animated } from 'react-native';
 import { colors } from '../theme/colors';
@@ -52,6 +54,18 @@ export default function IntroScreen({ navigation }) {
         }
       } catch (e) {
         console.warn('Session check error:', e);
+      }
+
+      // If offline and user already signed up (has local profile data), go to MainTabs instead of Login
+      try {
+        const hasLocalProfile = await AsyncStorage.getItem('user_full_name');
+        const isOffline = !(await NetInfo.fetch()).isConnected;
+        if (isOffline && hasLocalProfile) {
+          navigation.replace('MainTabs');
+          return;
+        }
+      } catch (e) {
+        console.warn('Offline profile check error:', e);
       }
 
       navigation.replace('Login');
