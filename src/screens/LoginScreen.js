@@ -70,12 +70,12 @@ export default function LoginScreen({ navigation }) {
 
   const handleSendOTP = async () => {
     if (!fullName.trim()) {
-      Alert.alert('Required Field', 'Please enter your Full Name.');
+      Alert.alert(t('requiredFieldTitle'), t('requiredFullNameDesc'));
       return;
     }
 
     if (!barangay.trim()) {
-      Alert.alert('Required Field', 'Please enter your Barangay.');
+      Alert.alert(t('requiredFieldTitle'), t('requiredBarangayDesc'));
       return;
     }
 
@@ -130,8 +130,8 @@ export default function LoginScreen({ navigation }) {
       // Clean alert for Supabase email rate limits
       if (error.message && error.message.includes('security purposes')) {
         Alert.alert(
-          'Please Wait',
-          'A verification code was recently requested. Please wait a few seconds before trying again.'
+          t('pleaseWaitTitle'),
+          t('pleaseWaitDesc')
         );
       } else {
         Alert.alert(t('loginFailedTitle'), error.message);

@@ -1,4 +1,5 @@
 // src/screens/ResultsScreen.js
+import { supabase } from '../../supabaseClient'; // Adjust path if necessary
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -37,6 +38,49 @@ export default function ResultsScreen({ route, navigation }) {
   const onlineInfo = diagnosis.onlineInfo;
 
   const activeStage = PROGRESSION_STAGES.find((s) => diagnosis.damagePercent >= s.threshold);
+
+  const getSeverityColor = (severity) => {
+    switch (severity) {
+      case 'Mild': return '#FBC02D';
+      case 'Moderate': return colors.warning;
+      case 'Severe': return '#D32F2F';
+      default: return colors.textMuted;
+    }
+  };
+
+  // NEW: Save the dynamic scan results to Supabase history when the screen loads
+  useEffect(() => {
+    async function saveScanToHistory() {
+      // Prevent saving if the screen loaded without real diagnosis params
+      if (!route?.params?.diagnosis) return;
+
+      try {
+        const { error } = await supabase
+          .from('scan_results')
+          .insert([
+            {
+              // Uses the actual crop name passed to this screen!
+              crop_name: cropLabel, 
+              // Uses the exact disease the AI detected
+              disease_id: diagnosis.diseaseId, 
+              // Uses the exact severity percentage
+              damage_percent: diagnosis.damagePercent, 
+              status: "Analysis Complete",
+            }
+          ]);
+
+        if (error) {
+          console.error("Error saving scan to history:", error);
+        } else {
+          console.log("Successfully saved dynamic scan to Supabase!");
+        }
+      } catch (err) {
+        console.error("Supabase insert failed:", err);
+      }
+    }
+
+    saveScanToHistory();
+  }, [route?.params?.diagnosis, cropLabel, diagnosis]); 
 
   // NEW: State to hold the translated summary text
   const [localizedSummary, setLocalizedSummary] = useState(onlineInfo?.summary || '');
@@ -158,6 +202,15 @@ export default function ResultsScreen({ route, navigation }) {
               label={severityLabel}
             />
           </View>
+          {diagnosis.diseaseId !== 'healthy' && (
+            <View style={styles.severityBadgeContainer}>
+              <View style={[styles.severityBadge, { backgroundColor: getSeverityColor(diagnosis.severity) }]}>
+                <Text style={styles.severityBadgeText}>
+                  {t(`severity${diagnosis.severity}`).toUpperCase()}
+                </Text>
+              </View>
+            </View>
+          )}
           <Text style={styles.diseaseLabel}>{diseaseName}</Text>
           <Text style={styles.diseaseDesc}>{diseaseDesc}</Text>
         </View>
@@ -309,6 +362,15 @@ const styles = StyleSheet.create({
   dot: { width: 10, height: 10, borderRadius: 5, marginRight: 12 },
   progressionLabel: { fontSize: 14, color: colors.textMuted },
   progressionActive: { color: colors.textDark, fontWeight: '700' },
+  severityBadgeContainer: { marginTop: 8, alignItems: 'center' },
+  severityBadge: {
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 20,
+    minWidth: 120,
+    alignItems: 'center',
+  },
+  severityBadgeText: { color: colors.white, fontWeight: '800', fontSize: 13 },
   audioBar: {
     backgroundColor: colors.primary,
     borderRadius: 14,

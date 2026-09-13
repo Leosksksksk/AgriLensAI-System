@@ -11,7 +11,7 @@ import { useLanguage } from '../context/LanguageContext';
 const FORECAST = [
   { dayKey: 'today', temp: '32°C', icon: 'rainy-outline', riskKey: 'riskHigh' },
   { dayKey: 'tomorrow', temp: '28°C', icon: 'sunny-outline', riskKey: 'riskLow' },
-  { day: 'Wednesday', temp: '30°C', icon: 'cloudy-outline', riskKey: 'riskModerate' },
+  { dayKey: 'dayWednesday', temp: '30°C', icon: 'cloudy-outline', riskKey: 'riskModerate' },
 ];
 
 // riskColor() (in theme/colors.js) expects the original English risk strings —

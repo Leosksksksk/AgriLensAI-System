@@ -11,16 +11,16 @@ import { syncOfflineScans } from '../services/syncService';
 
 const QUEUE_KEY = '@offline_scan_queue';
 
-function timeAgo(dateString) {
-  if (!dateString) return 'just now';
+function timeAgo(dateString, t) {
+  if (!dateString) return t('timeJustNow');
   const diffMs = Date.now() - new Date(dateString).getTime();
   const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return t('timeJustNow');
+  if (mins < 60) return t('timeMinutesAgo').replace('{mins}', mins);
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
+  if (hrs < 24) return t('timeHoursAgo').replace('{hrs}', hrs);
   const days = Math.floor(hrs / 24);
-  return `${days}d ago`;
+  return t('timeDaysAgo').replace('{days}', days);
 }
 
 export default function SyncScreen() {
@@ -49,7 +49,7 @@ export default function SyncScreen() {
       return queue;
     } catch (e) {
       console.error('Failed to load local queue:', e);
-      setErrorMsg('Failed to load local offline queue.');
+      setErrorMsg(t('syncLoadError'));
       return [];
     }
   }, []);
@@ -61,7 +61,7 @@ export default function SyncScreen() {
 
    async function handleSync() {
     if (!isOnline) {
-      setErrorMsg('No internet connection. Connect and try again.');
+      setErrorMsg(t('syncNoInternet'));
       return;
     }
 
@@ -81,11 +81,14 @@ export default function SyncScreen() {
       if (summary.failed > 0) {
         const firstReason = summary.errors[0]?.reason ?? 'Unknown error';
         setErrorMsg(
-          `${summary.synced} synced, ${summary.failed} failed. (${firstReason})`
+          t('syncPartialSuccess')
+            .replace('{synced}', summary.synced)
+            .replace('{failed}', summary.failed)
+            .replace('{reason}', firstReason)
         );
       }
     } catch (e) {
-      setErrorMsg(e.message ?? 'Sync failed.');
+      setErrorMsg(e.message ?? t('syncFailed'));
     } finally {
       loop.stop();
       setSyncing(false);
@@ -138,7 +141,7 @@ export default function SyncScreen() {
 
           {pendingRecords.length === 0 ? (
             <Text style={styles.emptyText}>
-              {syncing || refreshing ? '...' : 'All caught up — nothing pending in queue.'}
+              {syncing || refreshing ? '...' : t('syncAllCaughtUp')}
             </Text>
           ) : (
             pendingRecords.map((item, index) => (
@@ -148,9 +151,9 @@ export default function SyncScreen() {
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.queueItemTitle}>Scan #{item.id.slice(-4)}</Text>
-                  <Text style={styles.queueItemStatus}>Pending Offline Upload</Text>
+                  <Text style={styles.queueItemStatus}>{t('syncPendingStatus')}</Text>
                 </View>
-                <Text style={styles.queueItemTime}>{timeAgo(item.timestamp)}</Text>
+                <Text style={styles.queueItemTime}>{timeAgo(item.timestamp, t)}</Text>
               </View>
             ))
           )}

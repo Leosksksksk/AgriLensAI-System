@@ -56,7 +56,7 @@ export default function TreatmentPlanScreen({ route, navigation }) {
       );
     } catch (e) {
       console.warn('Reminder scheduling error:', e);
-      Alert.alert('Error', e.message ?? 'Could not save the reminder.');
+      Alert.alert(t('reminderErrorTitle'), e.message ?? t('reminderErrorDesc'));
     } finally {
       setScheduling(false);
     }
@@ -83,7 +83,7 @@ export default function TreatmentPlanScreen({ route, navigation }) {
             <Text style={styles.diseaseName}>{diseaseName}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 2 }}>
               <View style={[styles.severityDot, { backgroundColor: severityColor('moderate') }]} />
-              <Text style={styles.severityText}>{damagePercent.toFixed(1)}% leaf tissue damage</Text>
+              <Text style={styles.severityText}>{damagePercent.toFixed(1)}% {t('leafTissueDamage')}</Text>
             </View>
           </View>
         </View>

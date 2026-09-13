@@ -7,6 +7,7 @@ import { CommonActions } from '@react-navigation/native';
 import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
+import { t } from '../utils/translations'; // <-- Added this import
 
 export default function SettingsScreen({ navigation }) {
   const { language, setLanguage, languages, languageLabels, resetLanguageSelection } = useLanguage();
@@ -44,16 +45,16 @@ export default function SettingsScreen({ navigation }) {
         })
       );
     } catch (e) {
-      Alert.alert('Log Out Failed', e.message ?? 'Please try again.');
+      Alert.alert(t('logoutFailedTitle'), e.message ?? t('logoutFailedDesc'));
     } finally {
       setLoggingOut(false);
     }
   }
 
   function handleLogOut() {
-    Alert.alert('Log out', 'Are you sure you want to log out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Log Out', style: 'destructive', onPress: performLogOut },
+    Alert.alert(t('logoutConfirmTitle'), t('logoutConfirmDesc'), [
+      { text: t('cancelText'), style: 'cancel' },
+      { text: t('logoutButtonText'), style: 'destructive', onPress: performLogOut },
     ]);
   }
 

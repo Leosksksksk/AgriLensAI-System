@@ -49,7 +49,7 @@ export default function ScanScreen({ navigation }) {
     if (!permission?.granted) {
       const res = await requestPermission();
       if (!res.granted) {
-        Alert.alert('Camera permission needed', 'Enable camera access to scan a leaf.');
+        Alert.alert(t('cameraPermissionTitle'), t('cameraPermissionDesc'));
         return;
       }
     }
@@ -134,7 +134,7 @@ export default function ScanScreen({ navigation }) {
 
       if (dbError) throw dbError;
 
-      Alert.alert('Synced!', 'Image successfully saved to Supabase bucket and database.');
+      Alert.alert(t('syncSuccessTitle'), t('syncSuccessDesc'));
     } catch (error) {
       console.error('Supabase Sync Error:', error);
 
@@ -148,8 +148,8 @@ export default function ScanScreen({ navigation }) {
       ) {
         await saveScanOffline(uri, diagnosisResult);
         Alert.alert(
-          'Saved Offline', 
-          'No internet connection detected. Your scan has been saved locally and will automatically sync once you are back online.'
+          t('savedOfflineTitle'), 
+          t('savedOfflineDesc')
         );
       } else {
         Alert.alert(
@@ -177,7 +177,7 @@ export default function ScanScreen({ navigation }) {
   async function handleUploadPhoto() {
     const res = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!res.granted) {
-      Alert.alert('Photo library permission needed', 'Enable photo access to select a leaf photo.');
+      Alert.alert(t('photoPermissionTitle'), t('photoPermissionDesc'));
       return;
     }
     const picked = await ImagePicker.launchImageLibraryAsync({
@@ -193,11 +193,11 @@ export default function ScanScreen({ navigation }) {
 
   function handleAnalyze() {
     if (!imageUri) {
-      Alert.alert('No photo yet', 'Take or upload a leaf photo first.');
+      Alert.alert(t('noPhotoTitle'), t('noPhotoDesc'));
       return;
     }
     if (analyzing) {
-      Alert.alert('Still analyzing', 'Please wait a moment while we finish analyzing your leaf photo.');
+      Alert.alert(t('analyzingTitle'), t('analyzingDesc'));
       return;
     }
     if (notPlantWarning) {
@@ -205,7 +205,7 @@ export default function ScanScreen({ navigation }) {
       return;
     }
     if (!diagnosis) {
-      Alert.alert('Analysis unavailable', 'Could not analyze this photo. Please try again with a clearer image.');
+      Alert.alert(t('analysisUnavailableTitle'), t('analysisUnavailableDesc'));
       return;
     }
     navigation.navigate('Results', { imageUri, diagnosis });
@@ -217,7 +217,7 @@ export default function ScanScreen({ navigation }) {
         <CameraView style={{ flex: 1 }} facing="back" ref={cameraRef} />
         <View style={styles.cameraControls}>
           <TouchableOpacity style={styles.cameraCancelBtn} onPress={() => setShowCamera(false)}>
-            <Text style={styles.cameraCancelText}>Cancel</Text>
+            <Text style={styles.cameraCancelText}>{t('cameraCancelText')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.captureBtn}
@@ -308,7 +308,7 @@ export default function ScanScreen({ navigation }) {
         {/* UPLOAD & TAKE PHOTO BUTTONS */}
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={handleUploadPhoto} disabled={uploading}>
-            <Text style={styles.outlineBtnText}>{uploading ? 'Uploading...' : t('uploadPhoto')}</Text>
+            <Text style={styles.outlineBtnText}>{uploading ? t('uploadingText') : t('uploadPhoto')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.filledBtn} activeOpacity={0.85} onPress={handleTakePhoto} disabled={uploading}>
             <Text style={styles.filledBtnText}>{t('takePhoto')}</Text>

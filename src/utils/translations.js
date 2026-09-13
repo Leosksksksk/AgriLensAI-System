@@ -89,6 +89,7 @@ export const translations = {
     rainfall: "Rainfall",
     today: "Today",
     tomorrow: "Tomorrow",
+    dayWednesday: "Wednesday",
     riskHigh: "High Risk",
     riskLow: "Low Risk",
     riskModerate: "Moderate Risk",
@@ -142,6 +143,8 @@ export const translations = {
     whenOneWeekAgo: "1 week ago",
     totalSuffix: "total",
     noMatchingScans: "No matching scans.",
+    selectAll: "Select All",
+    deselectAll: "Deselect All",
 
     // ---- Intro screen ----
     scanningCropHealth: "Scanning Crop Health...",
@@ -309,6 +312,76 @@ export const translations = {
     savedOfflineTitle: 'Saved Offline',
     savedOfflineDesc: 'No internet connection detected. Your scan has been saved locally and will automatically sync once you are back online.',
 
+    // ---- scan screen alerts ----
+    cameraPermissionTitle: 'Camera Permission Needed',
+    cameraPermissionDesc: 'Enable camera access to scan a leaf.',
+    photoPermissionTitle: 'Photo Library Permission Needed',
+    photoPermissionDesc: 'Enable photo access to select a leaf photo.',
+    noPhotoTitle: 'No Photo Yet',
+    noPhotoDesc: 'Take or upload a leaf photo first.',
+    analyzingTitle: 'Still Analyzing',
+    analyzingDesc: 'Please wait a moment while we finish analyzing your leaf photo.',
+    analysisUnavailableTitle: 'Analysis Unavailable',
+    analysisUnavailableDesc: 'Could not analyze this photo. Please try again with a clearer image.',
+
+    // ---- history screen alerts ----
+    loadErrorTitle: 'Error',
+    loadErrorDesc: 'Could not load scan history.',
+    deleteScanTitle: 'Delete Scan',
+    deleteScanDesc: 'Are you sure you want to permanently delete this scan and its image?',
+    deleteErrorTitle: 'Error',
+    deleteErrorDesc: 'Failed to delete the scan.',
+    batchDeleteTitle: 'Delete Selected Scans',
+    batchDeleteDesc: 'Are you sure you want to delete {count} selected item(s) and their images?',
+    batchDeleteErrorTitle: 'Error',
+    batchDeleteErrorDesc: 'Failed to delete selected scans from Supabase.',
+    autoDeleteTitle: 'Auto-Delete',
+    autoDeleteDesc: 'When should this photo automatically delete itself?',
+    timerSetTitle: 'Timer Set',
+    timerSetDesc: 'This scan will automatically delete in {time}.',
+    autoDeleteErrorTitle: 'Error',
+    autoDeleteErrorDesc: 'Could not set the auto-delete timer.',
+    noImageTitle: 'No Image',
+    noImageDesc: 'There is no image saved for this specific scan.',
+    cancelText: 'Cancel',
+    deleteText: 'Delete',
+    deleteAllText: 'Delete All',
+
+    // ---- settings screen alerts ----
+    logoutFailedTitle: 'Log Out Failed',
+    logoutFailedDesc: 'Please try again.',
+    logoutConfirmTitle: 'Log Out',
+    logoutConfirmDesc: 'Are you sure you want to log out?',
+    logoutButtonText: 'Log Out',
+
+    // ---- treatment plan screen alerts ----
+    reminderErrorTitle: 'Error',
+    reminderErrorDesc: 'Could not save the reminder.',
+    leafTissueDamage: 'leaf tissue damage',
+
+    // ---- sync screen alerts ----
+    timeJustNow: 'just now',
+    timeMinutesAgo: '{mins}m ago',
+    timeHoursAgo: '{hrs}h ago',
+    timeDaysAgo: '{days}d ago',
+    syncLoadError: 'Failed to load local offline queue.',
+    syncNoInternet: 'No internet connection. Connect and try again.',
+    syncPartialSuccess: '{synced} synced, {failed} failed. ({reason})',
+    syncFailed: 'Sync failed.',
+    syncAllCaughtUp: 'All caught up — nothing pending in queue.',
+    syncPendingStatus: 'Pending Offline Upload',
+
+    // ---- camera screen ----
+    cameraCancelText: 'Cancel',
+    uploadingText: 'Uploading...',
+
+    // ---- login screen alerts ----
+    requiredFieldTitle: 'Required Field',
+    requiredFullNameDesc: 'Please enter your Full Name.',
+    requiredBarangayDesc: 'Please enter your Barangay.',
+    pleaseWaitTitle: 'Please Wait',
+    pleaseWaitDesc: 'A verification code was recently requested. Please wait a few seconds before trying again.',
+
   },
 
   fil: {
@@ -453,6 +526,8 @@ export const translations = {
     whenOneWeekAgo: "1 linggo ang nakalipas",
     totalSuffix: "kabuuan",
     noMatchingScans: "Walang nahanap na scan.",
+    selectAll: "Select All",
+    deselectAll: "Deselect All",
 
     // ---- Intro screen ----
     scanningCropHealth: "Sinusuri ang Kalusugan ng Pananim...",
@@ -615,6 +690,76 @@ export const translations = {
     savedOfflineTitle: 'Na-save Offline',
     savedOfflineDesc: 'Walang koneksyon sa internet. Na-save ang iyong scan at awtomatikong magsi-sync kapag online ka na.',
 
+    // ---- scan screen alerts ----
+    cameraPermissionTitle: 'Kailangan ng Permiso sa Camera',
+    cameraPermissionDesc: 'I-enable ang access sa camera para ma-scan ang dahon.',
+    photoPermissionTitle: 'Kailangan ng Permiso sa Photo Library',
+    photoPermissionDesc: 'I-enable ang access sa photo para pumili ng litrato ng dahon.',
+    noPhotoTitle: 'Walang Litrato Pa',
+    noPhotoDesc: 'Kumuha o mag-upload ng litrato ng dahon muna.',
+    analyzingTitle: 'Nag-a-analyze Pa',
+    analyzingDesc: 'Mangyaring maghintay habang tinatapos ang pag-analyze sa iyong litrato ng dahon.',
+    analysisUnavailableTitle: 'Hindi Available ang Analysis',
+    analysisUnavailableDesc: 'Hindi ma-analyze ang litratong ito. Mangyaring subukan muli gamit ang mas malinaw na larawan.',
+
+    // ---- history screen alerts ----
+    loadErrorTitle: 'Error',
+    loadErrorDesc: 'Hindi ma-load ang kasaysayan ng scan.',
+    deleteScanTitle: 'I-delete ang Scan',
+    deleteScanDesc: 'Sigurado ka bang gusto mo itong permanently i-delete ang scan na ito at ang larawan nito?',
+    deleteErrorTitle: 'Error',
+    deleteErrorDesc: 'Nabigo ang pag-delete ng scan.',
+    batchDeleteTitle: 'I-delete ang Piniling mga Scan',
+    batchDeleteDesc: 'Sigurado ka bang gusto mong i-delete ang {count} na piniling item at ang kanilang mga larawan?',
+    batchDeleteErrorTitle: 'Error',
+    batchDeleteErrorDesc: 'Nabigo ang pag-delete ng mga piniling scan mula sa Supabase.',
+    autoDeleteTitle: 'Auto-Delete',
+    autoDeleteDesc: 'Kailan dapat awtomatikong ma-delete ang litratong ito?',
+    timerSetTitle: 'Na-set na ang Timer',
+    timerSetDesc: 'Ang scan na ito ay awtomatikong ma-dedelete sa loob ng {time}.',
+    autoDeleteErrorTitle: 'Error',
+    autoDeleteErrorDesc: 'Hindi ma-set ang timer para sa auto-delete.',
+    noImageTitle: 'Walang Larawan',
+    noImageDesc: 'Walang naka-save na larawan para sa partikular na scan na ito.',
+    cancelText: 'Cancel',
+    deleteText: 'I-delete',
+    deleteAllText: 'I-delete Lahat',
+
+    // ---- settings screen alerts ----
+    logoutFailedTitle: 'Bigo ang Pag-log Out',
+    logoutFailedDesc: 'Mangyaring subukan muli.',
+    logoutConfirmTitle: 'Mag-log Out',
+    logoutConfirmDesc: 'Sigurado ka bang gusto mong mag-log out?',
+    logoutButtonText: 'Mag-log Out',
+
+    // ---- treatment plan screen alerts ----
+    reminderErrorTitle: 'Error',
+    reminderErrorDesc: 'Hindi ma-save ang paalala.',
+    leafTissueDamage: 'pinsala sa tisyu ng dahon',
+
+    // ---- sync screen alerts ----
+    timeJustNow: 'kasalukuyan',
+    timeMinutesAgo: '{mins}m ang nakalipas',
+    timeHoursAgo: '{hrs}h ang nakalipas',
+    timeDaysAgo: '{days}d ang nakalipas',
+    syncLoadError: 'Nabigo ang pag-load ng lokal na offline queue.',
+    syncNoInternet: 'Walang koneksyon sa internet. Kumonekta at subukan muli.',
+    syncPartialSuccess: '{synced} na-sync, {failed} nabigo. ({reason})',
+    syncFailed: 'Nabigo ang sync.',
+    syncAllCaughtUp: 'Lahat na-sync na — walang naka-queue.',
+    syncPendingStatus: 'Naghihintay na Offline Upload',
+
+    // ---- camera screen ----
+    cameraCancelText: 'Cancel',
+    uploadingText: 'Nag-u-upload...',
+
+    // ---- login screen alerts ----
+    requiredFieldTitle: 'Kailangang Field',
+    requiredFullNameDesc: 'Mangyaring ilagay ang iyong Buong Pangalan.',
+    requiredBarangayDesc: 'Mangyaring ilagay ang iyong Barangay.',
+    pleaseWaitTitle: 'Mangyaring Maghintay',
+    pleaseWaitDesc: 'Isang verification code ang kamakailang hiningi. Mangyaring maghintay ng ilang segundo bago magsubok muli.',
+
     //app update notification
     updateAvailableTitle: "May Bagong Update",
     updateAvailableDesc: "May bagong bersyon ang AgriLens AI. Mangyaring mag-update para sa mga pinakabagong feature.",
@@ -764,6 +909,8 @@ export const translations = {
     whenOneWeekAgo: "1 ka semana ang milabay",
     totalSuffix: "tanan",
     noMatchingScans: "Walay natukma nga scan.",
+    selectAll: "Select All",
+    deselectAll: "Deselect All",
 
     // ---- Intro screen ----
     scanningCropHealth: "Gisusi ang Panglawas sa Tanom...",
@@ -925,6 +1072,76 @@ export const translations = {
     syncSuccessDesc: 'Malamposon nga na-save ang hulagway sa Supabase bucket ug database.',
     savedOfflineTitle: 'Na-save sa Offline',
     savedOfflineDesc: 'Walay koneksyon sa internet. Na-save ang imong scan ug awtomatik nga mo-sync inig balik nimo og online.',
+
+    // ---- scan screen alerts ----
+    cameraPermissionTitle: 'Kinahanglan og Permiso sa Camera',
+    cameraPermissionDesc: 'I-enable ang access sa camera aron ma-scan ang dahon.',
+    photoPermissionTitle: 'Kinahanglan og Permiso sa Photo Library',
+    photoPermissionDesc: 'I-enable ang access sa photo aron mopili og litrato sa dahon.',
+    noPhotoTitle: 'Walay Litrato Pa',
+    noPhotoDesc: 'Kuhai o i-upload ang litrato sa dahon una.',
+    analyzingTitle: 'Nag-analyze Pa',
+    analyzingDesc: 'Palihug maghulat samtang natapos ang pag-analyze sa imong litrato sa dahon.',
+    analysisUnavailableTitle: 'Wala Available ang Analysis',
+    analysisUnavailableDesc: 'Dili ma-analyze kini nga litrato. Sulayi pag-usab gamit ang mas klaro nga larawan.',
+
+    // ---- history screen alerts ----
+    loadErrorTitle: 'Error',
+    loadErrorDesc: 'Dili ma-load ang kasaysayan sa scan.',
+    deleteScanTitle: 'I-delete ang Scan',
+    deleteScanDesc: 'Siguro ka ba nga gusto nimo nga permanently i-delete kini nga scan ug ang iyang litrato?',
+    deleteErrorTitle: 'Error',
+    deleteErrorDesc: 'Nabigo ang pag-delete sa scan.',
+    batchDeleteTitle: 'I-delete ang Gipiling mga Scan',
+    batchDeleteDesc: 'Siguro ka ba nga gusto nimo i-delete ang {count} ka gipiling item ug ang ilang mga litrato?',
+    batchDeleteErrorTitle: 'Error',
+    batchDeleteErrorDesc: 'Nabigo ang pag-delete sa mga gipiling scan gikan sa Supabase.',
+    autoDeleteTitle: 'Auto-Delete',
+    autoDeleteDesc: 'Kanus-a dapat awtomatikong ma-delete kini nga litrato?',
+    timerSetTitle: 'Na-set na ang Timer',
+    timerSetDesc: 'Kini nga scan mo-delete og awtomatik sulod sa {time}.',
+    autoDeleteErrorTitle: 'Error',
+    autoDeleteErrorDesc: 'Dili ma-set ang timer para sa auto-delete.',
+    noImageTitle: 'Walay Hulagway',
+    noImageDesc: 'Walay naka-save nga hulagway para niining partikular nga scan.',
+    cancelText: 'Cancel',
+    deleteText: 'I-delete',
+    deleteAllText: 'I-delete Tanan',
+
+    // ---- settings screen alerts ----
+    logoutFailedTitle: 'Pakyas ang Pag-log Out',
+    logoutFailedDesc: 'Sulayi pag-usab.',
+    logoutConfirmTitle: 'Mag-log Out',
+    logoutConfirmDesc: 'Siguro ka ba nga gusto nimo mag-log out?',
+    logoutButtonText: 'Mag-log Out',
+
+    // ---- treatment plan screen alerts ----
+    reminderErrorTitle: 'Error',
+    reminderErrorDesc: 'Dili ma-save ang paalala.',
+    leafTissueDamage: 'pagsamdan sa tisyu sa dahon',
+
+    // ---- sync screen alerts ----
+    timeJustNow: 'karon pa',
+    timeMinutesAgo: '{mins}m nga milabay',
+    timeHoursAgo: '{hrs}h nga milabay',
+    timeDaysAgo: '{days}d nga milabay',
+    syncLoadError: 'Nabigo ang pag-load sa lokal nga offline queue.',
+    syncNoInternet: 'Walay koneksyon sa internet. Konekta ug sulayi pag-usab.',
+    syncPartialSuccess: '{synced} na-sync, {failed} nabigo. ({reason})',
+    syncFailed: 'Nabigo ang sync.',
+    syncAllCaughtUp: 'Tanan na-sync na — walay naka-queue.',
+    syncPendingStatus: 'Naghulat nga Offline Upload',
+
+    // ---- camera screen ----
+    cameraCancelText: 'Cancel',
+    uploadingText: 'Nag-upload...',
+
+    // ---- login screen alerts ----
+    requiredFieldTitle: 'Kinahanglan nga Field',
+    requiredFullNameDesc: 'Palihug isulod ang imong Buong Ngalan.',
+    requiredBarangayDesc: 'Palihug isulod ang imong Barangay.',
+    pleaseWaitTitle: 'Palihug Maghulat',
+    pleaseWaitDesc: 'Usa ka verification code ang kani-adto gipangayo. Palihug maghulat ug gamay nga panahon sa pag-usab.',
 
     //app update notification
     updateAvailableTitle: "Adunay Bag-ong Update",

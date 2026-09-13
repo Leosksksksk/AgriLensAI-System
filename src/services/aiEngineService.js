@@ -87,13 +87,10 @@ export async function analyzeLeaf(imageUri) {
   }
 
   if (totalLeafPixels === 0) {
-    return { isPlant: false, diseaseId: null, damagePercent: 0, severity: 'Unknown', confidence: 0 };
+    return { isPlant: false, cropName: null, diseaseId: null, damagePercent: 0, severity: 'Unknown', confidence: 0 };
   }
 
   // Chromatic (colorful, saturated) leaf-hue content — the real signal.
-  // Achromatic content (black spots, white film) doesn't count toward
-  // this gate on its own, since grays/blacks/whites appear in countless
-  // non-plant subjects (electronics, fabric, walls, shadows).
   const chromaticPixels = healthyGreenPixels + yellowChloroticPixels + orangeRustPixels + brownNecroticPixels;
   const chromaticRatio = chromaticPixels / totalLeafPixels;
 
@@ -102,6 +99,7 @@ export async function analyzeLeaf(imageUri) {
   if (chromaticRatio < CHROMATIC_THRESHOLD) {
     return {
       isPlant: false,
+      cropName: null,
       diseaseId: null,
       damagePercent: 0,
       severity: 'Unknown',
@@ -115,18 +113,6 @@ export async function analyzeLeaf(imageUri) {
 
   const damagePercent = Math.min(100, (damagedPixels / totalLeafPixels) * 100);
 
-    // Mapped to tomato-specific disease ids (per the "tomatoleaf" Kaggle
-  // dataset's 10-class label set) instead of generic names, since these
-  // are the 4 disease signatures this color-based engine can actually
-  // distinguish from each other:
-  //  - brown/necrotic patches      -> Early Blight
-  //  - dark spotting + yellow halo -> Septoria Leaf Spot
-  //  - pale/white surface film     -> Leaf Mold
-  //  - orange/tan concentric marks -> Target Spot
-  // The other 5 tomato diseases in the dataset (Bacterial Spot, Late
-  // Blight, Spider Mites, TYLCV, Mosaic Virus) are NOT visually
-  // distinguishable from these 4 with a color-only heuristic — they
-  // exist in diseaseCatalog.js as reference data only.
   const signatureCounts = {
     tomatoEarlyBlight: brownNecroticPixels,
     tomatoSeptoriaLeafSpot: blackSpotPixels + Math.floor(yellowChloroticPixels / 2),
@@ -153,13 +139,26 @@ export async function analyzeLeaf(imageUri) {
       ? Math.min(0.95, Math.max(0.4, 1 - damagePercent / 20))
       : Math.min(0.9, Math.max(0.55, 0.55 + signalRatio));
 
+  const cropName = detectCropFromDiseaseId(diseaseId);
+
   return {
     isPlant: true,
+    cropName,
     diseaseId,
     damagePercent: Number(damagePercent.toFixed(1)),
     severity,
     confidence: Number(confidence.toFixed(2)),
   };
+}
+
+function detectCropFromDiseaseId(diseaseId) {
+  if (!diseaseId) return 'Crops';
+  const lower = diseaseId.toLowerCase();
+  if (lower.includes('tomato')) return 'Tomato';
+  if (lower.includes('corn') || lower.includes('maize')) return 'Corn';
+  if (lower.includes('potato')) return 'Potato';
+  if (lower.includes('rice')) return 'Rice';
+  return 'Plant Scan';
 }
 
 function classifySeverity(damagePercent) {
