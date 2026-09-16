@@ -15,6 +15,25 @@ function timeAgo(date) {
   return `${days}d ago`;
 }
 
+function getWeatherAlertTitle(weather) {
+  const { temperature, humidity, rainProbability, windSpeedKmh } = weather;
+  
+  // Determine primary risk driver
+  const isHot = temperature >= 30;
+  const isHumid = humidity >= 80;
+  const isRainy = rainProbability >= 50;
+  const isWindy = windSpeedKmh >= 15;
+  
+  if (isHot && (isHumid || isRainy)) return 'alertHeatHumidityTitle';
+  if (isHot) return 'alertHeatTitle';
+  if (isHumid && isRainy) return 'alertHumidityRainTitle';
+  if (isHumid) return 'alertHumidityTitle';
+  if (isRainy) return 'alertRainTitle';
+  if (isWindy) return 'alertWindTitle';
+  
+  return 'alertHighRiskTitle';
+}
+
 export async function buildAlertsFeed() {
   const alerts = [];
   const now = new Date();
@@ -22,12 +41,13 @@ export async function buildAlertsFeed() {
   try {
     const weather = await fetchWeatherRisk();
     if (weather.riskLevel === 'High') {
+      const titleKey = getWeatherAlertTitle(weather);
       alerts.push({
         id: 'weather',
         type: 'HIGH_RISK',
         tagKey: 'highRisk',
         time: timeAgo(now),
-        titleKey: 'alertHeatTitle',
+        titleKey,
         descKey: 'alertWeatherRiskDesc',
         descValues: {
           temp: Math.round(weather.temperature),

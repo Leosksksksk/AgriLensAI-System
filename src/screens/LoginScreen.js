@@ -219,7 +219,10 @@ export default function LoginScreen({ navigation }) {
 
           {/* Submit Button */}
           <TouchableOpacity
-            style={[styles.primaryBtn, (loading || cooldown > 0) && styles.btnDisabled]}
+            style={[
+              styles.primaryBtn,
+              (loading || cooldown > 0) && styles.primaryBtnDisabled
+            ]}
             activeOpacity={0.85}
             onPress={handleSendOTP}
             disabled={loading || cooldown > 0}
@@ -227,7 +230,10 @@ export default function LoginScreen({ navigation }) {
             {loading ? (
               <ActivityIndicator color={colors.white} />
             ) : (
-              <Text style={styles.primaryBtnText}>
+              <Text style={[
+                styles.primaryBtnText,
+                cooldown > 0 && styles.resendText
+              ]}>
                 {cooldown > 0 ? `Resend code in ${cooldown}s` : t('sendVerificationCode')}
               </Text>
             )}
@@ -262,13 +268,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   appName: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: '700',
     color: colors.white,
     marginBottom: 8,
   },
   tagline: {
-    fontSize: 14,
+    fontSize: 16,
     color: colors.textMuted,
     textAlign: 'center',
   },
@@ -280,8 +286,9 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   label: {
-    fontSize: 13,
-    color: colors.textMuted,
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.textDark,
     marginBottom: 8,
   },
   inputWrapper: {
@@ -292,8 +299,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: 8,
     paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 15,
+    paddingVertical: 16,
+    fontSize: 17,
     color: colors.textDark,
     backgroundColor: colors.card,
   },
@@ -312,7 +319,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
   },
   prefixText: {
-    fontSize: 15,
+    fontSize: 17,
     color: colors.textDark,
     fontWeight: '500',
   },
@@ -326,12 +333,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
   },
   phoneInput: {
-    paddingVertical: 14,
-    fontSize: 15,
+    paddingVertical: 16,
+    fontSize: 17,
     color: colors.textDark,
   },
   helperText: {
-    fontSize: 12,
+    fontSize: 14,
     color: colors.textMuted,
     marginTop: -8,
     marginBottom: 16,
@@ -339,15 +346,21 @@ const styles = StyleSheet.create({
   primaryBtn: {
     backgroundColor: colors.primary,
     borderRadius: 8,
-    paddingVertical: 16,
+    paddingVertical: 18,
     alignItems: 'center',
     marginTop: 8,
     marginBottom: 12,
   },
+  primaryBtnDisabled: {
+    backgroundColor: '#1B5E20',
+  },
   primaryBtnText: {
     color: colors.white,
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
   },
-  btnDisabled: { opacity: 0.6 },
+  resendText: {
+    fontWeight: '700',
+    fontSize: 18,
+  },
 });

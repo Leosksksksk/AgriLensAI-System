@@ -76,6 +76,12 @@ export const translations = {
     tagReminder: "REMINDER",
     alertHeatTitle: "Extreme Heat Warning",
     alertHeatDesc: "Temperatures exceeding 35°C increase early blight risk. Water early in the morning.",
+    alertHeatHumidityTitle: "Heat & Humidity Warning",
+    alertHumidityTitle: "High Humidity Warning",
+    alertRainTitle: "Heavy Rain Warning",
+    alertHumidityRainTitle: "Humidity & Rain Warning",
+    alertWindTitle: "Strong Wind Warning",
+    alertHighRiskTitle: "High Disease Risk Warning",
     alertBlightTitle: "Early Blight Nearby",
     alertBlightDesc: "5 farms in your barangay reported early blight on tomatoes. Protect your crops.",
     alertPendingTitle: "Pending Offline Scans",
@@ -87,12 +93,15 @@ export const translations = {
     temperature: "Temperature",
     humidity: "Humidity",
     rainfall: "Rainfall",
+    rainProbability: "Rain Probability",
     today: "Today",
     tomorrow: "Tomorrow",
     dayWednesday: "Wednesday",
     riskHigh: "High Risk",
     riskLow: "Low Risk",
     riskModerate: "Moderate Risk",
+    moderateConditions: "Conditions are moderately favorable for disease spread",
+    lowConditions: "Conditions are not favorable for disease spread",
 
     // ---- Results screen ----
     viewTreatmentPlan: "View Treatment Plan",
@@ -323,6 +332,7 @@ export const translations = {
     analyzingDesc: 'Please wait a moment while we finish analyzing your leaf photo.',
     analysisUnavailableTitle: 'Analysis Unavailable',
     analysisUnavailableDesc: 'Could not analyze this photo. Please try again with a clearer image.',
+    scanRequiresInternet: 'Internet connection required. Please connect to the internet to use this feature.',
 
     // ---- history screen alerts ----
     loadErrorTitle: 'Error',
@@ -460,6 +470,12 @@ export const translations = {
     tagReminder: "PAALALA",
     alertHeatTitle: "Babala sa Sobrang Init",
     alertHeatDesc: "Ang temperaturang lampas 35°C ay nagpapataas ng panganib ng early blight. Magdilig nang maaga sa umaga.",
+    alertHeatHumidityTitle: "Babala sa Init at Halumigmig",
+    alertHumidityTitle: "Babala sa Mataas na Halumigmig",
+    alertRainTitle: "Babala sa Malakas na Ulan",
+    alertHumidityRainTitle: "Babala sa Halumigmig at Ulan",
+    alertWindTitle: "Babala sa Malakas na Hangin",
+    alertHighRiskTitle: "Babala sa Mataas na Panganib ng Sakit",
     alertBlightTitle: "May Early Blight Malapit",
     alertBlightDesc: "5 sakahan sa inyong barangay ang nag-ulat ng early blight sa kamatis. Protektahan ang inyong pananim.",
     alertPendingTitle: "Naghihintay na Offline Scans",
@@ -471,11 +487,14 @@ export const translations = {
     temperature: "Temperatura",
     humidity: "Halumigmig",
     rainfall: "Ulan",
+    rainProbability: "Tsansa ng Ulan",
     today: "Ngayon",
     tomorrow: "Bukas",
     riskHigh: "Mataas na Panganib",
     riskLow: "Mababang Panganib",
     riskModerate: "Katamtamang Panganib",
+    moderateConditions: "Katamtamang paborable ang kondisyon para sa paglaganap ng sakit",
+    lowConditions: "Hindi paborable ang kondisyon para sa paglaganap ng sakit",
 
     // ---- Results screen ----
     viewTreatmentPlan: "Tingnan ang Plano sa Paggamot",
@@ -701,6 +720,7 @@ export const translations = {
     analyzingDesc: 'Mangyaring maghintay habang tinatapos ang pag-analyze sa iyong litrato ng dahon.',
     analysisUnavailableTitle: 'Hindi Available ang Analysis',
     analysisUnavailableDesc: 'Hindi ma-analyze ang litratong ito. Mangyaring subukan muli gamit ang mas malinaw na larawan.',
+    scanRequiresInternet: 'Kailangan ang koneksyon sa internet. Pakikonekta sa internet para gamitin ang feature na ito.',
 
     // ---- history screen alerts ----
     loadErrorTitle: 'Error',
@@ -843,6 +863,12 @@ export const translations = {
     tagReminder: "PAHINUMDOM",
     alertHeatTitle: "Pasidaan sa Grabeng Kainit",
     alertHeatDesc: "Ang temperatura nga labaw sa 35°C nagpataas sa risgo sa early blight. Bisbisi sayo sa buntag.",
+    alertHeatHumidityTitle: "Pasidaan sa Kainit ug Kaumog",
+    alertHumidityTitle: "Pasidaan sa Taas nga Kaumog",
+    alertRainTitle: "Pasidaan sa Kusog nga Ulan",
+    alertHumidityRainTitle: "Pasidaan sa Kaumog ug Ulan",
+    alertWindTitle: "Pasidaan sa Kusog nga Hangin",
+    alertHighRiskTitle: "Pasidaan sa Taas nga Risgo sa Sakit",
     alertBlightTitle: "Naay Early Blight Duol",
     alertBlightDesc: "5 ka uma sa inyong barangay ang nagreport og early blight sa kamatis. Panalipdi ang inyong tanom.",
     alertPendingTitle: "Naghulat nga Offline Scans",
@@ -854,11 +880,14 @@ export const translations = {
     temperature: "Temperatura",
     humidity: "Kaumog",
     rainfall: "Ulan",
+    rainProbability: "Tsansa sa Ulan",
     today: "Karon",
     tomorrow: "Ugma",
     riskHigh: "Taas nga Peligro",
     riskLow: "Ubos nga Peligro",
     riskModerate: "Katunga nga Peligro",
+    moderateConditions: "Katunga nga paborable ang kondisyon para sa pagkatap sa sakit",
+    lowConditions: "Dili paborable ang kondisyon para sa pagkatap sa sakit",
 
     // ---- Results screen ----
     viewTreatmentPlan: "Tan-awa ang Plano sa Tambal",
@@ -1084,6 +1113,7 @@ export const translations = {
     analyzingDesc: 'Palihug maghulat samtang natapos ang pag-analyze sa imong litrato sa dahon.',
     analysisUnavailableTitle: 'Wala Available ang Analysis',
     analysisUnavailableDesc: 'Dili ma-analyze kini nga litrato. Sulayi pag-usab gamit ang mas klaro nga larawan.',
+    scanRequiresInternet: 'Kinahanglan ang koneksyon sa internet. Pakigkonekta sa internet aron magamit kini nga feature.',
 
     // ---- history screen alerts ----
     loadErrorTitle: 'Error',

@@ -196,6 +196,10 @@ export default function ScanScreen({ navigation }) {
       Alert.alert(t('noPhotoTitle'), t('noPhotoDesc'));
       return;
     }
+    if (!isOnline) {
+      Alert.alert(t('noInternet'), t('scanRequiresInternet'));
+      return;
+    }
     if (analyzing) {
       Alert.alert(t('analyzingTitle'), t('analyzingDesc'));
       return;
@@ -209,6 +213,30 @@ export default function ScanScreen({ navigation }) {
       return;
     }
     navigation.navigate('Results', { imageUri, diagnosis });
+  }
+
+  async function handleOfflineAnalyze() {
+    if (!imageUri) {
+      Alert.alert(t('noPhotoTitle'), t('noPhotoDesc'));
+      return;
+    }
+    if (analyzing) {
+      Alert.alert(t('analyzingTitle'), t('analyzingDesc'));
+      return;
+    }
+    if (notPlantWarning) {
+      Alert.alert(t('notAPlantTitle'), t('notAPlantDesc'));
+      return;
+    }
+
+    const result = await runAnalysis(imageUri);
+
+    if (!result || result.isPlant === false) {
+      Alert.alert(t('notAPlantTitle'), t('notAPlantDesc'));
+      return;
+    }
+
+    navigation.navigate('Results', { imageUri, diagnosis: result });
   }
 
   if (showCamera) {
@@ -321,7 +349,7 @@ export default function ScanScreen({ navigation }) {
         </TouchableOpacity>
 
         {/* OFFLINE AI BUTTON */}
-        <TouchableOpacity style={styles.analyzeBtn} activeOpacity={0.85} onPress={handleAnalyze}>
+        <TouchableOpacity style={styles.analyzeBtn} activeOpacity={0.85} onPress={handleOfflineAnalyze}>
           <Ionicons name="sparkles" size={16} color="#A2E0A2" style={{ marginRight: 8 }} />
           <Text style={styles.analyzeBtnText}>{t('analyzeOffline')}</Text>
         </TouchableOpacity>

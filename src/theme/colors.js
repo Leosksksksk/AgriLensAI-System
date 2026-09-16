@@ -3,6 +3,7 @@ export const colors = {
   primaryDark: '#094a0df3', //dashboard above
   primary: '#2E7D32',
   primaryLight: '#43A047',
+  stepIconGreen: '#6FCF74', // lighter appealing green for onboarding step icons
   leafGreen: '#0b950b', //scan leaf padding
   mint: '#E8F5E9',
 

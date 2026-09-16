@@ -1,6 +1,6 @@
 // src/screens/OnboardingScreen.js
 import { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,8 +12,6 @@ import { getValidUserSession } from '../utils/auth';
 export default function OnboardingScreen({ navigation }) {
   const { t } = useLanguage();
 
-  const [fullName, setFullName] = useState('');
-  const [barangay, setBarangay] = useState('');
   const [saving, setSaving] = useState(false);
 
   const STEPS = [
@@ -23,31 +21,20 @@ export default function OnboardingScreen({ navigation }) {
   ];
 
   async function handleGetStarted() {
-    if (!fullName.trim()) {
-      Alert.alert(t('nameRequiredTitle'), t('nameRequiredDesc'));
-      return;
-    }
-
     setSaving(true);
     try {
-      const trimmedName = fullName.trim();
-      const trimmedBarangay = barangay.trim() || '';
+      // Get the fullName that was already saved during login
+      const fullName = await AsyncStorage.getItem('user_full_name');
+      if (!fullName) throw new Error('Name not found. Please log in again.');
 
-      // 1. Save locally to AsyncStorage so ProfileScreen reads it instantly
-      await AsyncStorage.setItem('user_full_name', trimmedName);
-      if (trimmedBarangay) {
-        await AsyncStorage.setItem('user_barangay', trimmedBarangay);
-      }
-
-      // 2. Sync with Supabase database
+      // Sync with Supabase database
       const { user } = await getValidUserSession();
       if (!user) throw new Error('No active session. Please log in again.');
 
       const { error } = await supabase.from('farmers').upsert(
         {
           id: user.id,
-          full_name: trimmedName,
-          barangay: trimmedBarangay || null,
+          full_name: fullName,
         },
         { onConflict: 'id' }
       );
@@ -79,7 +66,7 @@ export default function OnboardingScreen({ navigation }) {
           {STEPS.map((step, i) => (
             <View key={i} style={styles.stepRow}>
               <View style={styles.stepIcon}>
-                <Ionicons name={step.icon} size={22} color={colors.primaryLight} />
+                <Ionicons name={step.icon} size={22} color={colors.stepIconGreen} />
               </View>
               <View style={styles.stepText}>
                 <Text style={styles.stepTitle}>{t(step.titleKey)}</Text>
@@ -87,30 +74,6 @@ export default function OnboardingScreen({ navigation }) {
               </View>
             </View>
           ))}
-
-          <View style={styles.formCard}>
-            <Text style={styles.formHeading}>{t('tellUsAboutYou')}</Text>
-
-            <Text style={styles.fieldLabel}>{t('fullName')}</Text>
-            <TextInput
-              style={styles.input}
-              value={fullName}
-              onChangeText={setFullName}
-              placeholder={t('fullNamePlaceholder')}
-              placeholderTextColor={colors.textLight}
-              editable={!saving}
-            />
-
-            <Text style={styles.fieldLabel}>{t('barangay')}</Text>
-            <TextInput
-              style={styles.input}
-              value={barangay}
-              onChangeText={setBarangay}
-              placeholder={t('barangayPlaceholder')}
-              placeholderTextColor={colors.textLight}
-              editable={!saving}
-            />
-          </View>
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -133,10 +96,10 @@ export default function OnboardingScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   header: { backgroundColor: colors.primaryDark, paddingTop: 54, paddingBottom: 18, paddingHorizontal: 20 },
-  headerTitle: { color: colors.white, fontSize: 22, fontWeight: '800' },
+  headerTitle: { color: colors.white, fontSize: 24, fontWeight: '800' },
   content: { paddingHorizontal: 24, paddingTop: 28, paddingBottom: 20 },
-  heading: { fontSize: 22, fontWeight: '800', color: colors.white },
-  subheading: { fontSize: 14, color: colors.textMuted, marginTop: 4, marginBottom: 26 },
+  heading: { fontSize: 24, fontWeight: '800', color: colors.stepIconGreen },
+  subheading: { fontSize: 16, color: colors.textMuted, marginTop: 4, marginBottom: 26 },
   stepRow: { flexDirection: 'row', marginBottom: 26, alignItems: 'flex-start' },
   stepIcon: {
     width: 44,
@@ -148,24 +111,8 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   stepText: { flex: 1 },
-  stepTitle: { fontWeight: '700', fontSize: 15, color: colors.white, marginBottom: 3 },
-  stepDesc: { fontSize: 13, color: colors.textMuted, lineHeight: 18 },
-  formCard: {
-    backgroundColor: colors.card,
-    borderRadius: 14,
-    padding: 18,
-    marginTop: 8,
-  },
-  formHeading: { fontWeight: '800', fontSize: 15, color: colors.white, marginBottom: 14 },
-  fieldLabel: { fontSize: 12, color: colors.textMuted, marginBottom: 6, marginTop: 12 },
-  input: {
-    backgroundColor: colors.background,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 14,
-    color: colors.textDark,
-  },
+  stepTitle: { fontWeight: '700', fontSize: 17, color: colors.stepIconGreen, marginBottom: 3 },
+  stepDesc: { fontSize: 15, color: colors.textMuted, lineHeight: 20 },
   getStartedBtn: {
     backgroundColor: colors.primary,
     marginHorizontal: 24,
@@ -175,5 +122,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   getStartedBtnDisabled: { opacity: 0.6 },
-  getStartedText: { color: colors.white, fontWeight: '800', fontSize: 15 },
+  getStartedText: { color: colors.white, fontWeight: '800', fontSize: 17 },
 });
