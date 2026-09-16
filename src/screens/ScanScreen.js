@@ -291,7 +291,7 @@ export default function ScanScreen({ navigation }) {
           <View key={reminder.id} style={styles.reminderBanner}>
             <Ionicons name="notifications" size={18} color={colors.warning} />
             <Text style={styles.reminderBannerText}>
-              {reminder.diseaseName} — {reminder.cropLabel}
+              {reminder.diseaseName}
             </Text>
             <TouchableOpacity onPress={() => handleDismissReminder(reminder.id)}>
               <Ionicons name="close" size={18} color={colors.textMuted} />

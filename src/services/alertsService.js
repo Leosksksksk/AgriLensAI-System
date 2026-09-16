@@ -109,7 +109,7 @@ export async function buildAlertsFeed() {
         time: timeAgo(r.dueDateISO),
         titleKey: 'alertFungicideTitle',
         descKey: 'alertReminderDesc',
-        descValues: { crop: r.cropLabel, disease: r.diseaseName },
+        descValues: { crop: 'Crop', disease: r.diseaseName },
         sortTime: new Date(r.dueDateISO).getTime(),
       });
     });

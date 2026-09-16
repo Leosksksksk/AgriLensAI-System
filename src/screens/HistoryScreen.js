@@ -211,7 +211,7 @@ export default function HistoryScreen() {
   function renderItem({ item }) {
     const percent = item.damage_percent || 0; 
     const diseaseText = item.disease_id || item.status || 'Pending Analysis';
-    const cropText = item.crop_name || t('defaultCropLabel'); 
+    const cropText = item.crop_name || ''; 
     const color = iconColorFor(percent, diseaseText);
     
     const isSelected = selectedIds.includes(item.id);
@@ -238,7 +238,7 @@ export default function HistoryScreen() {
         </View>
         
         <View style={{ flex: 1 }}>
-          <Text style={styles.cropName}>{cropText}</Text> 
+          {cropText && <Text style={styles.cropName}>{cropText}</Text>}
           <Text style={styles.statusLine}>
             {diseaseText} {item.damage_percent ? `– ${percent}%` : ''}
           </Text>

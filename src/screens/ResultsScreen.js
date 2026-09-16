@@ -29,8 +29,9 @@ export default function ResultsScreen({ route, navigation }) {
     confidence: 0.5,
     onlineInfo: null,
   };
-  const cropLabel = route?.params?.cropLabel ?? t('defaultCropLabel');
 
+  const cropLabel = 'Crop'; // For database saving only, not displayed
+  
   const profile = getDiseaseProfile(diagnosis.diseaseId);
   const diseaseName = t(profile.nameKey);
   const diseaseDesc = t(profile.descKey);
@@ -80,7 +81,7 @@ export default function ResultsScreen({ route, navigation }) {
     }
 
     saveScanToHistory();
-  }, [route?.params?.diagnosis, cropLabel, diagnosis]); 
+  }, [route?.params?.diagnosis, diagnosis]); 
 
   // NEW: State to hold the translated summary text
   const [localizedSummary, setLocalizedSummary] = useState(onlineInfo?.summary || '');
@@ -188,9 +189,7 @@ export default function ResultsScreen({ route, navigation }) {
           <Ionicons name="chevron-back" size={24} color={colors.white} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('scanResults')}</Text>
-        <View style={styles.cropPill}>
-          <Text style={styles.cropPillText}>{cropLabel}</Text>
-        </View>
+        <View style={{ width: 48 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.body}>
@@ -296,7 +295,6 @@ export default function ResultsScreen({ route, navigation }) {
             navigation.navigate('TreatmentPlan', {
               diseaseId: diagnosis.diseaseId,
               damagePercent: diagnosis.damagePercent,
-              cropLabel,
             });
           }}
         >
@@ -319,8 +317,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: { color: colors.white, fontSize: 18, fontWeight: '800' },
-  cropPill: { backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 16 },
-  cropPillText: { color: colors.white, fontSize: 12, fontWeight: '700' },
   body: { padding: 20, paddingBottom: 50 },
   card: { backgroundColor: colors.card, borderRadius: 14, padding: 20, marginBottom: 16 },
   diseaseLabel: { textAlign: 'center', color: colors.warning, fontWeight: '800', fontSize: 15, marginTop: 6 },

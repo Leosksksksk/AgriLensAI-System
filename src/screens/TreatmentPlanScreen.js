@@ -15,7 +15,6 @@ export default function TreatmentPlanScreen({ route, navigation }) {
 
   const diseaseId = route?.params?.diseaseId ?? 'leafBlight';
   const damagePercent = route?.params?.damagePercent ?? 0;
-  const cropLabel = route?.params?.cropLabel ?? t('defaultCrop');
 
   const profile = getDiseaseProfile(diseaseId);
   const diseaseName = t(profile.nameKey);
@@ -25,8 +24,8 @@ export default function TreatmentPlanScreen({ route, navigation }) {
   const [reminderSet, setReminderSet] = useState(false);
 
   useEffect(() => {
-    hasActiveReminder(diseaseId, cropLabel).then(setReminderSet);
-  }, [diseaseId, cropLabel]);
+    hasActiveReminder(diseaseId, 'Crop').then(setReminderSet);
+  }, [diseaseId]);
 
   const ORGANICS = [
     { name: t('organicBakingSodaName'), desc: t('organicBakingSodaDesc') },
@@ -44,7 +43,7 @@ export default function TreatmentPlanScreen({ route, navigation }) {
       const reminder = await addReminder({
         diseaseId,
         diseaseName,
-        cropLabel,
+        cropLabel: 'Crop',
         daysAhead: REMINDER_DAYS_AHEAD,
       });
       setReminderSet(true);
@@ -69,9 +68,7 @@ export default function TreatmentPlanScreen({ route, navigation }) {
           <Ionicons name="chevron-back" size={24} color={colors.white} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('treatmentPlan')}</Text>
-        <View style={styles.cropPill}>
-          <Text style={styles.cropPillText}>{cropLabel}</Text>
-        </View>
+        <View style={{ width: 48 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.body}>
@@ -152,8 +149,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: { color: colors.white, fontSize: 18, fontWeight: '800' },
-  cropPill: { backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 16 },
-  cropPillText: { color: colors.white, fontSize: 12, fontWeight: '700' },
   body: { padding: 20, paddingBottom: 40 },
   diseaseCard: {
     backgroundColor: colors.card,
