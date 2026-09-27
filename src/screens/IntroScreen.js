@@ -3,13 +3,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import { useEffect, useRef } from 'react';
 import { View, Text, Image, StyleSheet, Animated } from 'react-native';
-import { colors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
 import { getValidUserSession } from '../utils/auth';
 
 export default function IntroScreen({ navigation }) {
   const { t, hasSelectedLanguage, isLoading } = useLanguage();
+  const { colors } = useTheme();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scanAnim = useRef(new Animated.Value(0)).current;
@@ -80,7 +81,7 @@ export default function IntroScreen({ navigation }) {
   });
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.primaryDark }]}>
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         <View style={styles.phoneBody}>
           <View style={styles.phoneNotch} />
@@ -103,8 +104,8 @@ export default function IntroScreen({ navigation }) {
           </View>
         </View>
 
-        <Text style={styles.appName}>{t('appName')}</Text>
-        <Text style={styles.tagline}>{t('scanningCropHealth')}</Text>
+        <Text style={[styles.appName, { color: '#FFFFFF' }]}>{t('appName')}</Text>
+        <Text style={[styles.tagline, { color: '#DCEEDC' }]}>{t('scanningCropHealth')}</Text>
       </Animated.View>
     </View>
   );
@@ -113,7 +114,6 @@ export default function IntroScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primaryDark,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -176,14 +176,12 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   appName: {
-    color: '#FFFFFF', // Set to explicit pure white hex
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '800',
     letterSpacing: 0.5,
   },
   tagline: {
-    color: '#DCEEDC',
-    fontSize: 13,
+    fontSize: 15,
     marginTop: 6,
     letterSpacing: 0.5,
   },

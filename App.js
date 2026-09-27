@@ -10,6 +10,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { supabase } from './supabaseClient';
 
 import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
+import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { syncOfflineScans } from './src/services/syncService';
 import BottomTabBar from './src/components/BottomTabBar';
 import IntroScreen from './src/screens/IntroScreen';
@@ -156,25 +157,40 @@ function NetworkSyncTrigger() {
   return null;
 }
 
+function ThemedApp() {
+  const { isLoading } = useTheme();
+  const { t } = useLanguage();
+
+  if (isLoading) {
+    return null;
+  }
+
+  return (
+    <NavigationContainer>
+      <StatusBar style="light" backgroundColor="#094A0D" />
+      <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Intro" component={IntroScreen} />
+        <Stack.Screen name="LanguageSelect" component={LanguageSelectScreen} />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="OtpVerify" component={OtpVerifyScreen} />
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+        <Stack.Screen name="MainTabs" component={MainTabs} />
+        <Stack.Screen name="Results" component={ResultsScreen} />
+        <Stack.Screen name="TreatmentPlan" component={TreatmentPlanScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
 export default function App() {
   return (
     <LanguageProvider>
-      <UpdateNotifier />
-      <AuthSyncTrigger />
-      <NetworkSyncTrigger />
-      <NavigationContainer>
-        <StatusBar style="light" />
-        <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Intro" component={IntroScreen} />
-          <Stack.Screen name="LanguageSelect" component={LanguageSelectScreen} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="OtpVerify" component={OtpVerifyScreen} />
-          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-          <Stack.Screen name="MainTabs" component={MainTabs} />
-          <Stack.Screen name="Results" component={ResultsScreen} />
-          <Stack.Screen name="TreatmentPlan" component={TreatmentPlanScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <ThemeProvider>
+        <UpdateNotifier />
+        <AuthSyncTrigger />
+        <NetworkSyncTrigger />
+        <ThemedApp />
+      </ThemeProvider>
     </LanguageProvider>
   );
 }

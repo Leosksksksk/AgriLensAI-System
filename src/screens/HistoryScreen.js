@@ -1,9 +1,9 @@
 // src/screens/HistoryScreen.js
 import { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, ActivityIndicator, Alert, Modal, Image } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, ActivityIndicator, Alert, Modal, Image, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
 
@@ -19,7 +19,7 @@ function formatTime(dateString, t) {
   return new Date(dateString).toLocaleDateString();
 }
 
-function iconColorFor(severity, disease) {
+function iconColorFor(severity, disease, colors) {
   if (disease?.toLowerCase().includes('healthy')) return colors.ok;
   if (severity >= 70) return colors.danger;
   return colors.warning;
@@ -33,14 +33,16 @@ const getFileNameFromUrl = (url) => {
 
 export default function HistoryScreen() {
   const { t } = useLanguage();
+  const { colors } = useTheme();
   const [query, setQuery] = useState('');
   const [scans, setScans] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   
   const [selectedScan, setSelectedScan] = useState(null);
-
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [sortBy, setSortBy] = useState('newest'); // 'newest', 'oldest', 'disease', 'severity'
+  const [sortModalVisible, setSortModalVisible] = useState(false);
 
   useEffect(() => {
     fetchHistory();
@@ -199,26 +201,52 @@ export default function HistoryScreen() {
   };
 
   const filtered = useMemo(() => {
+    let result = scans;
+    
+    // Filter by query
     const q = query.trim().toLowerCase();
-    if (!q) return scans;
-    return scans.filter((h) => {
-      const diseaseLabel = (h.disease_id || h.status || '').toLowerCase();
-      const cropLabel = (h.crop_name || '').toLowerCase(); 
-      return diseaseLabel.includes(q) || cropLabel.includes(q);
-    });
-  }, [query, scans]);
+    if (q) {
+      result = result.filter((h) => {
+        const diseaseLabel = (h.disease_id || h.status || '').toLowerCase();
+        const cropLabel = (h.crop_name || '').toLowerCase(); 
+        return diseaseLabel.includes(q) || cropLabel.includes(q);
+      });
+    }
+    
+    // Sort
+    switch (sortBy) {
+      case 'newest':
+        result = [...result].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        break;
+      case 'oldest':
+        result = [...result].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        break;
+      case 'disease':
+        result = [...result].sort((a, b) => {
+          const aDisease = a.disease_id || a.status || '';
+          const bDisease = b.disease_id || b.status || '';
+          return aDisease.localeCompare(bDisease);
+        });
+        break;
+      case 'severity':
+        result = [...result].sort((a, b) => (b.damage_percent || 0) - (a.damage_percent || 0));
+        break;
+    }
+    
+    return result;
+  }, [query, scans, sortBy]);
 
-  function renderItem({ item }) {
+function renderItem({ item }) {
     const percent = item.damage_percent || 0; 
     const diseaseText = item.disease_id || item.status || 'Pending Analysis';
     const cropText = item.crop_name || ''; 
-    const color = iconColorFor(percent, diseaseText);
+    const color = iconColorFor(percent, diseaseText, colors);
     
     const isSelected = selectedIds.includes(item.id);
 
     return (
       <TouchableOpacity 
-        style={[styles.row, isSelected && styles.selectedRow]} 
+        style={[styles.row, isSelected && styles.selectedRow, { backgroundColor: isSelected ? colors.border : colors.card, borderColor: colors.primaryDark }]} 
         activeOpacity={0.8}
         onLongPress={() => handleLongPressItem(item.id)}
         onPress={() => handlePressItem(item)}
@@ -227,25 +255,25 @@ export default function HistoryScreen() {
           <View style={styles.checkboxContainer}>
             <Ionicons 
               name={isSelected ? "checkbox" : "square-outline"} 
-              size={22} 
+              size={24} 
               color={isSelected ? colors.primaryDark : colors.textLight} 
             />
           </View>
         )}
 
         <View style={[styles.iconWrap, { backgroundColor: color }]}>
-          <Ionicons name="leaf" size={16} color={colors.white} />
+          <Ionicons name="leaf" size={18} color={colors.white} />
         </View>
         
         <View style={{ flex: 1 }}>
-          {cropText && <Text style={styles.cropName}>{cropText}</Text>}
-          <Text style={styles.statusLine}>
+          {cropText && <Text style={[styles.cropName, { color: colors.textDark }]}>{cropText}</Text>}
+          <Text style={[styles.statusLine, { color: colors.textMuted }]}>
             {diseaseText} {item.damage_percent ? `– ${percent}%` : ''}
           </Text>
         </View>
         
         <View style={{ alignItems: 'flex-end' }}>
-          <Text style={styles.whenText}>{formatTime(item.created_at, t)}</Text>
+          <Text style={[styles.whenText, { color: colors.textLight }]}>{formatTime(item.created_at, t)}</Text>
           {!isSelectMode && <Ionicons name="chevron-forward" size={16} color={colors.textLight} />}
         </View>
       </TouchableOpacity>
@@ -253,40 +281,74 @@ export default function HistoryScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {isSelectMode ? (
         <View style={[styles.header, { backgroundColor: colors.textDark }]}>
           <TouchableOpacity onPress={() => { setIsSelectMode(false); setSelectedIds([]); }}>
-            <Ionicons name="close" size={24} color={colors.white} />
+            <Ionicons name="close" size={26} color={colors.white} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{selectedIds.length} Selected</Text>
+          <Text style={[styles.headerTitle, { color: colors.white }]}>{selectedIds.length} Selected</Text>
           <TouchableOpacity onPress={toggleSelectAll}>
             <Ionicons 
               name={selectedIds.length === filtered.length ? "checkbox" : "square-outline"} 
-              size={22} 
+              size={24} 
               color={selectedIds.length === filtered.length ? colors.primaryDark : colors.textLight} 
             />
-            <Text style={styles.selectAllText}>
+            <Text style={[styles.selectAllText, { color: colors.white }]}>
               {selectedIds.length === filtered.length ? t('deselectAll') : t('selectAll')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={confirmBatchDelete}>
-            <Ionicons name="trash-outline" size={22} color={colors.danger} />
+            <Ionicons name="trash-outline" size={24} color={colors.danger} />
           </TouchableOpacity>
         </View>
       ) : (
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t('scanHistory')}</Text>
-          <TouchableOpacity>
-            <Ionicons name="filter-outline" size={20} color={colors.white} />
+        <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
+          <Text style={[styles.headerTitle, { color: colors.white }]}>{t('scanHistory')}</Text>
+          <TouchableOpacity onPress={() => setSortModalVisible(true)}>
+            <Ionicons name="filter-outline" size={22} color={colors.white} />
           </TouchableOpacity>
         </View>
       )}
 
-      <View style={styles.searchWrap}>
-        <Ionicons name="search" size={16} color={colors.textLight} style={{ marginRight: 8 }} />
+      {/* Sort Modal */}
+      <Modal
+        visible={sortModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSortModalVisible(false)}
+      >
+        <Pressable style={styles.sortModalOverlay} onPress={() => setSortModalVisible(false)}>
+          <Pressable style={[styles.sortModalSheet, { backgroundColor: colors.card }]} onPress={() => {}}>
+            <Text style={[styles.sortModalTitle, { color: colors.textDark }]}>{t('sortBy') || 'Sort By'}</Text>
+            {[
+              { key: 'newest', label: t('sortNewest') || 'Newest First' },
+              { key: 'oldest', label: t('sortOldest') || 'Oldest First' },
+              { key: 'disease', label: t('sortDisease') || 'Disease Name' },
+              { key: 'severity', label: t('sortSeverity') || 'Severity (High to Low)' },
+            ].map((option) => (
+              <TouchableOpacity
+                key={option.key}
+                style={[styles.sortModalOption, { borderBottomColor: colors.border }, sortBy === option.key && styles.sortModalOptionActive]}
+                onPress={() => { setSortBy(option.key); setSortModalVisible(false); }}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.sortModalOptionText, sortBy === option.key && styles.sortModalOptionTextActive, { color: sortBy === option.key ? colors.primary : colors.textDark }]}>
+                  {option.label}
+                </Text>
+                {sortBy === option.key && (
+                  <Ionicons name="checkmark" size={22} color={colors.primary} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      <View style={[styles.searchWrap, { backgroundColor: colors.card }]}>
+        <Ionicons name="search" size={18} color={colors.textLight} style={{ marginRight: 8 }} />
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { color: colors.textDark }]}
           placeholder={t('searchScans')}
           placeholderTextColor={colors.textLight}
           value={query}
@@ -295,9 +357,9 @@ export default function HistoryScreen() {
       </View>
 
       <View style={styles.listHeaderRow}>
-        <Text style={styles.listHeaderTitle}>{t('recentScans')}</Text>
-        <View style={styles.countBadge}>
-          <Text style={styles.countBadgeText}>{filtered.length} {t('totalSuffix')}</Text>
+        <Text style={[styles.listHeaderTitle, { color: colors.textDark }]}>{t('recentScans')}</Text>
+        <View style={[styles.countBadge, { backgroundColor: colors.border }]}>
+          <Text style={[styles.countBadgeText, { color: colors.textMuted }]}>{filtered.length} {t('totalSuffix')}</Text>
         </View>
       </View>
 
@@ -309,7 +371,7 @@ export default function HistoryScreen() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 30 }}
-          ListEmptyComponent={<Text style={styles.empty}>{t('noMatchingScans')}</Text>}
+          ListEmptyComponent={<Text style={[styles.empty, { color: colors.textMuted }]}>{t('noMatchingScans')}</Text>}
         />
       )}
 
@@ -319,12 +381,12 @@ export default function HistoryScreen() {
         animationType="fade"
         onRequestClose={() => setSelectedScan(null)}
       >
-        <View style={styles.modalBackground}>
+        <View style={[styles.modalBackground, { backgroundColor: 'rgba(0, 0, 0, 0.95)' }]}>
           <TouchableOpacity
             style={styles.closeButton}
             onPress={() => setSelectedScan(null)}
           >
-            <Ionicons name="close" size={32} color={colors.white} />
+            <Ionicons name="close" size={34} color={colors.white} />
           </TouchableOpacity>
           
           {selectedScan?.image_url && (
@@ -340,16 +402,16 @@ export default function HistoryScreen() {
               style={[styles.actionBtn, { backgroundColor: colors.danger }]}
               onPress={() => confirmDelete(selectedScan.id)}
             >
-              <Ionicons name="trash-outline" size={20} color={colors.white} />
-              <Text style={styles.actionText}>Delete Now</Text>
+              <Ionicons name="trash-outline" size={22} color={colors.white} />
+              <Text style={[styles.actionText, { color: colors.white }]}>Delete Now</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
               style={[styles.actionBtn, { backgroundColor: colors.warning }]}
               onPress={() => handleSetAutoDelete(selectedScan.id)}
             >
-              <Ionicons name="timer-outline" size={20} color={colors.white} />
-              <Text style={styles.actionText}>Auto-Delete</Text>
+              <Ionicons name="timer-outline" size={22} color={colors.white} />
+              <Text style={[styles.actionText, { color: colors.white }]}>Auto-Delete</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -359,30 +421,21 @@ export default function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: {
-    backgroundColor: colors.primaryDark,
-    paddingTop: 54,
-    paddingBottom: 16,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerTitle: { color: colors.white, fontSize: 22, fontWeight: '800' },
-  selectAllText: { color: colors.white, fontSize: 10, marginTop: 2 },
+  container: { flex: 1 },
+  header: { paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  headerTitle: { fontSize: 24, fontWeight: '800' },
+  selectAllText: { fontSize: 12, marginTop: 2 },
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.card,
     marginHorizontal: 20,
-    marginTop: 16,
+    marginTop: 20,
     marginBottom: 16,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
-  searchInput: { flex: 1, fontSize: 14, color: colors.textDark },
+  searchInput: { flex: 1, fontSize: 16 },
   listHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -390,34 +443,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 10,
   },
-  listHeaderTitle: { fontWeight: '800', fontSize: 15, color: colors.textDark },
-  countBadge: { backgroundColor: colors.border, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-  countBadgeText: { fontSize: 11, color: colors.textMuted, fontWeight: '700' },
+  listHeaderTitle: { fontWeight: '800', fontSize: 17 },
+  countBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  countBadgeText: { fontSize: 13, fontWeight: '700' },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 14,
     marginBottom: 10,
   },
   selectedRow: {
-    backgroundColor: colors.border,
-    borderColor: colors.primaryDark,
     borderWidth: 1,
   },
   checkboxContainer: {
     marginRight: 10,
   },
   iconWrap: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
-  cropName: { fontWeight: '700', fontSize: 14, color: colors.textDark },
-  statusLine: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
-  whenText: { fontSize: 11, color: colors.textLight, marginBottom: 4 },
-  empty: { textAlign: 'center', color: colors.textMuted, marginTop: 40 },
+  cropName: { fontWeight: '700', fontSize: 16 },
+  statusLine: { fontSize: 14, marginTop: 2 },
+  whenText: { fontSize: 13, marginBottom: 4 },
+  empty: { textAlign: 'center', marginTop: 40 },
   
   modalBackground: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.95)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -449,8 +498,34 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   actionText: {
-    color: colors.white,
     fontWeight: '700',
-    fontSize: 14,
+    fontSize: 16,
   },
+  sortModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  sortModalSheet: {
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 32,
+  },
+  sortModalTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    marginBottom: 8,
+  },
+  sortModalOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+  },
+  sortModalOptionActive: {},
+  sortModalOptionText: { fontSize: 17 },
+  sortModalOptionTextActive: { fontWeight: '700' },
 });

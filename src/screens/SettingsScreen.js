@@ -4,13 +4,15 @@ import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Alert, Mo
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { CommonActions } from '@react-navigation/native';
-import { colors } from '../theme/colors';
+import Constants from 'expo-constants';
+import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
-import { t } from '../utils/translations'; // <-- Added this import
+import { t } from '../utils/translations';
 
 export default function SettingsScreen({ navigation }) {
   const { language, setLanguage, languages, languageLabels, resetLanguageSelection } = useLanguage();
+  const { isDark, toggleTheme, colors } = useTheme();
 
   const [notifications, setNotifications] = useState(true);
   const [offlineMode, setOfflineMode] = useState(true);
@@ -58,37 +60,41 @@ export default function SettingsScreen({ navigation }) {
     ]);
   }
 
+  // Fetch app version from app.json config via expo-constants
+  const appVersion = Constants.expoConfig?.version || '1.0.0';
+  const buildVersion = Constants.expoConfig?.ios?.buildNumber || Constants.expoConfig?.android?.versionCode;
+
   // STRICT FILTER: Only allow languages that actually exist and have a valid label
   const validLanguages = ['en', 'fil', 'ceb'].filter(
     (lang) => languageLabels && languageLabels[lang]
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Settings</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
+        <Text style={[styles.headerTitle, { color: colors.white }]}>Settings</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.body}>
-        <Text style={styles.sectionLabel}>PREFERENCES</Text>
-        <View style={styles.card}>
+        <Text style={[styles.sectionLabel, { color: colors.textLight }]}>PREFERENCES</Text>
+        <View style={[styles.card, { backgroundColor: colors.card }]}>
           <TouchableOpacity style={styles.row} onPress={() => setLanguagePickerVisible(true)} activeOpacity={0.7}>
             <View style={styles.rowLeft}>
-              <Ionicons name="globe-outline" size={18} color={colors.primary} />
-              <Text style={styles.rowLabel}>Language</Text>
+              <Ionicons name="globe-outline" size={20} color={colors.primary} />
+              <Text style={[styles.rowLabel, { color: colors.textDark }]}>Language</Text>
             </View>
             <View style={styles.rowRight}>
-              <Text style={styles.rowValue}>{languageLabels[language] || 'ENGLISH'}</Text>
-              <Ionicons name="chevron-down" size={16} color={colors.textLight} />
+              <Text style={[styles.rowValue, { color: colors.textMuted }]}>{languageLabels[language] || 'ENGLISH'}</Text>
+              <Ionicons name="chevron-down" size={18} color={colors.textLight} />
             </View>
           </TouchableOpacity>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
           <View style={styles.row}>
             <View style={styles.rowLeft}>
-              <Ionicons name="notifications-outline" size={18} color={colors.primary} />
-              <Text style={styles.rowLabel}>Notifications</Text>
+              <Ionicons name="notifications-outline" size={20} color={colors.primary} />
+              <Text style={[styles.rowLabel, { color: colors.textDark }]}>Notifications</Text>
             </View>
             <Switch
               value={notifications}
@@ -98,12 +104,12 @@ export default function SettingsScreen({ navigation }) {
             />
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
           <View style={styles.row}>
             <View style={styles.rowLeft}>
-              <Ionicons name="cloud-offline-outline" size={18} color={colors.primary} />
-              <Text style={styles.rowLabel}>Offline Mode</Text>
+              <Ionicons name="cloud-offline-outline" size={20} color={colors.primary} />
+              <Text style={[styles.rowLabel, { color: colors.textDark }]}>Offline Mode</Text>
             </View>
             <Switch
               value={offlineMode}
@@ -113,30 +119,47 @@ export default function SettingsScreen({ navigation }) {
             />
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+          <View style={styles.row}>
+            <View style={styles.rowLeft}>
+              <Ionicons name={isDark ? 'moon-outline' : 'sunny-outline'} size={20} color={colors.primary} />
+              <Text style={[styles.rowLabel, { color: colors.textDark }]}>{t('darkMode')}</Text>
+            </View>
+            <Switch
+              value={isDark}
+              onValueChange={toggleTheme}
+              trackColor={{ true: colors.primary, false: colors.border }}
+              thumbColor={colors.white}
+            />
+          </View>
+
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
           <TouchableOpacity style={styles.row} onPress={cycleCameraQuality} activeOpacity={0.7}>
             <View style={styles.rowLeft}>
-              <Ionicons name="camera-outline" size={18} color={colors.primary} />
-              <Text style={styles.rowLabel}>Camera Quality</Text>
+              <Ionicons name="camera-outline" size={20} color={colors.primary} />
+              <Text style={[styles.rowLabel, { color: colors.textDark }]}>Camera Quality</Text>
             </View>
             <View style={styles.rowRight}>
-              <Text style={styles.rowValue}>{cameraQuality}</Text>
-              <Ionicons name="chevron-down" size={16} color={colors.textLight} />
+              <Text style={[styles.rowValue, { color: colors.textMuted }]}>{cameraQuality}</Text>
+              <Ionicons name="chevron-down" size={18} color={colors.textLight} />
             </View>
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.sectionLabel}>APPLICATION</Text>
-        <View style={styles.card}>
+        <Text style={[styles.sectionLabel, { color: colors.textLight }]}>APPLICATION</Text>
+        <View style={[styles.card, { backgroundColor: colors.card }]}>
           <View style={styles.row}>
-            <Text style={styles.rowLabel}>Version</Text>
-            <Text style={styles.rowValue}>1.0.0</Text>
+            <Text style={[styles.rowLabel, { color: colors.textDark }]}>Version</Text>
+            <Text style={[styles.rowValue, { color: colors.textMuted }]}>
+              {appVersion}{buildVersion ? ` (${buildVersion})` : ''}
+            </Text>
           </View>
         </View>
 
         <TouchableOpacity
-          style={[styles.logoutBtn, loggingOut && styles.logoutBtnDisabled]}
+          style={[styles.logoutBtn, loggingOut && styles.logoutBtnDisabled, { borderColor: colors.danger }]}
           onPress={handleLogOut}
           activeOpacity={0.8}
           disabled={loggingOut}
@@ -144,7 +167,7 @@ export default function SettingsScreen({ navigation }) {
           {loggingOut ? (
             <ActivityIndicator color={colors.danger} />
           ) : (
-            <Text style={styles.logoutText}>Log Out</Text>
+            <Text style={[styles.logoutText, { color: colors.danger }]}>Log Out</Text>
           )}
         </TouchableOpacity>
       </ScrollView>
@@ -155,13 +178,13 @@ export default function SettingsScreen({ navigation }) {
         animationType="fade"
         onRequestClose={() => setLanguagePickerVisible(false)}
       >
-        <Pressable style={styles.modalOverlay} onPress={() => setLanguagePickerVisible(false)}>
-          <Pressable style={styles.modalSheet} onPress={() => {}}>
-            <Text style={styles.modalTitle}>Select Language</Text>
+        <Pressable style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.4)' }]} onPress={() => setLanguagePickerVisible(false)}>
+          <Pressable style={[styles.modalSheet, { backgroundColor: colors.card }]} onPress={() => {}}>
+            <Text style={[styles.modalTitle, { color: colors.textDark }]}>Select Language</Text>
             {validLanguages.map((lang) => (
               <TouchableOpacity
                 key={lang}
-                style={styles.modalOption}
+                style={[styles.modalOption, { borderBottomColor: colors.border }]}
                 onPress={() => selectLanguage(lang)}
                 activeOpacity={0.7}
               >
@@ -169,12 +192,13 @@ export default function SettingsScreen({ navigation }) {
                   style={[
                     styles.modalOptionText,
                     lang === language && styles.modalOptionTextActive,
+                    { color: lang === language ? colors.primary : colors.textDark }
                   ]}
                 >
                   {languageLabels[lang]}
                 </Text>
                 {lang === language && (
-                  <Ionicons name="checkmark" size={20} color={colors.primary} />
+                  <Ionicons name="checkmark" size={22} color={colors.primary} />
                 )}
               </TouchableOpacity>
             ))}
@@ -186,35 +210,32 @@ export default function SettingsScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: { backgroundColor: colors.primaryDark, paddingTop: 54, paddingBottom: 16, paddingHorizontal: 20 },
-  headerTitle: { color: colors.white, fontSize: 22, fontWeight: '800' },
+  container: { flex: 1 },
+  header: { paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  headerTitle: { fontSize: 24, fontWeight: '800' },
   body: { padding: 20, paddingBottom: 40 },
-  sectionLabel: { fontSize: 11, fontWeight: '800', color: colors.textLight, marginBottom: 8, marginTop: 12, letterSpacing: 0.5 },
-  card: { backgroundColor: colors.card, borderRadius: 14, paddingHorizontal: 16 },
+  sectionLabel: { fontSize: 13, fontWeight: '800', marginBottom: 8, marginTop: 12, letterSpacing: 0.5 },
+  card: { borderRadius: 14, paddingHorizontal: 16 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14 },
   rowLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  rowLabel: { fontSize: 14, color: colors.textDark, fontWeight: '600' },
+  rowLabel: { fontSize: 16, fontWeight: '600' },
   rowRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  rowValue: { fontSize: 13, color: colors.textMuted },
-  divider: { height: 1, backgroundColor: colors.border },
+  rowValue: { fontSize: 15 },
+  divider: { height: 1 },
   logoutBtn: {
     borderWidth: 1.5,
-    borderColor: colors.danger,
     borderRadius: 12,
     paddingVertical: 15,
     alignItems: 'center',
     marginTop: 24,
   },
   logoutBtnDisabled: { opacity: 0.6 },
-  logoutText: { color: colors.danger, fontWeight: '800', fontSize: 15 },
+  logoutText: { fontWeight: '800', fontSize: 17 },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'flex-end',
   },
   modalSheet: {
-    backgroundColor: colors.card,
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
     paddingHorizontal: 20,
@@ -222,9 +243,8 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   modalTitle: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: '800',
-    color: colors.textDark,
     marginBottom: 8,
   },
   modalOption: {
@@ -233,8 +253,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
-  modalOptionText: { fontSize: 15, color: colors.textDark },
-  modalOptionTextActive: { color: colors.primary, fontWeight: '700' },
+  modalOptionText: { fontSize: 17 },
+  modalOptionTextActive: { fontWeight: '700' },
 });

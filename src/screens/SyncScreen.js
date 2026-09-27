@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { colors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { syncOfflineScans } from '../services/syncService';
 
@@ -25,6 +25,7 @@ function timeAgo(dateString, t) {
 
 export default function SyncScreen() {
   const { t } = useLanguage();
+  const { colors } = useTheme();
 
   const [syncing, setSyncing] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -104,12 +105,12 @@ export default function SyncScreen() {
   const rotate = spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('sync')}</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
+        <Text style={[styles.headerTitle, { color: colors.white }]}>{t('sync')}</Text>
         <TouchableOpacity style={styles.syncIcon} onPress={handleSync} disabled={syncing}>
           <Animated.View style={{ transform: [{ rotate }] }}>
-            <Ionicons name="refresh" size={20} color={colors.white} />
+            <Ionicons name="refresh" size={22} color={colors.white} />
           </Animated.View>
         </TouchableOpacity>
       </View>
@@ -121,57 +122,57 @@ export default function SyncScreen() {
         }
       >
         {!isOnline && (
-          <View style={styles.offlineBanner}>
-            <Ionicons name="cloud-offline-outline" size={16} color={colors.danger} />
-            <Text style={styles.offlineBannerText}>{t('noInternet')}</Text>
+          <View style={[styles.offlineBanner, { backgroundColor: colors.dangerBg }]}>
+            <Ionicons name="cloud-offline-outline" size={18} color={colors.danger} />
+            <Text style={[styles.offlineBannerText, { color: colors.danger }]}>{t('noInternet')}</Text>
           </View>
         )}
 
         {errorMsg && (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorBannerText}>{errorMsg}</Text>
+          <View style={[styles.errorBanner, { backgroundColor: colors.dangerBg }]}>
+            <Text style={[styles.errorBannerText, { color: colors.danger }]}>{errorMsg}</Text>
           </View>
         )}
 
-        <View style={styles.queueCard}>
-          <Text style={styles.queueTitle}>{t('offlineData')}</Text>
-          <Text style={styles.queueSubtitle}>
+        <View style={[styles.queueCard, { backgroundColor: colors.warningBg, borderLeftColor: colors.warning }]}>
+          <Text style={[styles.queueTitle, { color: colors.textDark }]}>{t('offlineData')}</Text>
+          <Text style={[styles.queueSubtitle, { color: colors.textMuted }]}>
             {pendingRecords.length} {t('recordsWaiting')}
           </Text>
 
           {pendingRecords.length === 0 ? (
-            <Text style={styles.emptyText}>
+            <Text style={[styles.emptyText, { color: colors.textMuted }]}>
               {syncing || refreshing ? '...' : t('syncAllCaughtUp')}
             </Text>
           ) : (
             pendingRecords.map((item, index) => (
               <View key={item.id || index} style={styles.queueRow}>
                 <View style={styles.clockIconWrap}>
-                  <Ionicons name="time-outline" size={16} color={colors.warning} />
+                  <Ionicons name="time-outline" size={18} color={colors.warning} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.queueItemTitle}>Scan #{item.id.slice(-4)}</Text>
-                  <Text style={styles.queueItemStatus}>{t('syncPendingStatus')}</Text>
+                  <Text style={[styles.queueItemTitle, { color: colors.textDark }]}>Scan #{item.id.slice(-4)}</Text>
+                  <Text style={[styles.queueItemStatus, { color: colors.textMuted }]}>{t('syncPendingStatus')}</Text>
                 </View>
-                <Text style={styles.queueItemTime}>{timeAgo(item.timestamp, t)}</Text>
+                <Text style={[styles.queueItemTime, { color: colors.textLight }]}>{timeAgo(item.timestamp, t)}</Text>
               </View>
             ))
           )}
         </View>
 
         {lastSyncedAt && (
-          <Text style={styles.lastSyncedText}>
+          <Text style={[styles.lastSyncedText, { color: colors.textLight }]}>
             Last synced: {new Date(lastSyncedAt).toLocaleTimeString()}
           </Text>
         )}
 
         <TouchableOpacity
-          style={[styles.syncBtn, (!isOnline || syncing) && styles.syncBtnDisabled]}
+          style={[styles.syncBtn, (!isOnline || syncing) && styles.syncBtnDisabled, { backgroundColor: colors.primary }]}
           activeOpacity={0.85}
           onPress={handleSync}
           disabled={syncing || !isOnline}
         >
-          <Text style={styles.syncBtnText}>{syncing ? t('syncing') : t('syncNow')}</Text>
+          <Text style={[styles.syncBtnText, { color: colors.white }]}>{syncing ? t('syncing') : t('syncNow')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -179,17 +180,9 @@ export default function SyncScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: {
-    backgroundColor: colors.primaryDark,
-    paddingTop: 54,
-    paddingBottom: 16,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerTitle: { color: colors.white, fontSize: 22, fontWeight: '800' },
+  container: { flex: 1 },
+  header: { paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  headerTitle: { fontSize: 24, fontWeight: '800' },
   syncIcon: {
     width: 34,
     height: 34,
@@ -203,30 +196,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: colors.dangerBg,
     borderRadius: 10,
     padding: 12,
     marginBottom: 14,
   },
-  offlineBannerText: { color: colors.danger, fontSize: 12, fontWeight: '700' },
+  offlineBannerText: { fontSize: 14, fontWeight: '700' },
   errorBanner: {
-    backgroundColor: colors.dangerBg,
     borderRadius: 10,
     padding: 12,
     marginBottom: 14,
   },
-  errorBannerText: { color: colors.danger, fontSize: 12 },
+  errorBannerText: { fontSize: 14 },
   queueCard: {
-    backgroundColor: colors.warningBg,
     borderRadius: 14,
     padding: 18,
     borderLeftWidth: 4,
-    borderLeftColor: colors.warning,
     marginBottom: 16,
   },
-  queueTitle: { fontWeight: '800', fontSize: 16, color: colors.textDark, marginBottom: 2 },
-  queueSubtitle: { fontSize: 13, color: colors.textMuted, marginBottom: 16 },
-  emptyText: { fontSize: 13, color: colors.textMuted, fontStyle: 'italic' },
+  queueTitle: { fontWeight: '800', fontSize: 18, marginBottom: 2 },
+  queueSubtitle: { fontSize: 15, marginBottom: 16 },
+  emptyText: { fontSize: 15, fontStyle: 'italic' },
   queueRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   clockIconWrap: {
     width: 30,
@@ -237,11 +226,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 10,
   },
-  queueItemTitle: { fontWeight: '700', color: colors.textDark, fontSize: 13 },
-  queueItemStatus: { fontSize: 11, color: colors.textMuted, marginTop: 1 },
-  queueItemTime: { fontSize: 11, color: colors.textLight },
-  lastSyncedText: { fontSize: 11, color: colors.textLight, textAlign: 'center', marginBottom: 14 },
-  syncBtn: { backgroundColor: colors.primary, borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
+  queueItemTitle: { fontWeight: '700', fontSize: 15 },
+  queueItemStatus: { fontSize: 13, marginTop: 1 },
+  queueItemTime: { fontSize: 13 },
+  lastSyncedText: { fontSize: 13, textAlign: 'center', marginBottom: 14 },
+  syncBtn: { borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
   syncBtnDisabled: { opacity: 0.5 },
-  syncBtnText: { color: colors.white, fontWeight: '800', fontSize: 15 },
+  syncBtnText: { fontWeight: '800', fontSize: 17 },
 });

@@ -10,8 +10,8 @@ import NetInfo from '@react-native-community/netinfo';
 import * as FileSystem from 'expo-file-system/legacy';
 import { decode } from 'base64-arraybuffer';
 import { supabase } from '../../supabaseClient';
-import { colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 import { analyzeLeaf } from '../services/aiEngineService';
 import { enrichDiagnosis } from '../services/plantInfoLookupService';
 import { getDueReminders, dismissReminder } from '../utils/reminderStorage';
@@ -19,6 +19,7 @@ import { getValidUserSession } from '../utils/auth';
 
 export default function ScanScreen({ navigation }) {
   const { language, languageLabels, t } = useLanguage();
+  const { colors, isDark } = useTheme();
 
   const [permission, requestPermission] = useCameraPermissions();
   const [showCamera, setShowCamera] = useState(false);
@@ -245,7 +246,7 @@ export default function ScanScreen({ navigation }) {
         <CameraView style={{ flex: 1 }} facing="back" ref={cameraRef} />
         <View style={styles.cameraControls}>
           <TouchableOpacity style={styles.cameraCancelBtn} onPress={() => setShowCamera(false)}>
-            <Text style={styles.cameraCancelText}>{t('cameraCancelText')}</Text>
+            <Text style={[styles.cameraCancelText, { color: colors.white }]}>{t('cameraCancelText')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.captureBtn}
@@ -278,31 +279,31 @@ export default function ScanScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('appName')}</Text>
-        <TouchableOpacity style={styles.langPill}>
-          <Text style={styles.langPillText}>{languageLabels[language]}</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
+        <Text style={[styles.headerTitle, { color: colors.white }]}>{t('appName')}</Text>
+        <TouchableOpacity style={[styles.langPill, { backgroundColor: colors.white }]}>
+          <Text style={[styles.langPillText, { color: colors.primaryDark }]}>{languageLabels[language]}</Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.body}>
         {dueReminders.map((reminder) => (
-          <View key={reminder.id} style={styles.reminderBanner}>
-            <Ionicons name="notifications" size={18} color={colors.warning} />
-            <Text style={styles.reminderBannerText}>
+          <View key={reminder.id} style={[styles.reminderBanner, { backgroundColor: colors.warningBg }]}>
+            <Ionicons name="notifications" size={20} color={colors.warning} />
+            <Text style={[styles.reminderBannerText, { color: colors.textDark }]}>
               {reminder.diseaseName}
             </Text>
             <TouchableOpacity onPress={() => handleDismissReminder(reminder.id)}>
-              <Ionicons name="close" size={18} color={colors.textMuted} />
+              <Ionicons name="close" size={20} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
         ))}
 
-        <View style={styles.viewfinder}>
+        <View style={[styles.viewfinder, { backgroundColor: colors.mint }]}>
           {!isOnline && (
-            <View style={styles.offlineBadge}>
-              <Text style={styles.offlineBadgeText}>{t('noInternet')}</Text>
+            <View style={[styles.offlineBadge, { backgroundColor: colors.warning }]}>
+              <Text style={[styles.offlineBadgeText, { color: colors.white }]}>{t('noInternet')}</Text>
             </View>
           )}
           {imageUri ? (
@@ -312,45 +313,47 @@ export default function ScanScreen({ navigation }) {
             />
           ) : (
             <>
-              <View style={styles.cornerTL} />
-              <View style={styles.cornerTR} />
-              <View style={styles.cornerBL} />
-              <View style={styles.cornerBR} />
-              <Text style={styles.viewfinderHint}>{t('pointCamera')}</Text>
+              <View style={[styles.cornerTL, { borderColor: isDark ? colors.white : colors.primaryDark }]} />
+              <View style={[styles.cornerTR, { borderColor: isDark ? colors.white : colors.primaryDark }]} />
+              <View style={[styles.cornerBL, { borderColor: isDark ? colors.white : colors.primaryDark }]} />
+              <View style={[styles.cornerBR, { borderColor: isDark ? colors.white : colors.primaryDark }]} />
+              <View style={[styles.viewfinderHintWrap, { backgroundColor: colors.mint }]}>
+                <Text style={[styles.viewfinderHint, { color: colors.textDark }]}>{t('pointCamera')}</Text>
+              </View>
             </>
           )}
           {analyzing && (
-            <View style={styles.analyzingOverlay}>
+            <View style={[styles.analyzingOverlay, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
               <ActivityIndicator color={colors.white} />
-              <Text style={styles.analyzingText}>{t('analyzingImage')}</Text>
+              <Text style={[styles.analyzingText, { color: colors.white }]}>{t('analyzingImage')}</Text>
             </View>
           )}
           {!analyzing && notPlantWarning && (
-            <View style={styles.notPlantOverlay}>
-              <Ionicons name="alert-circle" size={16} color={colors.white} />
-              <Text style={styles.notPlantText}>{t('notAPlantBanner')}</Text>
+            <View style={[styles.notPlantOverlay, { backgroundColor: colors.danger }]}>
+              <Ionicons name="alert-circle" size={18} color={colors.white} />
+              <Text style={[styles.notPlantText, { color: colors.white }]}>{t('notAPlantBanner')}</Text>
             </View>
           )}
         </View>
 
         {/* UPLOAD & TAKE PHOTO BUTTONS */}
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.outlineBtn} activeOpacity={0.85} onPress={handleUploadPhoto} disabled={uploading}>
+          <TouchableOpacity style={[styles.outlineBtn, { borderColor: '#26482D', backgroundColor: '#112214' }]} activeOpacity={0.85} onPress={handleUploadPhoto} disabled={uploading}>
             <Text style={styles.outlineBtnText}>{uploading ? t('uploadingText') : t('uploadPhoto')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.filledBtn} activeOpacity={0.85} onPress={handleTakePhoto} disabled={uploading}>
+          <TouchableOpacity style={[styles.filledBtn, { backgroundColor: '#2E7D32' }]} activeOpacity={0.85} onPress={handleTakePhoto} disabled={uploading}>
             <Text style={styles.filledBtnText}>{t('takePhoto')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* MAIN SCAN BUTTON */}
-        <TouchableOpacity style={styles.scanBtn} activeOpacity={0.85} onPress={handleAnalyze}>
+        <TouchableOpacity style={[styles.scanBtn, { backgroundColor: '#4CAF50' }]} activeOpacity={0.85} onPress={handleAnalyze}>
           <Text style={styles.scanBtnText}>{t('scanLeafBtn')}</Text>
         </TouchableOpacity>
 
         {/* OFFLINE AI BUTTON */}
-        <TouchableOpacity style={styles.analyzeBtn} activeOpacity={0.85} onPress={handleOfflineAnalyze}>
-          <Ionicons name="sparkles" size={16} color="#A2E0A2" style={{ marginRight: 8 }} />
+        <TouchableOpacity style={[styles.analyzeBtn, { backgroundColor: '#112214', borderColor: '#1da038' }]} activeOpacity={0.85} onPress={handleOfflineAnalyze}>
+          <Ionicons name="sparkles" size={18} color="#A2E0A2" style={{ marginRight: 8 }} />
           <Text style={styles.analyzeBtnText}>{t('analyzeOffline')}</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -359,9 +362,8 @@ export default function ScanScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1 },
   header: {
-    backgroundColor: colors.primaryDark,
     paddingTop: 16,
     paddingBottom: 16,
     paddingHorizontal: 20,
@@ -369,22 +371,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  headerTitle: { color: colors.white, fontSize: 22, fontWeight: '800' },
-  langPill: { backgroundColor: colors.white, paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 },
-  langPillText: { color: colors.primaryDark, fontWeight: '700', fontSize: 12 },
+  headerTitle: { fontSize: 24, fontWeight: '800' },
+  langPill: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 },
+  langPillText: { fontWeight: '700', fontSize: 14 },
   body: { padding: 20, paddingBottom: 40 },
   reminderBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: colors.warningBg,
     borderRadius: 12,
     padding: 12,
     marginBottom: 14,
   },
-  reminderBannerText: { flex: 1, fontSize: 13, color: colors.textDark, fontWeight: '600' },
+  reminderBannerText: { flex: 1, fontSize: 15, fontWeight: '600' },
   viewfinder: {
-    backgroundColor: '#0E1F13',
     borderRadius: 14,
     height: 300,
     alignItems: 'center',
@@ -397,86 +397,78 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 14,
     left: 14,
-    backgroundColor: colors.warning,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 6,
     zIndex: 2,
   },
-  offlineBadgeText: { color: colors.white, fontSize: 11, fontWeight: '700' },
-  viewfinderHint: { color: '#8FA893', fontSize: 13 },
+  offlineBadgeText: { fontSize: 13, fontWeight: '700' },
+  viewfinderHintWrap: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
+  viewfinderHint: { fontSize: 15, fontWeight: '600' },
   analyzingOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0,0,0,0.6)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 10,
     gap: 8,
   },
-  analyzingText: { color: colors.white, fontSize: 12, fontWeight: '600' },
+  analyzingText: { fontSize: 14, fontWeight: '600' },
   notPlantOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: colors.danger,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 10,
     gap: 8,
-  },
-  notPlantText: { color: colors.white, fontSize: 12, fontWeight: '700' },
-  cornerTL: { position: 'absolute', top: 20, left: 20, width: 26, height: 26, borderTopWidth: 2, borderLeftWidth: 2, borderColor: colors.white },
-  cornerTR: { position: 'absolute', top: 20, right: 20, width: 26, height: 26, borderTopWidth: 2, borderRightWidth: 2, borderColor: colors.white },
-  cornerBL: { position: 'absolute', bottom: 20, left: 20, width: 26, height: 26, borderBottomWidth: 2, borderLeftWidth: 2, borderColor: colors.white },
-  cornerBR: { position: 'absolute', bottom: 20, right: 20, width: 26, height: 26, borderBottomWidth: 2, borderRightWidth: 2, borderColor: colors.white },
+  },  //camera frames
+  notPlantText: { fontSize: 14, fontWeight: '700' },
+  cornerTL: { position: 'absolute', top: 20, left: 20, width: 26, height: 26, borderTopWidth: 0.4, borderLeftWidth: 0.4 }, //upper left corner
+  cornerTR: { position: 'absolute', top: 20, right: 20, width: 26, height: 26, borderTopWidth: 0.4, borderRightWidth: 0.4 }, //upper right corner
+  cornerBL: { position: 'absolute', bottom: 20, left: 20, width: 26, height: 26, borderBottomWidth: 0.4, borderLeftWidth: 0.4 }, //lower left corner
+  cornerBR: { position: 'absolute', bottom: 20, right: 20, width: 26, height: 26, borderBottomWidth: 0.4, borderRightWidth: 0.4 }, //lower right corner
   buttonRow: { flexDirection: 'row', gap: 12, marginBottom: 14 },
 
   outlineBtn: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#26482D',
-    backgroundColor: '#112214',
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
   },
-  outlineBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13 },
+  outlineBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 15 },
 
   filledBtn: {
     flex: 1,
-    backgroundColor: '#2E7D32',
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center'
   },
-  filledBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13 },
+  filledBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 15 },
 
   scanBtn: {
-    backgroundColor: '#4CAF50',
     borderRadius: 10,
     paddingVertical: 16,
     alignItems: 'center',
     marginBottom: 12
   },
-  scanBtnText: { color: '#09150B', fontWeight: '800', fontSize: 15 },
+  scanBtnText: { color: '#09150B', fontWeight: '800', fontSize: 17 },
 
   analyzeBtn: {
-    backgroundColor: '#112214',
     borderWidth: 1,
-    borderColor: '#26482D',
     borderRadius: 10,
     paddingVertical: 16,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  analyzeBtnText: { color: '#A2E0A2', fontWeight: '800', fontSize: 14 },
+  analyzeBtnText: { color: '#A2E0A2', fontWeight: '800', fontSize: 16 },
 
   cameraControls: {
     position: 'absolute',
@@ -489,15 +481,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   cameraCancelBtn: { width: 70 },
-  cameraCancelText: { color: colors.white, fontSize: 15 },
+  cameraCancelText: { fontSize: 17 },
   captureBtn: {
     width: 70,
     height: 70,
     borderRadius: 35,
     borderWidth: 4,
-    borderColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  captureInner: { width: 54, height: 54, borderRadius: 27, backgroundColor: colors.white },
+  captureInner: { width: 54, height: 54, borderRadius: 27 },
 });

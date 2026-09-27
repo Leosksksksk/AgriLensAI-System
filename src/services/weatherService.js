@@ -1,86 +1,264 @@
 // src/services/weatherService.js
 import * as Location from 'expo-location';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DEFAULT_COORDS = { latitude: 11.0474, longitude: 124.0051 };
+const OPENWEATHER_API_KEY = 'f62d5ddae8ba892c756cbec5931b2feb';
 
-export async function getCurrentCoords() {
+async function fetchJsonWithTimeout(url, timeoutMs = 8000) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') return DEFAULT_COORDS;
-
-    const position = await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.Balanced,
-    });
-    return {
-      latitude: position.coords.latitude,
-      longitude: position.coords.longitude,
-    };
-  } catch (e) {
-    console.warn('Location error, using default coords:', e);
-    return DEFAULT_COORDS;
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) throw new Error(`Weather API error: HTTP ${response.status}`);
+    return await response.json();
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
-export async function fetchWeatherRisk() {
+function calculateRisk({ temperature, humidity, rainProbability, windSpeedKmh }) {
+  let score = (humidity / 100) * 0.35 + (rainProbability / 100) * 0.25;
+
+  if (temperature >= 35) score += 0.3;
+  else if (temperature >= 30) score += 0.2;
+  else if (temperature >= 25) score += 0.1;
+
+  if (windSpeedKmh >= 20) score += 0.15;
+  else if (windSpeedKmh >= 10) score += 0.1;
+
+  score = Math.min(score, 1);
+  return score >= 0.65 ? 'High' : score >= 0.4 ? 'Moderate' : 'Low';
+}
+
+function formatWeatherTime(value) {
+  if (!value) return '';
+  return new Date(value).toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
+function getWeatherCondition(code) {
+  const conditions = {
+    0: ['Clear sky', 'weatherClearSky'],
+    1: ['Mainly clear', 'weatherMainlyClear'],
+    2: ['Partly cloudy', 'weatherPartlyCloudy'],
+    3: ['Overcast', 'weatherOvercast'],
+    45: ['Fog', 'weatherFog'],
+    48: ['Fog', 'weatherFog'],
+    51: ['Drizzle', 'weatherDrizzle'],
+    53: ['Drizzle', 'weatherDrizzle'],
+    55: ['Drizzle', 'weatherDrizzle'],
+    56: ['Drizzle', 'weatherDrizzle'],
+    57: ['Drizzle', 'weatherDrizzle'],
+    61: ['Light rain', 'weatherLightRain'],
+    63: ['Rain', 'weatherRain'],
+    65: ['Heavy rain', 'weatherHeavyRain'],
+    66: ['Freezing rain', 'weatherFreezingRain'],
+    67: ['Freezing rain', 'weatherFreezingRain'],
+    71: ['Snow', 'weatherSnow'],
+    73: ['Snow', 'weatherSnow'],
+    75: ['Heavy snow', 'weatherHeavySnow'],
+    77: ['Snow grains', 'weatherSnow'],
+    80: ['Rain showers', 'weatherRainShowers'],
+    81: ['Rain showers', 'weatherRainShowers'],
+    82: ['Heavy rain showers', 'weatherHeavyRainShowers'],
+    85: ['Snow showers', 'weatherSnowShowers'],
+    86: ['Heavy snow showers', 'weatherHeavySnowShowers'],
+    95: ['Thunderstorm', 'weatherThunderstorm'],
+    96: ['Thunderstorm with hail', 'weatherThunderstormHail'],
+    99: ['Thunderstorm with heavy hail', 'weatherThunderstormHail'],
+  };
+  return conditions[code] ?? ['Current conditions', 'weatherCurrentConditions'];
+}
+
+function getOpenWeatherConditionKey(main, description) {
+  const normalized = (description || '').toLowerCase();
+  if (normalized.includes('few clouds')) return 'weatherFewClouds';
+  if (normalized.includes('scattered clouds')) return 'weatherScatteredClouds';
+  if (normalized.includes('broken clouds')) return 'weatherBrokenClouds';
+  if (normalized.includes('overcast clouds')) return 'weatherOvercast';
+  if (normalized.includes('heavy intensity rain') || normalized.includes('heavy rain')) return 'weatherHeavyRain';
+  if (normalized.includes('light rain')) return 'weatherLightRain';
+  if (normalized.includes('shower')) return 'weatherRainShowers';
+
+  if (main === 'Clear') return 'weatherClearSky';
+  if (main === 'Clouds') return 'weatherPartlyCloudy';
+  if (main === 'Drizzle') return 'weatherDrizzle';
+  if (main === 'Rain') return 'weatherRain';
+  if (main === 'Snow') return 'weatherSnow';
+  if (main === 'Thunderstorm') return 'weatherThunderstorm';
+  if (['Mist', 'Fog', 'Smoke'].includes(main)) return 'weatherFog';
+  if (main === 'Haze') return 'weatherHaze';
+  return 'weatherCurrentConditions';
+}
+
+async function getAreaEstimate() {
   try {
-    const { latitude, longitude } = await getCurrentCoords();
+    const barangay = await AsyncStorage.getItem('user_barangay');
+    if (barangay) {
+      const [match] = await Location.geocodeAsync(`${barangay}, Cebu, Philippines`);
+      if (match) {
+        return {
+          latitude: match.latitude,
+          longitude: match.longitude,
+          accuracy: null,
+          locationName: barangay,
+          locationSource: 'Barangay estimate',
+          isApproximate: true,
+        };
+      }
+    }
+  } catch {
+    // Use the configured regional estimate if the saved area cannot be geocoded.
+  }
 
-    const url =
-      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}` +
-      `&current=temperature_2m,relative_humidity_2m,precipitation_probability,wind_speed_10m` +
-      `&timezone=auto`;
+  return {
+    ...DEFAULT_COORDS,
+    accuracy: null,
+    locationName: 'Bogo City',
+    locationSource: 'Regional estimate',
+    isApproximate: true,
+  };
+}
 
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`Weather API error: HTTP ${response.status}`);
+export async function getCurrentLocation() {
+  try {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') return getAreaEstimate();
 
-    const data = await response.json();
+    const position = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.High,
+      mayShowUserSettingsDialog: true,
+    });
+
+    const { latitude, longitude, accuracy } = position.coords;
+    let locationName = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+    try {
+      const [place] = await Location.reverseGeocodeAsync({ latitude, longitude });
+      const locality = [place?.district, place?.city, place?.subregion, place?.region]
+        .filter(Boolean)
+        .filter((value, index, values) =>
+          values.findIndex((candidate) => candidate.toLowerCase() === value.toLowerCase()) === index
+        );
+      if (locality.length) locationName = locality.slice(0, 2).join(', ');
+    } catch {
+      // GPS coordinates remain the location label if reverse geocoding fails.
+    }
+
+    return {
+      latitude,
+      longitude,
+      accuracy,
+      locationName,
+      locationSource: 'GPS',
+      isApproximate: false,
+    };
+  } catch {
+    return getAreaEstimate();
+  }
+}
+
+export async function getCurrentCoords() {
+  const { latitude, longitude } = await getCurrentLocation();
+  return { latitude, longitude };
+}
+
+export async function fetchWeatherRisk(location = null) {
+  const currentLocation = location ?? await getCurrentLocation();
+  const { latitude, longitude } = currentLocation;
+  const openMeteoUrl =
+    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}` +
+    `&current=temperature_2m,relative_humidity_2m,precipitation_probability,wind_speed_10m,weather_code` +
+    `&timezone=auto`;
+
+  try {
+    const data = await fetchJsonWithTimeout(openMeteoUrl);
     const current = data.current ?? {};
 
-    const temperature = current.temperature_2m ?? 28;
-    const humidity = current.relative_humidity_2m ?? 70;
-    const rainProbability = current.precipitation_probability ?? 0;
-    const windSpeedKmh = (current.wind_speed_10m ?? 0) * 3.6;
-
-    let score = (humidity / 100) * 0.35 + (rainProbability / 100) * 0.25;
-
-    if (temperature >= 35) score += 0.3;
-    else if (temperature >= 30) score += 0.2;
-    else if (temperature >= 25) score += 0.1;
-
-    if (windSpeedKmh >= 20) score += 0.15;
-    else if (windSpeedKmh >= 10) score += 0.1;
-
-    score = Math.min(score, 1);
-
-    const riskLevel = score >= 0.65 ? 'High' : score >= 0.4 ? 'Moderate' : 'Low';
-
-    return { temperature, humidity, rainProbability, windSpeedKmh, riskLevel };
-  } catch (e) {
-    console.warn('Weather service offline/network error, using safe fallbacks:', e);
+    const [condition, conditionKey] = getWeatherCondition(current.weather_code);
+    const weather = {
+      temperature: current.temperature_2m,
+      humidity: current.relative_humidity_2m,
+      rainProbability: current.precipitation_probability,
+      windSpeedKmh: current.wind_speed_10m,
+      condition,
+      conditionKey,
+    };
+    if ([weather.temperature, weather.humidity, weather.rainProbability, weather.windSpeedKmh]
+      .some((value) => typeof value !== 'number')) {
+      throw new Error('Open-Meteo returned incomplete current conditions');
+    }
     return {
+      ...currentLocation,
+      ...weather,
+      riskLevel: calculateRisk(weather),
+      observedAt: formatWeatherTime(current.time),
+      checkedAt: formatWeatherTime(Date.now()),
+      provider: 'Open-Meteo',
+    };
+  } catch {
+    try {
+      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${OPENWEATHER_API_KEY}`;
+      const data = await fetchJsonWithTimeout(url);
+      const condition = data.weather?.[0]?.main;
+      const rainProbability = condition === 'Rain' || condition === 'Thunderstorm'
+        ? 80
+        : condition === 'Drizzle'
+          ? 60
+          : 0;
+      const weather = {
+        temperature: data.main?.temp,
+        humidity: data.main?.humidity,
+        rainProbability,
+        windSpeedKmh: (data.wind?.speed ?? 0) * 3.6,
+        condition: data.weather?.[0]?.description || 'Current conditions',
+        conditionKey: getOpenWeatherConditionKey(condition, data.weather?.[0]?.description),
+      };
+      if (typeof weather.temperature !== 'number' || typeof weather.humidity !== 'number') {
+        throw new Error('OpenWeatherMap returned incomplete current conditions');
+      }
+      return {
+        ...currentLocation,
+        ...weather,
+        riskLevel: calculateRisk(weather),
+        observedAt: formatWeatherTime(data.dt ? data.dt * 1000 : null),
+        checkedAt: formatWeatherTime(Date.now()),
+        provider: 'OpenWeatherMap',
+      };
+    } catch {
+      // Keep an offline estimate available when neither weather provider can be reached.
+    }
+
+    return {
+      ...currentLocation,
       temperature: 28,
       humidity: 70,
       rainProbability: 0,
       windSpeedKmh: 0,
+      condition: 'Weather unavailable',
+      conditionKey: 'weatherUnavailable',
       riskLevel: 'Moderate',
       isOffline: true,
+      provider: 'offline-estimate',
     };
   }
 }
 
-export async function fetch7DayForecast() {
+export async function fetch7DayForecast(location = null) {
   try {
-    const { latitude, longitude } = await getCurrentCoords();
+    const currentLocation = location ?? await getCurrentLocation();
+    const { latitude, longitude } = currentLocation;
 
     const url =
       `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}` +
       `&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode,relative_humidity_2m_mean` +
       `&timezone=auto`;
 
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`Weather API error: HTTP ${response.status}`);
-
-    const data = await response.json();
+    const data = await fetchJsonWithTimeout(url);
     const daily = data.daily ?? {};
 
     const days = (daily.time ?? []).map((dateStr, i) => {
@@ -116,8 +294,7 @@ export async function fetch7DayForecast() {
     });
 
     return days.slice(0, 7);
-  } catch (e) {
-    console.warn('7-day forecast fetch error, using fallback:', e);
+  } catch {
     return getFallbackForecast();
   }
 }

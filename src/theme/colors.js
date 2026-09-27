@@ -1,62 +1,95 @@
 // src/theme/colors.js
-export const colors = {
-  primaryDark: '#094a0df3', //dashboard above
+export const lightColors = {
+  primaryDark: '#094a0df3',
   primary: '#2E7D32',
   primaryLight: '#43A047',
-  stepIconGreen: '#6FCF74', // lighter appealing green for onboarding step icons
-  leafGreen: '#0b950b', //scan leaf padding
+  stepIconGreen: '#6FCF74',
+  leafGreen: '#0b950b',
   mint: '#E8F5E9',
 
-  background: '#042804',  //background
+  background: '#EBF5EB',
   card: '#FFFFFF',
 
-  textDark: '#797070', //sync texts
-  textMuted: '#7a786b', //sync sub-texts
-  textLight: '#7a867f', //dashboard texts
+  textDark: '#2E3A2E',
+  textMuted: '#5A6B5A',
+  textLight: '#4A5A4A',
 
   warning: '#F5A623',
   warningBg: '#FFF7E6',
   danger: '#E53935',
   dangerBg: '#FDECEA',
   info: '#1565C0',
-  infoBg: '#E8F0FE', //pending and info card background
-  ok: '#55ef5d', //reminder and tomato leaf logo
+  infoBg: '#E8F0FE',
+  ok: '#2E7D32',
   okBg: '#E8F5E9',
 
-  border: '#E4E9E4',
-  white: '#034c08', //borders
+  border: '#D4E4D4',
+  white: '#FFFFFF',
   black: '#000000',
 };
 
-export function severityColor(level) {
+export const darkColors = {
+  primaryDark: '#094a0df3',
+  primary: '#4CAF50',
+  primaryLight: '#66BB6A',
+  stepIconGreen: '#6FCF74',
+  leafGreen: '#4CAF50',
+  mint: '#1B3A1B',
+
+  background: '#042804',
+  card: '#0D3D0D',
+
+  textDark: '#E8F0E8',
+  textMuted: '#A8C0A8',
+  textLight: '#C8D8C8',
+
+  warning: '#FFB74D',
+  warningBg: '#3A2E1A',
+  danger: '#EF5350',
+  dangerBg: '#3A1A1A',
+  info: '#64B5F6',
+  infoBg: '#1A2A3A',
+  ok: '#81C784',
+  okBg: '#1B3A1B',
+
+  border: '#2E4A2E',
+  white: '#FFFFFF',
+  black: '#000000',
+};
+
+export const colors = darkColors;
+
+export function severityColor(level, isDark = true) {
+  const palette = isDark ? darkColors : lightColors;
   switch ((level || '').toLowerCase()) {
     case 'healthy':
-      return colors.ok;
+      return palette.ok;
     case 'mild':
-      return colors.leafGreen;
+      return palette.leafGreen;
     case 'moderate':
-      return colors.warning;
+      return palette.warning;
     case 'severe':
-      return colors.danger;
+      return palette.danger;
     default:
-      return colors.textMuted;
+      return palette.textMuted;
   }
 }
 
-export function riskColor(level) {
+export function riskColor(level, isDark = true) {
+  const palette = isDark ? darkColors : lightColors;
   switch ((level || '').toLowerCase()) {
     case 'high risk':
     case 'high':
-      return colors.danger;
+      return palette.danger;
     case 'moderate risk':
     case 'moderate':
-      return colors.warning;
+      return palette.warning;
     case 'low risk':
     case 'low':
-      return colors.ok;
+      return palette.ok;
     default:
-      return colors.textMuted;
+      return palette.textMuted;
   }
 }
 
-export default colors;
+export default { lightColors, darkColors, severityColor, riskColor };

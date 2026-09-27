@@ -3,12 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, riskColor } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
-import { fetchWeatherRisk, fetch7DayForecast } from '../services/weatherService';
+import { fetchWeatherRisk, fetch7DayForecast, getCurrentLocation } from '../services/weatherService';
 
 export default function ClimateScreen({ location = 'Bogo City Cebu' }) {
   const { t } = useLanguage();
+  const { colors, riskColor } = useTheme();
   const [loading, setLoading] = useState(true);
   const [weather, setWeather] = useState(null);
   const [forecast, setForecast] = useState([]);
@@ -20,9 +21,10 @@ export default function ClimateScreen({ location = 'Bogo City Cebu' }) {
   async function loadWeather() {
     setLoading(true);
     try {
+      const currentLocation = await getCurrentLocation();
       const [current, daily] = await Promise.all([
-        fetchWeatherRisk(),
-        fetch7DayForecast(),
+        fetchWeatherRisk(currentLocation),
+        fetch7DayForecast(currentLocation),
       ]);
       setWeather(current);
       setForecast(daily);
@@ -47,11 +49,11 @@ export default function ClimateScreen({ location = 'Bogo City Cebu' }) {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t('climate')}</Text>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
+          <Text style={[styles.headerTitle, { color: colors.white }]}>{t('climate')}</Text>
         </View>
-        <View style={styles.loadingContainer}>
+        <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
           <ActivityIndicator color={colors.primary} size="large" />
         </View>
       </SafeAreaView>
@@ -63,12 +65,18 @@ export default function ClimateScreen({ location = 'Bogo City Cebu' }) {
   const currentRiskColor = riskColor(currentRisk + ' Risk');
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('climate')}</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
+        <Text style={[styles.headerTitle, { color: colors.white }]}>{t('climate')}</Text>
         <View style={styles.locationRow}>
-          <Ionicons name="location-outline" size={14} color={colors.white} />
-          <Text style={styles.locationText}>{location}</Text>
+          <Ionicons name="location-outline" size={16} color={colors.white} />
+          <Text style={[styles.locationText, { color: '#DCEEDC' }]}>
+            {weather?.locationName || location}
+            {weather?.locationSource ? ` · ${weather.locationSource}` : ''}
+            {weather?.locationSource === 'GPS' && weather.accuracy != null
+              ? ` ±${Math.round(weather.accuracy)} m`
+              : ''}
+          </Text>
         </View>
       </View>
 
@@ -76,30 +84,30 @@ export default function ClimateScreen({ location = 'Bogo City Cebu' }) {
         <RefreshControl refreshing={loading} onRefresh={loadWeather} />
       }>
         <View style={styles.metricsRow}>
-          <View style={styles.metricCard}>
-            <Ionicons name="sunny" size={18} color="#F5A623" />
-            <Text style={styles.metricLabel}>{t('temperature')}</Text>
-            <Text style={styles.metricValue}>{weather?.temperature ?? 28}°C</Text>
+          <View style={[styles.metricCard, { backgroundColor: colors.card }]}>
+            <Ionicons name="sunny" size={20} color="#F5A623" />
+            <Text style={[styles.metricLabel, { color: colors.textMuted }]}>{t('temperature')}</Text>
+            <Text style={[styles.metricValue, { color: colors.textDark }]}>{weather?.temperature ?? 28}°C</Text>
           </View>
-          <View style={styles.metricCard}>
-            <Ionicons name="water" size={18} color="#1565C0" />
-            <Text style={styles.metricLabel}>{t('humidity')}</Text>
-            <Text style={styles.metricValue}>{weather?.humidity ?? 70}%</Text>
+          <View style={[styles.metricCard, { backgroundColor: colors.card }]}>
+            <Ionicons name="water" size={20} color="#1565C0" />
+            <Text style={[styles.metricLabel, { color: colors.textMuted }]}>{t('humidity')}</Text>
+            <Text style={[styles.metricValue, { color: colors.textDark }]}>{weather?.humidity ?? 70}%</Text>
           </View>
-          <View style={styles.metricCard}>
-            <Ionicons name="rainy" size={18} color="#1E88E5" />
-            <Text style={styles.metricLabel}>{t('rainProbability')}</Text>
-            <Text style={styles.metricValue}>{weather?.rainProbability ?? 0}%</Text>
+          <View style={[styles.metricCard, { backgroundColor: colors.card }]}>
+            <Ionicons name="rainy" size={20} color="#1E88E5" />
+            <Text style={[styles.metricLabel, { color: colors.textMuted }]}>{t('rainProbability')}</Text>
+            <Text style={[styles.metricValue, { color: colors.textDark }]}>{weather?.rainProbability ?? 0}%</Text>
           </View>
         </View>
 
-        <View style={[styles.riskCard, { borderLeftColor: currentRiskColor }]}>
+        <View style={[styles.riskCard, { backgroundColor: colors.dangerBg, borderLeftColor: currentRiskColor }]}>
           <View style={[styles.riskDot, { backgroundColor: currentRiskColor }]} />
           <View style={{ flex: 1 }}>
             <Text style={[styles.riskTitle, { color: currentRiskColor }]}>
               {t(currentRiskKey)}
             </Text>
-            <Text style={styles.riskDesc}>
+            <Text style={[styles.riskDesc, { color: colors.textDark }]}>
               {currentRisk === 'High' ? t('favorableConditions') : 
                currentRisk === 'Moderate' ? t('moderateConditions') : t('lowConditions')}
             </Text>
@@ -109,21 +117,21 @@ export default function ClimateScreen({ location = 'Bogo City Cebu' }) {
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>{t('forecast7Day')}</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textDark }]}>{t('forecast7Day')}</Text>
 
         {forecast.map((f, i) => (
-          <View key={i} style={styles.forecastRow}>
+          <View key={i} style={[styles.forecastRow, { backgroundColor: colors.warningBg }]}>
             <View>
-              <Text style={styles.forecastDay}>{formatDay(f.date)}</Text>
+              <Text style={[styles.forecastDay, { color: colors.textDark }]}>{formatDay(f.date)}</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 6 }}>
-                <Text style={styles.forecastTemp}>
+                <Text style={[styles.forecastTemp, { color: colors.textMuted }]}>
                   {f.tempMax}° / {f.tempMin}°
                 </Text>
-                <Ionicons name={f.icon} size={16} color={colors.textMuted} />
+                <Ionicons name={f.icon} size={18} color={colors.textMuted} />
               </View>
             </View>
             <View style={[styles.riskBadge, { backgroundColor: riskColor(f.riskLevel + ' Risk') }]}>
-              <Text style={styles.riskBadgeText}>
+              <Text style={[styles.riskBadgeText, { color: colors.white }]}>
                 {t(f.riskLevel.toLowerCase() === 'high' ? 'riskHigh' : f.riskLevel.toLowerCase() === 'moderate' ? 'riskModerate' : 'riskLow')}
               </Text>
             </View>
@@ -135,19 +143,18 @@ export default function ClimateScreen({ location = 'Bogo City Cebu' }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: { backgroundColor: colors.primaryDark, paddingTop: 54, paddingBottom: 16, paddingHorizontal: 20 },
-  headerTitle: { color: colors.white, fontSize: 22, fontWeight: '800' },
+  container: { flex: 1 },
+  header: { paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  headerTitle: { fontSize: 24, fontWeight: '800' },
   locationRow: { flexDirection: 'row', alignItems: 'center', marginTop: 6, gap: 4 },
-  locationText: { color: '#DCEEDC', fontSize: 12 },
+  locationText: { fontSize: 14 },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 60 },
   body: { padding: 20, paddingBottom: 40 },
   metricsRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
-  metricCard: { flex: 1, backgroundColor: colors.card, borderRadius: 12, padding: 12, alignItems: 'flex-start', gap: 6 },
-  metricLabel: { fontSize: 11, color: colors.textMuted },
-  metricValue: { fontSize: 16, fontWeight: '800', color: colors.textDark },
+  metricCard: { flex: 1, borderRadius: 12, padding: 12, alignItems: 'flex-start', gap: 6 },
+  metricLabel: { fontSize: 13 },
+  metricValue: { fontSize: 18, fontWeight: '800' },
   riskCard: {
-    backgroundColor: colors.dangerBg,
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
@@ -155,12 +162,11 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
   },
   riskDot: { width: 8, height: 8, borderRadius: 4, marginRight: 10, marginTop: 4 },
-  riskTitle: { fontWeight: '800', fontSize: 13, marginBottom: 4 },
-  riskDesc: { fontSize: 13, marginBottom: 6 },
-  riskLink: { fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' },
-  sectionTitle: { fontWeight: '800', fontSize: 16, color: colors.textDark, marginBottom: 12 },
+  riskTitle: { fontWeight: '800', fontSize: 15, marginBottom: 4 },
+  riskDesc: { fontSize: 15, marginBottom: 6 },
+  riskLink: { fontSize: 14, fontWeight: '700', textDecorationLine: 'underline' },
+  sectionTitle: { fontWeight: '800', fontSize: 18, marginBottom: 12 },
   forecastRow: {
-    backgroundColor: colors.warningBg,
     borderRadius: 12,
     padding: 14,
     flexDirection: 'row',
@@ -168,8 +174,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
-  forecastDay: { fontWeight: '700', color: colors.textDark, fontSize: 14 },
-  forecastTemp: { color: colors.textMuted, fontSize: 13 },
+  forecastDay: { fontWeight: '700', fontSize: 16 },
+  forecastTemp: { fontSize: 15 },
   riskBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 },
-  riskBadgeText: { color: colors.white, fontWeight: '700', fontSize: 11 },
+  riskBadgeText: { fontWeight: '700', fontSize: 13 },
 });

@@ -34,88 +34,87 @@ function getWeatherAlertTitle(weather) {
   return 'alertHighRiskTitle';
 }
 
-export async function buildAlertsFeed() {
+export async function buildAlertsFeed({ weatherPromise = fetchWeatherRisk() } = {}) {
   const alerts = [];
   const now = new Date();
 
-  try {
-    const weather = await fetchWeatherRisk();
-    if (weather.riskLevel === 'High') {
-      const titleKey = getWeatherAlertTitle(weather);
-      alerts.push({
-        id: 'weather',
-        type: 'HIGH_RISK',
-        tagKey: 'highRisk',
-        time: timeAgo(now),
-        titleKey,
-        descKey: 'alertWeatherRiskDesc',
-        descValues: {
-          temp: Math.round(weather.temperature),
-          humidity: Math.round(weather.humidity),
-          rain: Math.round(weather.rainProbability),
-          wind: Math.round(weather.windSpeedKmh),
-        },
-        sortTime: now.getTime(),
-      });
-    }
-  } catch (e) {
-    console.warn('Weather alert error:', e);
-  }
+  const [weather, outbreaks, pendingCount, reminders] = await Promise.all([
+    weatherPromise.catch((e) => {
+      console.warn('Weather alert error:', e);
+      return null;
+    }),
+    fetchNearbyOutbreaks().catch((e) => {
+      console.warn('Outbreak alert error:', e);
+      return [];
+    }),
+    fetchPendingScanCount().catch((e) => {
+      console.warn('Pending scan alert error:', e);
+      return 0;
+    }),
+    getDueReminders().catch((e) => {
+      console.warn('Reminder alert error:', e);
+      return [];
+    }),
+  ]);
 
-  try {
-    const outbreaks = await fetchNearbyOutbreaks();
-    outbreaks.forEach((o) => {
-      const profile = getDiseaseProfile(o.disease_id);
-      alerts.push({
-        id: `outbreak_${o.disease_id}`,
-        type: 'WARNING',
-        tagKey: 'tagWarning',
-        time: timeAgo(now),
-        titleKey: 'alertBlightTitle',
-        descKey: 'alertBlightNearbyDesc',
-        descValues: { count: o.farm_count, diseaseNameKey: profile.nameKey },
-        sortTime: now.getTime() - 1000,
-      });
+  if (weather?.riskLevel === 'High') {
+    const titleKey = getWeatherAlertTitle(weather);
+    alerts.push({
+      id: 'weather',
+      type: 'HIGH_RISK',
+      tagKey: 'highRisk',
+      time: timeAgo(now),
+      titleKey,
+      descKey: 'alertWeatherRiskDesc',
+      descValues: {
+        temp: Math.round(weather.temperature),
+        humidity: Math.round(weather.humidity),
+        rain: Math.round(weather.rainProbability),
+        wind: Math.round(weather.windSpeedKmh),
+      },
+      sortTime: now.getTime(),
     });
-  } catch (e) {
-    console.warn('Outbreak alert error:', e);
   }
 
-  try {
-    const pendingCount = await fetchPendingScanCount();
-    if (pendingCount > 0) {
-      alerts.push({
-        id: 'pending',
-        type: 'INFO',
-        tagKey: 'tagInfo',
-        time: timeAgo(now),
-        titleKey: 'alertPendingTitle',
-        descKey: 'alertPendingDescDynamic',
-        descValues: { count: pendingCount },
-        sortTime: now.getTime() - 2000,
-      });
-    }
-  } catch (e) {
-    console.warn('Pending scan alert error:', e);
-  }
-
-  try {
-    const reminders = await getDueReminders();
-    reminders.forEach((r) => {
-      alerts.push({
-        id: `reminder_${r.id}`,
-        type: 'REMINDER',
-        tagKey: 'tagReminder',
-        time: timeAgo(r.dueDateISO),
-        titleKey: 'alertFungicideTitle',
-        descKey: 'alertReminderDesc',
-        descValues: { crop: 'Crop', disease: r.diseaseName },
-        sortTime: new Date(r.dueDateISO).getTime(),
-      });
+  outbreaks.forEach((o) => {
+    const profile = getDiseaseProfile(o.disease_id);
+    alerts.push({
+      id: `outbreak_${o.disease_id}`,
+      type: 'WARNING',
+      tagKey: 'tagWarning',
+      time: timeAgo(now),
+      titleKey: 'alertBlightTitle',
+      descKey: 'alertBlightNearbyDesc',
+      descValues: { count: o.farm_count, diseaseNameKey: profile.nameKey },
+      sortTime: now.getTime() - 1000,
     });
-  } catch (e) {
-    console.warn('Reminder alert error:', e);
+  });
+
+  if (pendingCount > 0) {
+    alerts.push({
+      id: 'pending',
+      type: 'INFO',
+      tagKey: 'tagInfo',
+      time: timeAgo(now),
+      titleKey: 'alertPendingTitle',
+      descKey: 'alertPendingDescDynamic',
+      descValues: { count: pendingCount },
+      sortTime: now.getTime() - 2000,
+    });
   }
+
+  reminders.forEach((r) => {
+    alerts.push({
+      id: `reminder_${r.id}`,
+      type: 'REMINDER',
+      tagKey: 'tagReminder',
+      time: timeAgo(r.dueDateISO),
+      titleKey: 'alertFungicideTitle',
+      descKey: 'alertReminderDesc',
+      descValues: { crop: 'Crop', disease: r.diseaseName },
+      sortTime: new Date(r.dueDateISO).getTime(),
+    });
+  });
 
   return alerts.sort((a, b) => b.sortTime - a.sortTime);
 }

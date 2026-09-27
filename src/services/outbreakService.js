@@ -1,6 +1,7 @@
 // src/services/outbreakService.js
 import { supabase } from '../../supabaseClient';
 import { getValidUserSession } from '../utils/auth';
+import { getPendingScanCount as getLocalPendingScanCount } from './syncService';
 
 export async function fetchNearbyOutbreaks() {
   const { user } = await getValidUserSession(false);
@@ -27,19 +28,19 @@ export async function fetchNearbyOutbreaks() {
 }
 
 export async function fetchPendingScanCount() {
+  const localCount = await getLocalPendingScanCount().catch(() => 0);
   const { user } = await getValidUserSession(false);
-  if (!user) return 0;
+  if (!user) return localCount;
 
-  const { count, error } = await supabase
+  const { data, error } = await supabase
     .from('scan_results')
-    .select('*', { count: 'exact', head: true })
+    .select('id')
     .eq('farmer_id', user.id)
     .eq('status', 'Pending AI Analysis');
 
   if (error) {
-    console.warn('Pending scan count error:', error);
-    return 0;
+    return localCount;
   }
 
-  return count ?? 0;
+  return (data?.length ?? 0) + localCount;
 }

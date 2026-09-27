@@ -5,20 +5,21 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking } from 'r
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
-import { colors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import SeverityRing from '../components/SeverityRing';
 import { useLanguage } from '../context/LanguageContext';
 import { getDiseaseProfile } from '../utils/diseaseCatalog';
 
-const PROGRESSION_STAGES = [
-  { labelKey: 'progSevereDamage', color: '#D32F2F', threshold: 70 },
-  { labelKey: 'progSpreadStems', color: colors.warning, threshold: 40 },
-  { labelKey: 'progModerateSpots', color: '#FBC02D', threshold: 15 },
-  { labelKey: 'progSlightDiscoloration', color: colors.ok, threshold: 0 },
-];
-
 export default function ResultsScreen({ route, navigation }) {
   const { t, language } = useLanguage();
+  const { colors } = useTheme();
+
+  const PROGRESSION_STAGES = [
+    { labelKey: 'progSevereDamage', color: '#D32F2F', threshold: 70 },
+    { labelKey: 'progSpreadStems', color: '#F5A623', threshold: 40 },
+    { labelKey: 'progModerateSpots', color: '#FBC02D', threshold: 15 },
+    { labelKey: 'progSlightDiscoloration', color: '#2E7D32', threshold: 0 },
+  ];
 
   const [playing, setPlaying] = useState(false);
 
@@ -183,17 +184,19 @@ export default function ResultsScreen({ route, navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={24} color={colors.white} />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
+        <TouchableOpacity
+          onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs')}
+        >
+          <Ionicons name="chevron-back" size={26} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('scanResults')}</Text>
+        <Text style={[styles.headerTitle, { color: colors.white }]}>{t('scanResults')}</Text>
         <View style={{ width: 48 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.body}>
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.card }]}>
           <View style={{ alignItems: 'center', marginBottom: 8 }}>
             <SeverityRing
               percent={diagnosis.damagePercent}
@@ -204,69 +207,69 @@ export default function ResultsScreen({ route, navigation }) {
           {diagnosis.diseaseId !== 'healthy' && (
             <View style={styles.severityBadgeContainer}>
               <View style={[styles.severityBadge, { backgroundColor: getSeverityColor(diagnosis.severity) }]}>
-                <Text style={styles.severityBadgeText}>
+                <Text style={[styles.severityBadgeText, { color: colors.white }]}>
                   {t(`severity${diagnosis.severity}`).toUpperCase()}
                 </Text>
               </View>
             </View>
           )}
-          <Text style={styles.diseaseLabel}>{diseaseName}</Text>
-          <Text style={styles.diseaseDesc}>{diseaseDesc}</Text>
+          <Text style={[styles.diseaseLabel, { color: colors.warning }]}>{diseaseName}</Text>
+          <Text style={[styles.diseaseDesc, { color: colors.textMuted }]}>{diseaseDesc}</Text>
         </View>
 
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.card }]}>
           <View style={styles.confidenceRow}>
-            <Text style={styles.confidenceLabel}>Confidence</Text>
-            <Text style={styles.confidenceValue}>{Math.round(diagnosis.confidence * 100)}%</Text>
+            <Text style={[styles.confidenceLabel, { color: colors.textMuted }]}>Confidence</Text>
+            <Text style={[styles.confidenceValue, { color: colors.textDark }]}>{Math.round(diagnosis.confidence * 100)}%</Text>
           </View>
-          <View style={styles.confidenceTrack}>
-            <View style={[styles.confidenceFill, { width: `${diagnosis.confidence * 100}%` }]} />
+          <View style={[styles.confidenceTrack, { backgroundColor: colors.border }]}>
+            <View style={[styles.confidenceFill, { width: `${diagnosis.confidence * 100}%`, backgroundColor: colors.primary }]} />
           </View>
         </View>
 
         {onlineInfo && (
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: colors.card }]}>
             <View style={styles.onlineHeaderRow}>
-              <Ionicons name="globe-outline" size={16} color={colors.textMuted} />
-              <Text style={styles.sectionTitle}>{t('referenceInfoTitle')}</Text>
+              <Ionicons name="globe-outline" size={18} color={colors.textMuted} />
+              <Text style={[styles.sectionTitle, { color: colors.textDark }]}>{t('referenceInfoTitle')}</Text>
             </View>
 
             {onlineInfo.isOffline && (
-              <View style={styles.offlinePill}>
-                <Ionicons name="cloud-offline-outline" size={13} color={colors.textMuted} />
-                <Text style={styles.offlinePillText}>{t('referenceInfoOffline')}</Text>
+              <View style={[styles.offlinePill, { backgroundColor: colors.border }]}>
+                <Ionicons name="cloud-offline-outline" size={15} color={colors.textMuted} />
+                <Text style={[styles.offlinePillText, { color: colors.textMuted }]}>{t('referenceInfoOffline')}</Text>
               </View>
             )}
 
             {onlineInfo.verified === false && (
-              <View style={styles.unverifiedPill}>
-                <Ionicons name="alert-circle-outline" size={14} color={colors.warning} />
-                <Text style={styles.unverifiedPillText}>{t('referenceInfoUnverified')}</Text>
+              <View style={[styles.unverifiedPill, { backgroundColor: colors.warningBg }]}>
+                <Ionicons name="alert-circle-outline" size={16} color={colors.warning} />
+                <Text style={[styles.unverifiedPillText, { color: colors.textDark }]}>{t('referenceInfoUnverified')}</Text>
               </View>
             )}
 
             {/* Display the locally translated summary instead of the raw English one */}
             {!!localizedSummary && (
-              <Text style={styles.onlineSummary}>{localizedSummary}</Text>
+              <Text style={[styles.onlineSummary, { color: colors.textMuted }]}>{localizedSummary}</Text>
             )}
 
             {!!onlineInfo.sourceUrl && (
               <TouchableOpacity onPress={() => handleOpenSourceUrl(onlineInfo.sourceUrl)}>
-                <Text style={styles.sourceLink}>{t('referenceInfoSourceLink')}</Text>
+                <Text style={[styles.sourceLink, { color: colors.primary }]}>{t('referenceInfoSourceLink')}</Text>
               </TouchableOpacity>
             )}
           </View>
         )}
 
         {diagnosis.diseaseId !== 'healthy' && (
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>{t('diseaseProgression')}</Text>
+          <View style={[styles.card, { backgroundColor: colors.card }]}>
+            <Text style={[styles.sectionTitle, { color: colors.textDark }]}>{t('diseaseProgression')}</Text>
             {PROGRESSION_STAGES.slice().reverse().map((stage, i) => {
               const isActive = activeStage?.labelKey === stage.labelKey;
               return (
                 <View key={i} style={styles.progressionRow}>
                   <View style={[styles.dot, { backgroundColor: stage.color }]} />
-                  <Text style={[styles.progressionLabel, isActive && styles.progressionActive]}>
+                  <Text style={[styles.progressionLabel, isActive && styles.progressionActive, { color: isActive ? colors.textDark : colors.textMuted }]}>
                     {t(stage.labelKey)}
                   </Text>
                 </View>
@@ -276,19 +279,19 @@ export default function ResultsScreen({ route, navigation }) {
         )}
 
         <TouchableOpacity
-          style={styles.audioBar}
+          style={[styles.audioBar, { backgroundColor: colors.primary }]}
           activeOpacity={0.40}
           onPress={handleToggleAudio}
         >
-          <Ionicons name={playing ? 'square' : 'play'} size={20} color={colors.white} />
-          <Text style={styles.audioText}>{t('listenDiagnosis')}</Text>
+          <Ionicons name={playing ? 'square' : 'play'} size={22} color={colors.white} />
+          <Text style={[styles.audioText, { color: colors.white }]}>{t('listenDiagnosis')}</Text>
           <View style={styles.audioTrack}>
-            <View style={[styles.audioProgress, { width: playing ? '100%' : '0%' }]} />
+            <View style={[styles.audioProgress, { width: playing ? '100%' : '0%' }, { backgroundColor: colors.white }]} />
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.treatmentBtn}
+          style={[styles.treatmentBtn, { backgroundColor: colors.leafGreen }]}
           activeOpacity={0.85}
           onPress={() => {
             Speech.stop();
@@ -298,7 +301,7 @@ export default function ResultsScreen({ route, navigation }) {
             });
           }}
         >
-          <Text style={styles.treatmentBtnText}>{t('viewTreatmentPlan')}</Text>
+          <Text style={[styles.treatmentBtnText, { color: colors.white }]}>{t('viewTreatmentPlan')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -306,9 +309,8 @@ export default function ResultsScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1 },
   header: {
-    backgroundColor: colors.primaryDark,
     paddingTop: 16,
     paddingBottom: 16,
     paddingHorizontal: 20,
@@ -316,48 +318,46 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  headerTitle: { color: colors.white, fontSize: 18, fontWeight: '800' },
+  headerTitle: { fontSize: 20, fontWeight: '800' },
   body: { padding: 20, paddingBottom: 50 },
-  card: { backgroundColor: colors.card, borderRadius: 14, padding: 20, marginBottom: 16 },
-  diseaseLabel: { textAlign: 'center', color: colors.warning, fontWeight: '800', fontSize: 15, marginTop: 6 },
-  diseaseDesc: { textAlign: 'center', color: colors.textMuted, fontSize: 12, marginTop: 6, lineHeight: 17 },
+  card: { borderRadius: 14, padding: 20, marginBottom: 16 },
+  diseaseLabel: { textAlign: 'center', fontWeight: '800', fontSize: 17, marginTop: 6 },
+  diseaseDesc: { textAlign: 'center', fontSize: 14, marginTop: 6, lineHeight: 19 },
   confidenceRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  confidenceLabel: { fontSize: 12, color: colors.textMuted, fontWeight: '600' },
-  confidenceValue: { fontSize: 12, color: colors.textDark, fontWeight: '800' },
-  confidenceTrack: { height: 8, backgroundColor: colors.border, borderRadius: 4, overflow: 'hidden' },
-  confidenceFill: { height: 8, backgroundColor: colors.primary },
-  sectionTitle: { fontWeight: '800', fontSize: 16, color: colors.textDark, marginBottom: 14 },
+  confidenceLabel: { fontSize: 14, fontWeight: '600' },
+  confidenceValue: { fontSize: 14, fontWeight: '800' },
+  confidenceTrack: { height: 8, borderRadius: 4, overflow: 'hidden' },
+  confidenceFill: { height: 8 },
+  sectionTitle: { fontWeight: '800', fontSize: 18, marginBottom: 14 },
 
   onlineHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
   offlinePill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: colors.border,
     borderRadius: 8,
     paddingVertical: 6,
     paddingHorizontal: 10,
     marginBottom: 10,
     alignSelf: 'flex-start',
   },
-  offlinePillText: { fontSize: 11, color: colors.textMuted, fontWeight: '600' },
+  offlinePillText: { fontSize: 13, fontWeight: '600' },
   unverifiedPill: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 8,
-    backgroundColor: colors.warningBg,
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
   },
-  unverifiedPillText: { flex: 1, fontSize: 12, color: colors.textDark, fontWeight: '600' },
-  onlineSummary: { fontSize: 13, color: colors.textMuted, lineHeight: 19 },
-  sourceLink: { marginTop: 10, fontSize: 12, color: colors.primary, fontWeight: '700' },
+  unverifiedPillText: { flex: 1, fontSize: 14, fontWeight: '600' },
+  onlineSummary: { fontSize: 15, lineHeight: 21 },
+  sourceLink: { marginTop: 10, fontSize: 14, fontWeight: '700' },
 
   progressionRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   dot: { width: 10, height: 10, borderRadius: 5, marginRight: 12 },
-  progressionLabel: { fontSize: 14, color: colors.textMuted },
-  progressionActive: { color: colors.textDark, fontWeight: '700' },
+  progressionLabel: { fontSize: 16 },
+  progressionActive: { fontWeight: '700' },
   severityBadgeContainer: { marginTop: 8, alignItems: 'center' },
   severityBadge: {
     paddingHorizontal: 16,
@@ -366,9 +366,8 @@ const styles = StyleSheet.create({
     minWidth: 120,
     alignItems: 'center',
   },
-  severityBadgeText: { color: colors.white, fontWeight: '800', fontSize: 13 },
+  severityBadgeText: { fontWeight: '800', fontSize: 15 },
   audioBar: {
-    backgroundColor: colors.primary,
     borderRadius: 14,
     paddingVertical: 16,
     paddingHorizontal: 18,
@@ -377,9 +376,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     gap: 12,
   },
-  audioText: { color: colors.white, fontWeight: '700', fontSize: 13, flexShrink: 0 },
+  audioText: { fontWeight: '700', fontSize: 15, flexShrink: 0 },
   audioTrack: { flex: 1, height: 4, backgroundColor: 'rgba(255,255,255,0.35)', borderRadius: 2, overflow: 'hidden' },
-  audioProgress: { height: 4, backgroundColor: colors.white, borderRadius: 2 },
-  treatmentBtn: { backgroundColor: colors.leafGreen, borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
-  treatmentBtnText: { color: colors.white, fontWeight: '800', fontSize: 15 },
+  audioProgress: { height: 4, borderRadius: 2 },
+  treatmentBtn: { borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
+  treatmentBtnText: { fontWeight: '800', fontSize: 17 },
 });

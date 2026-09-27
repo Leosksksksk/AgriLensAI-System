@@ -4,13 +4,14 @@ import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, Scr
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { colors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
 import { getValidUserSession } from '../utils/auth';
 
 export default function OnboardingScreen({ navigation }) {
   const { t } = useLanguage();
+  const { colors } = useTheme();
 
   const [saving, setSaving] = useState(false);
 
@@ -50,9 +51,9 @@ export default function OnboardingScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('appName')}</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
+        <Text style={[styles.headerTitle, { color: colors.white }]}>{t('appName')}</Text>
       </View>
 
       <KeyboardAvoidingView
@@ -60,17 +61,17 @@ export default function OnboardingScreen({ navigation }) {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <Text style={styles.heading}>{t('howItWorks')}</Text>
-          <Text style={styles.subheading}>{t('onboardingSubheading')}</Text>
+          <Text style={[styles.heading, { color: colors.stepIconGreen }]}>{t('howItWorks')}</Text>
+          <Text style={[styles.subheading, { color: colors.textMuted }]}>{t('onboardingSubheading')}</Text>
 
           {STEPS.map((step, i) => (
             <View key={i} style={styles.stepRow}>
-              <View style={styles.stepIcon}>
-                <Ionicons name={step.icon} size={22} color={colors.stepIconGreen} />
+              <View style={[styles.stepIcon, { backgroundColor: colors.card }]}>
+                <Ionicons name={step.icon} size={24} color={colors.stepIconGreen} />
               </View>
               <View style={styles.stepText}>
-                <Text style={styles.stepTitle}>{t(step.titleKey)}</Text>
-                <Text style={styles.stepDesc}>{t(step.descKey)}</Text>
+                <Text style={[styles.stepTitle, { color: colors.stepIconGreen }]}>{t(step.titleKey)}</Text>
+                <Text style={[styles.stepDesc, { color: colors.textMuted }]}>{t(step.descKey)}</Text>
               </View>
             </View>
           ))}
@@ -78,7 +79,7 @@ export default function OnboardingScreen({ navigation }) {
       </KeyboardAvoidingView>
 
       <TouchableOpacity
-        style={[styles.getStartedBtn, saving && styles.getStartedBtnDisabled]}
+        style={[styles.getStartedBtn, saving && styles.getStartedBtnDisabled, { backgroundColor: colors.primary }]}
         activeOpacity={0.85}
         onPress={handleGetStarted}
         disabled={saving}
@@ -86,7 +87,7 @@ export default function OnboardingScreen({ navigation }) {
         {saving ? (
           <ActivityIndicator color={colors.white} />
         ) : (
-          <Text style={styles.getStartedText}>{t('getStarted')}</Text>
+          <Text style={[styles.getStartedText, { color: colors.white }]}>{t('getStarted')}</Text>
         )}
       </TouchableOpacity>
     </SafeAreaView>
@@ -94,27 +95,25 @@ export default function OnboardingScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: { backgroundColor: colors.primaryDark, paddingTop: 54, paddingBottom: 18, paddingHorizontal: 20 },
-  headerTitle: { color: colors.white, fontSize: 24, fontWeight: '800' },
+  container: { flex: 1 },
+  header: { paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20 },
+  headerTitle: { fontSize: 26, fontWeight: '800' },
   content: { paddingHorizontal: 24, paddingTop: 28, paddingBottom: 20 },
-  heading: { fontSize: 24, fontWeight: '800', color: colors.stepIconGreen },
-  subheading: { fontSize: 16, color: colors.textMuted, marginTop: 4, marginBottom: 26 },
+  heading: { fontSize: 26, fontWeight: '800' },
+  subheading: { fontSize: 18, marginTop: 4, marginBottom: 26 },
   stepRow: { flexDirection: 'row', marginBottom: 26, alignItems: 'flex-start' },
   stepIcon: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
   },
   stepText: { flex: 1 },
-  stepTitle: { fontWeight: '700', fontSize: 17, color: colors.stepIconGreen, marginBottom: 3 },
-  stepDesc: { fontSize: 15, color: colors.textMuted, lineHeight: 20 },
+  stepTitle: { fontWeight: '700', fontSize: 19, marginBottom: 3 },
+  stepDesc: { fontSize: 17, lineHeight: 22 },
   getStartedBtn: {
-    backgroundColor: colors.primary,
     marginHorizontal: 24,
     marginBottom: 30,
     borderRadius: 12,
@@ -122,5 +121,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   getStartedBtnDisabled: { opacity: 0.6 },
-  getStartedText: { color: colors.white, fontWeight: '800', fontSize: 17 },
+  getStartedText: { fontWeight: '800', fontSize: 19 },
 });

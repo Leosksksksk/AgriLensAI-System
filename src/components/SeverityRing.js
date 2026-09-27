@@ -2,14 +2,19 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { colors } from '../theme/colors';
+import { useColors } from '../context/ThemeContext';
+import { darkColors } from '../theme/colors';
 
-export default function SeverityRing({ percent = 0, color = colors.warning, size = 150, label = '' }) {
+const fallbackColors = darkColors;
+
+export default function SeverityRing({ percent = 0, color, size = 150, label = '' }) {
+  const colors = useColors();
   const strokeWidth = 14;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const progress = Math.max(0, Math.min(100, percent));
   const dashOffset = circumference * (1 - progress / 100);
+  const ringColor = color || colors.warning;
 
   return (
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
@@ -26,7 +31,7 @@ export default function SeverityRing({ percent = 0, color = colors.warning, size
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={color}
+          stroke={ringColor}
           strokeWidth={strokeWidth}
           fill="none"
           strokeDasharray={`${circumference} ${circumference}`}
@@ -37,8 +42,8 @@ export default function SeverityRing({ percent = 0, color = colors.warning, size
         />
       </Svg>
       <View style={styles.centerLabel}>
-        <Text style={styles.percentText}>{Math.round(progress)}%</Text>
-        {label ? <Text style={styles.subLabel}>{label}</Text> : null}
+        <Text style={[styles.percentText, { color: colors.textDark }]}>{Math.round(progress)}%</Text>
+        {label ? <Text style={[styles.subLabel, { color: colors.textMuted }]}>{label}</Text> : null}
       </View>
     </View>
   );
@@ -46,6 +51,6 @@ export default function SeverityRing({ percent = 0, color = colors.warning, size
 
 const styles = StyleSheet.create({
   centerLabel: { position: 'absolute', alignItems: 'center' },
-  percentText: { fontSize: 30, fontWeight: '800', color: colors.textDark },
-  subLabel: { fontSize: 12, color: colors.textMuted, marginTop: 2, textAlign: 'center', maxWidth: 100 },
+  percentText: { fontSize: 32, fontWeight: '800' },
+  subLabel: { fontSize: 14, marginTop: 2, textAlign: 'center', maxWidth: 100 },
 });

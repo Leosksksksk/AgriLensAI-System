@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 
 // Explicitly define only the real language choices here
@@ -15,6 +15,7 @@ const AVAILABLE_LANGUAGES = [
 
 export default function LanguageSelectScreen({ navigation }) {
   const { language, setLanguage, t } = useLanguage();
+  const { colors } = useTheme();
   const [selected, setSelected] = useState(language || 'en');
 
   function handleContinue() {
@@ -23,14 +24,14 @@ export default function LanguageSelectScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
-        <View style={styles.logoCircle}>
-          <Ionicons name="globe-outline" size={32} color={colors.primaryLight || colors.primary} />
+        <View style={[styles.logoCircle, { backgroundColor: colors.card }]}>
+          <Ionicons name="globe-outline" size={34} color={colors.primaryLight || colors.primary} />
         </View>
 
-        <Text style={styles.title}>{t('chooseLanguageTitle')}</Text>
-        <Text style={styles.subtitle}>{t('chooseLanguageSubtitle')}</Text>
+        <Text style={[styles.title, { color: colors.textDark }]}>{t('chooseLanguageTitle')}</Text>
+        <Text style={[styles.subtitle, { color: colors.textMuted }]}>{t('chooseLanguageSubtitle')}</Text>
 
         <View style={styles.optionsList}>
           {AVAILABLE_LANGUAGES.map((lang) => {
@@ -38,15 +39,15 @@ export default function LanguageSelectScreen({ navigation }) {
             return (
               <TouchableOpacity
                 key={lang.id}
-                style={[styles.option, active && styles.optionActive]}
+                style={[styles.option, active && styles.optionActive, { backgroundColor: active ? colors.primary : colors.card, borderColor: active ? colors.primary : colors.border }]}
                 onPress={() => setSelected(lang.id)}
                 activeOpacity={0.8}
               >
-                <Text style={[styles.optionText, active && styles.optionTextActive]}>
+                <Text style={[styles.optionText, active && styles.optionTextActive, { color: active ? colors.white : colors.textDark }]}>
                   {lang.label}
                 </Text>
                 {active && (
-                  <Ionicons name="checkmark-circle" size={22} color={colors.white} />
+                  <Ionicons name="checkmark-circle" size={24} color={colors.white} />
                 )}
               </TouchableOpacity>
             );
@@ -54,29 +55,27 @@ export default function LanguageSelectScreen({ navigation }) {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.continueBtn} activeOpacity={0.85} onPress={handleContinue}>
-        <Text style={styles.continueBtnText}>{t('continueBtn')}</Text>
+      <TouchableOpacity style={[styles.continueBtn, { backgroundColor: colors.primary }]} activeOpacity={0.85} onPress={handleContinue}>
+        <Text style={[styles.continueBtnText, { color: colors.white }]}>{t('continueBtn')}</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1 },
   content: { flex: 1, paddingHorizontal: 28, paddingTop: 60, alignItems: 'center' },
   logoCircle: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
   },
-  title: { fontSize: 22, fontWeight: '800', color: colors.white, textAlign: 'center' },
+  title: { fontSize: 24, fontWeight: '800', textAlign: 'center' },
   subtitle: {
-    fontSize: 13,
-    color: colors.textMuted,
+    fontSize: 15,
     textAlign: 'center',
     marginTop: 8,
     marginBottom: 32,
@@ -87,22 +86,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: colors.border,
     borderRadius: 14,
     paddingHorizontal: 20,
     paddingVertical: 18,
-    backgroundColor: colors.card,
   },
-  optionActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  optionText: { fontSize: 16, fontWeight: '700', color: colors.white },
-  optionTextActive: { color: colors.white },
+  optionActive: {},
+  optionText: { fontSize: 18, fontWeight: '700' },
+  optionTextActive: {},
   continueBtn: {
-    backgroundColor: colors.primary,
     marginHorizontal: 24,
     marginBottom: 30,
     borderRadius: 12,
     paddingVertical: 15,
     alignItems: 'center',
   },
-  continueBtnText: { color: colors.white, fontWeight: '800', fontSize: 15 },
+  continueBtnText: { fontWeight: '800', fontSize: 17 },
 });
