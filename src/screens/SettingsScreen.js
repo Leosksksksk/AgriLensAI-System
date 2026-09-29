@@ -1,6 +1,6 @@
 // src/screens/SettingsScreen.js
 import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Alert, Modal, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Modal, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { CommonActions } from '@react-navigation/native';
@@ -9,10 +9,12 @@ import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
 import { t } from '../utils/translations';
+import { useAppAlert } from '../context/AppAlertContext';
 
 export default function SettingsScreen({ navigation }) {
   const { language, setLanguage, languages, languageLabels, resetLanguageSelection } = useLanguage();
   const { isDark, toggleTheme, colors } = useTheme();
+  const Alert = useAppAlert();
 
   const [notifications, setNotifications] = useState(true);
   const [offlineMode, setOfflineMode] = useState(true);

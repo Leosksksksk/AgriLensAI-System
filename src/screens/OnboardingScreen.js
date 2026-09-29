@@ -1,6 +1,6 @@
 // src/screens/OnboardingScreen.js
 import { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,10 +8,12 @@ import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
 import { getValidUserSession } from '../utils/auth';
+import { useAppAlert } from '../context/AppAlertContext';
 
 export default function OnboardingScreen({ navigation }) {
   const { t } = useLanguage();
   const { colors } = useTheme();
+  const Alert = useAppAlert();
 
   const [saving, setSaving] = useState(false);
 

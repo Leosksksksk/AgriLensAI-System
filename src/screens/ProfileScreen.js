@@ -1,6 +1,6 @@
 // src/screens/ProfileScreen.js
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,6 +8,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
 import { getValidUserSession } from '../utils/auth';
+import { useAppAlert } from '../context/AppAlertContext';
 
 const ALL_CROPS = [
   { id: 'corn', labelKey: 'cropCorn' },
@@ -19,6 +20,7 @@ const ALL_CROPS = [
 export default function ProfileScreen() {
   const { t } = useLanguage();
   const { colors } = useTheme();
+  const Alert = useAppAlert();
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');

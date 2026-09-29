@@ -11,6 +11,7 @@ import { supabase } from './supabaseClient';
 
 import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import { AppAlertProvider } from './src/context/AppAlertContext';
 import { syncOfflineScans } from './src/services/syncService';
 import BottomTabBar from './src/components/BottomTabBar';
 import IntroScreen from './src/screens/IntroScreen';
@@ -166,19 +167,21 @@ function ThemedApp() {
   }
 
   return (
-    <NavigationContainer>
-      <StatusBar style="light" backgroundColor="#094A0D" />
-      <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Intro" component={IntroScreen} />
-        <Stack.Screen name="LanguageSelect" component={LanguageSelectScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="OtpVerify" component={OtpVerifyScreen} />
-        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-        <Stack.Screen name="MainTabs" component={MainTabs} />
-        <Stack.Screen name="Results" component={ResultsScreen} />
-        <Stack.Screen name="TreatmentPlan" component={TreatmentPlanScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <AppAlertProvider>
+      <NavigationContainer>
+        <StatusBar style="light" backgroundColor="#094A0D" />
+        <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Intro" component={IntroScreen} />
+          <Stack.Screen name="LanguageSelect" component={LanguageSelectScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="OtpVerify" component={OtpVerifyScreen} />
+          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+          <Stack.Screen name="MainTabs" component={MainTabs} />
+          <Stack.Screen name="Results" component={ResultsScreen} />
+          <Stack.Screen name="TreatmentPlan" component={TreatmentPlanScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AppAlertProvider>
   );
 }
 
