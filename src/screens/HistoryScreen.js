@@ -1,5 +1,5 @@
 // src/screens/HistoryScreen.js
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, ActivityIndicator, Modal, Image, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,31 @@ import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
 import { useAppAlert } from '../context/AppAlertContext';
+import { useFocusEffect } from '@react-navigation/native';
+import { deletePendingScan, getPendingScans } from '../services/syncService';
+
+function getConditionKey(scan) {
+  const diseaseId = String(scan.disease_id || '').toLowerCase();
+  const status = String(scan.status || '').toLowerCase();
+  if (diseaseId === 'healthy' || status === 'healthy') return 'conditionNormal';
+
+  const severity = String(scan.severity || '').toLowerCase();
+  if (['mild', 'moderate', 'severe'].includes(severity)) {
+    return `severity${severity[0].toUpperCase()}${severity.slice(1)}`;
+  }
+
+  const hasDamage = scan.damage_percent !== null && scan.damage_percent !== undefined && scan.damage_percent !== '';
+  const damage = Number(scan.damage_percent);
+  if (hasDamage && Number.isFinite(damage)) {
+    if (damage <= 0) return 'conditionNormal';
+    if (damage < 15) return 'severityMild';
+    if (damage < 40) return 'severityModerate';
+    return 'severitySevere';
+  }
+
+  if (status.includes('pending')) return 'conditionPending';
+  return status === 'analysis complete' ? 'conditionNormal' : 'conditionPending';
+}
 
 function formatTime(dateString, t) {
   if (!dateString) return '';
@@ -46,14 +71,28 @@ export default function HistoryScreen() {
   const [sortBy, setSortBy] = useState('newest'); // 'newest', 'oldest', 'disease', 'severity'
   const [sortModalVisible, setSortModalVisible] = useState(false);
 
-  useEffect(() => {
-    fetchHistory();
-  }, []);
-
-  async function fetchHistory() {
+  const fetchHistory = useCallback(async () => {
+    setIsLoading(true);
+    let offlineScans = [];
     try {
-      setIsLoading(true);
-      
+      const pendingScans = await getPendingScans();
+      offlineScans = pendingScans.map((scan) => ({
+        id: `offline-${scan.id}`,
+        localQueueId: scan.id,
+        isOfflineQueued: true,
+        image_url: scan.imageUri,
+        crop_name: scan.diagnosisResult?.cropName || 'Crop',
+        disease_id: scan.diagnosisResult?.diseaseId || null,
+        damage_percent: scan.diagnosisResult?.damagePercent ?? null,
+        severity: scan.diagnosisResult?.severity || null,
+        status: 'Offline',
+        created_at: scan.timestamp,
+      }));
+    } catch (error) {
+      console.warn('Could not load offline scan history:', error);
+    }
+
+    try {
       const now = new Date().toISOString();
       await supabase.from('scan_results').delete().lt('expires_at', now);
 
@@ -63,14 +102,21 @@ export default function HistoryScreen() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setScans(data || []);
+      setScans([...(data || []), ...offlineScans]);
     } catch (error) {
-      console.error("Fetch error:", error);
-      Alert.alert(t('loadErrorTitle'), t('loadErrorDesc'));
+      console.error('Fetch error:', error);
+      setScans(offlineScans);
+      if (offlineScans.length === 0) {
+        Alert.alert(t('loadErrorTitle'), t('loadErrorDesc'));
+      }
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [Alert, t]);
+
+  useFocusEffect(useCallback(() => {
+    fetchHistory();
+  }, [fetchHistory]));
 
   const confirmDelete = (id) => {
     Alert.alert(t('deleteScanTitle'), t('deleteScanDesc'), [
@@ -82,6 +128,12 @@ export default function HistoryScreen() {
   const executeDelete = async (id) => {
     try {
       const scanToDelete = scans.find((s) => s.id === id);
+      if (scanToDelete?.isOfflineQueued) {
+        await deletePendingScan(scanToDelete.localQueueId);
+        setScans((prev) => prev.filter((s) => s.id !== id));
+        setSelectedScan(null);
+        return;
+      }
       if (scanToDelete && scanToDelete.image_url) {
         const fileName = getFileNameFromUrl(scanToDelete.image_url);
         if (fileName) {
@@ -114,7 +166,10 @@ export default function HistoryScreen() {
   const executeBatchDelete = async () => {
     try {
       const scansToDelete = scans.filter((s) => selectedIds.includes(s.id));
-      const fileNames = scansToDelete
+      const offlineScans = scansToDelete.filter((scan) => scan.isOfflineQueued);
+      const remoteScans = scansToDelete.filter((scan) => !scan.isOfflineQueued);
+      await Promise.all(offlineScans.map((scan) => deletePendingScan(scan.localQueueId)));
+      const fileNames = remoteScans
         .map((s) => getFileNameFromUrl(s.image_url))
         .filter(Boolean);
 
@@ -122,12 +177,13 @@ export default function HistoryScreen() {
         await supabase.storage.from('scans').remove(fileNames);
       }
 
-      const { error } = await supabase
-        .from('scan_results')
-        .delete()
-        .in('id', selectedIds);
-
-      if (error) throw error;
+      if (remoteScans.length > 0) {
+        const { error } = await supabase
+          .from('scan_results')
+          .delete()
+          .in('id', remoteScans.map((scan) => scan.id));
+        if (error) throw error;
+      }
 
       setScans((prev) => prev.filter((s) => !selectedIds.includes(s.id)));
       setSelectedIds([]);
@@ -210,8 +266,9 @@ export default function HistoryScreen() {
     if (q) {
       result = result.filter((h) => {
         const diseaseLabel = (h.disease_id || h.status || '').toLowerCase();
-        const cropLabel = (h.crop_name || '').toLowerCase(); 
-        return diseaseLabel.includes(q) || cropLabel.includes(q);
+        const cropLabel = (h.crop_name || t('historyCropNumber').replace('{number}', '')).toLowerCase();
+        const conditionLabel = t(getConditionKey(h)).toLowerCase();
+        return diseaseLabel.includes(q) || cropLabel.includes(q) || conditionLabel.includes(q);
       });
     }
     
@@ -236,13 +293,14 @@ export default function HistoryScreen() {
     }
     
     return result;
-  }, [query, scans, sortBy]);
+  }, [query, scans, sortBy, t]);
 
-function renderItem({ item }) {
+function renderItem({ item, index }) {
     const percent = item.damage_percent || 0; 
-    const diseaseText = item.disease_id || item.status || 'Pending Analysis';
-    const cropText = item.crop_name || ''; 
-    const color = iconColorFor(percent, diseaseText, colors);
+    const conditionKey = getConditionKey(item);
+    const conditionLabel = t(conditionKey);
+    const cropLabel = t('historyCropNumber').replace('{number}', String(index + 1));
+    const color = iconColorFor(percent, item.disease_id || item.status, colors);
     
     const isSelected = selectedIds.includes(item.id);
 
@@ -268,10 +326,14 @@ function renderItem({ item }) {
         </View>
         
         <View style={{ flex: 1 }}>
-          {cropText && <Text style={[styles.cropName, { color: colors.textDark }]}>{cropText}</Text>}
           <Text style={[styles.statusLine, { color: colors.textMuted }]}>
-            {diseaseText} {item.damage_percent ? `– ${percent}%` : ''}
+            {t('cropConditionLabel').replace('{crop}', cropLabel).replace('{condition}', conditionLabel)}
           </Text>
+          {item.damage_percent > 0 && (
+            <Text style={[styles.damageText, { color: colors.textLight }]}>
+              {percent}% {t('severityLabel').toLowerCase()}
+            </Text>
+          )}
         </View>
         
         <View style={{ alignItems: 'flex-end' }}>
@@ -408,13 +470,15 @@ function renderItem({ item }) {
               <Text style={[styles.actionText, { color: colors.white }]}>Delete Now</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={[styles.actionBtn, { backgroundColor: colors.warning }]}
-              onPress={() => handleSetAutoDelete(selectedScan.id)}
-            >
-              <Ionicons name="timer-outline" size={22} color={colors.white} />
-              <Text style={[styles.actionText, { color: colors.white }]}>Auto-Delete</Text>
-            </TouchableOpacity>
+            {!selectedScan?.isOfflineQueued && (
+              <TouchableOpacity
+                style={[styles.actionBtn, { backgroundColor: colors.warning }]}
+                onPress={() => handleSetAutoDelete(selectedScan.id)}
+              >
+                <Ionicons name="timer-outline" size={22} color={colors.white} />
+                <Text style={[styles.actionText, { color: colors.white }]}>Auto-Delete</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </Modal>
@@ -464,6 +528,7 @@ const styles = StyleSheet.create({
   iconWrap: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
   cropName: { fontWeight: '700', fontSize: 16 },
   statusLine: { fontSize: 14, marginTop: 2 },
+  damageText: { fontSize: 12, marginTop: 2 },
   whenText: { fontSize: 13, marginBottom: 4 },
   empty: { textAlign: 'center', marginTop: 40 },
   

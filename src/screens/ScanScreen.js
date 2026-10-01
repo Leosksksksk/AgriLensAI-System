@@ -131,6 +131,7 @@ export default function ScanScreen({ navigation }) {
         .from('scan_results')
         .insert([{
           image_url: publicUrl,
+          crop_name: diagnosisResult?.cropName || 'Crop',
           status: 'Pending AI Analysis',
           farmer_id: user.id,
           disease_id: diagnosisResult?.diseaseId ?? null,

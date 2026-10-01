@@ -51,6 +51,20 @@ export const getPendingScanCount = async () => {
   return queue.length;
 };
 
+export const getPendingScans = async () => getQueue();
+
+export const deletePendingScan = async (scanId) => {
+  const queue = await getQueue();
+  const scan = queue.find((item) => item.id === scanId);
+  if (!scan) return false;
+
+  await removeFromQueue(scanId);
+  if (scan.imageUri) {
+    await FileSystem.deleteAsync(scan.imageUri, { idempotent: true }).catch(() => {});
+  }
+  return true;
+};
+
 export const syncOfflineScans = async (options = {}) => {
   const { requireAuth = true } = options;
   
@@ -105,6 +119,7 @@ export const syncOfflineScans = async (options = {}) => {
         .from('scan_results')
         .insert([{
           image_url: publicUrl,
+          crop_name: scan.diagnosisResult?.cropName || 'Crop',
           status: 'Pending AI Analysis',
           farmer_id: user.id,
           disease_id: scan.diagnosisResult?.diseaseId ?? null,

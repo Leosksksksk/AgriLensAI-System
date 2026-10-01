@@ -1,6 +1,6 @@
 // src/screens/AlertsScreen.js
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, Image, Modal, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
@@ -19,6 +19,33 @@ function interpolate(template, values, t) {
     result = result.split(`{${placeholder}}`).join(resolved);
   });
   return result;
+}
+
+function formatReminderDate(value, language, t) {
+  if (!value || Number.isNaN(new Date(value).getTime())) {
+    return t('reminderDateUnavailable');
+  }
+  const locale = language === 'fil' ? 'fil-PH' : language === 'ceb' ? 'fil-PH' : 'en-US';
+  return new Date(value).toLocaleString(locale, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
+function formatReporterCrops(cropTypes, t) {
+  if (!Array.isArray(cropTypes) || cropTypes.length === 0) return null;
+  const cropKeys = {
+    corn: 'cropCorn',
+    pepper: 'cropPepper',
+    tomato: 'cropTomato',
+    potato: 'cropPotato',
+  };
+  return cropTypes.map((crop) => cropKeys[String(crop).toLowerCase()]
+    ? t(cropKeys[String(crop).toLowerCase()])
+    : crop).join(', ');
 }
 
 function getAlertStyle(alertType, colors, riskColor, severityColor) {
@@ -66,7 +93,7 @@ function getEmptyStateIconColor(colors, isDark) {
 }
 
 export default function AlertsScreen() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { colors, riskColor, severityColor, isDark } = useTheme();
 
   const [alerts, setAlerts] = useState([]);
@@ -85,6 +112,8 @@ export default function AlertsScreen() {
   const [lastUpdated, setLastUpdated] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [expandedReminderId, setExpandedReminderId] = useState(null);
+  const [selectedWarningAlert, setSelectedWarningAlert] = useState(null);
 
   const loadData = useCallback(async () => {
     const weatherPromise = getCurrentLocation().then((location) => fetchWeatherRisk(location));
@@ -307,9 +336,25 @@ export default function AlertsScreen() {
               : (alert.riskLevel || t(style.badgeLabelKey));
             const reporters = Array.isArray(alert.reporters) ? alert.reporters.slice(0, 3) : [];
             const remainingReporterCount = Math.max(0, (alert.reporterCount || 0) - reporters.length);
+            const isReminder = alert.type === 'REMINDER';
+            const isWarning = alert.type === 'WARNING';
+            const isReminderExpanded = expandedReminderId === alert.id;
+            const isClickable = isReminder || isWarning;
+            const AlertCard = isClickable ? TouchableOpacity : View;
 
             return (
-              <View key={alert.id || idx.toString()} style={[styles.alertCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <AlertCard
+                key={alert.id || idx.toString()}
+                style={[styles.alertCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+                {...(isClickable ? {
+                  activeOpacity: 0.85,
+                  onPress: isReminder
+                    ? () => setExpandedReminderId(isReminderExpanded ? null : alert.id)
+                    : () => setSelectedWarningAlert(alert),
+                  accessibilityRole: 'button',
+                  ...(isReminder ? { accessibilityState: { expanded: isReminderExpanded } } : {}),
+                } : {})}
+              >
                 <View style={[styles.accentStrip, { backgroundColor: style.stripColor }]} />
                 <View style={styles.cardContent}>
                   <View style={styles.cardHeader}>
@@ -319,8 +364,29 @@ export default function AlertsScreen() {
                         {badgeText}
                       </Text>
                     </View>
+                    {isReminder && (
+                      <Ionicons
+                        name={isReminderExpanded ? 'chevron-up' : 'chevron-down'}
+                        size={18}
+                        color={colors.textMuted}
+                        style={styles.reminderChevron}
+                      />
+                    )}
+                    {isWarning && (
+                      <Ionicons name="chevron-forward" size={18} color={colors.textMuted} style={styles.reminderChevron} />
+                    )}
                   </View>
                   <Text style={[styles.alertDescription, { color: colors.textMuted }]}>{desc}</Text>
+                  {isReminderExpanded && (
+                    <View style={[styles.reminderDates, { borderTopColor: colors.border }]}>
+                      <Text style={[styles.reminderDateText, { color: colors.textMuted }]}>
+                        {t('reminderAddedDate').replace('{date}', formatReminderDate(alert.createdAtISO, language, t))}
+                      </Text>
+                      <Text style={[styles.reminderDateText, { color: colors.textMuted }]}>
+                        {t('reminderDueDate').replace('{date}', formatReminderDate(alert.dueDateISO, language, t))}
+                      </Text>
+                    </View>
+                  )}
                   {reporters.length > 0 && (
                     <View style={styles.reportersSection}>
                       <Text style={[styles.reportersHeading, { color: colors.textLight }]}>{t('reportedBy')}</Text>
@@ -351,7 +417,7 @@ export default function AlertsScreen() {
                     </View>
                   )}
                 </View>
-              </View>
+              </AlertCard>
             );
           })
         )}
@@ -360,6 +426,61 @@ export default function AlertsScreen() {
         {lastUpdated ? <Text style={[styles.timestamp, { color: colors.textLight }]}>{t('updatedAt').replace('{time}', lastUpdated)}</Text> : null}
 
       </ScrollView>
+
+      <Modal
+        visible={!!selectedWarningAlert}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedWarningAlert(null)}
+      >
+        <Pressable style={styles.profileModalOverlay} onPress={() => setSelectedWarningAlert(null)}>
+          <Pressable style={[styles.profileModal, { backgroundColor: colors.card }]} onPress={() => {}}>
+            <View style={styles.profileModalHeader}>
+              <Text style={[styles.profileModalTitle, { color: colors.textDark }]}>{t('reporterProfiles')}</Text>
+              <TouchableOpacity onPress={() => setSelectedWarningAlert(null)} accessibilityRole="button" accessibilityLabel={t('close')}>
+                <Ionicons name="close" size={24} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView contentContainerStyle={styles.profileList}>
+              {(selectedWarningAlert?.reporters || []).map((reporter, index) => {
+                const crops = formatReporterCrops(reporter.crop_types, t);
+                return (
+                  <View key={reporter.id || index} style={[styles.profileItem, { borderBottomColor: colors.border }]}>
+                    <View style={[styles.profileAvatar, { backgroundColor: colors.primaryDark }]}>
+                      {reporter.profile_image_url ? (
+                        <Image source={{ uri: reporter.profile_image_url }} style={styles.profileAvatarImage} />
+                      ) : (
+                        <Ionicons name="person" size={30} color={colors.white} />
+                      )}
+                    </View>
+                    <View style={styles.profileInfo}>
+                      <Text style={[styles.profileName, { color: colors.textDark }]}>
+                        {reporter.full_name || t('farmer')}
+                      </Text>
+                      <Text style={[styles.profileField, { color: colors.textMuted }]}>
+                        {t('barangay')}: {reporter.barangay || t('unknownBarangay')}
+                      </Text>
+                      {!!reporter.farm_size && (
+                        <Text style={[styles.profileField, { color: colors.textMuted }]}>
+                          {t('farmSize')}: {reporter.farm_size}
+                        </Text>
+                      )}
+                      {!!crops && (
+                        <Text style={[styles.profileField, { color: colors.textMuted }]}>
+                          {t('cropTypes')}: {crops}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                );
+              })}
+              {(!selectedWarningAlert?.reporters || selectedWarningAlert.reporters.length === 0) && (
+                <Text style={[styles.noReporterInfo, { color: colors.textMuted }]}>{t('reporterInfoUnavailable')}</Text>
+              )}
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -396,6 +517,21 @@ const styles = StyleSheet.create({
   badge: { flexShrink: 0, maxWidth: '42%', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
   badgeText: { fontSize: 12, fontWeight: '700', textAlign: 'center' },
   alertDescription: { fontSize: 15.5, lineHeight: 22 },
+  reminderChevron: { marginLeft: 6 },
+  reminderDates: { borderTopWidth: 1, marginTop: 12, paddingTop: 10, gap: 5 },
+  reminderDateText: { fontSize: 13, lineHeight: 18 },
+  profileModalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, backgroundColor: 'rgba(0,0,0,0.55)' },
+  profileModal: { width: '100%', maxWidth: 440, maxHeight: '78%', borderRadius: 16, padding: 18 },
+  profileModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  profileModalTitle: { flex: 1, fontSize: 19, fontWeight: '800' },
+  profileList: { gap: 12 },
+  profileItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, borderBottomWidth: 1, paddingBottom: 12 },
+  profileAvatar: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  profileAvatarImage: { width: '100%', height: '100%' },
+  profileInfo: { flex: 1 },
+  profileName: { fontSize: 16, fontWeight: '800', marginBottom: 4 },
+  profileField: { fontSize: 13, lineHeight: 19 },
+  noReporterInfo: { paddingVertical: 12, fontSize: 14 },
   reportersSection: { marginTop: 12, gap: 8 },
   reportersHeading: { fontSize: 12, fontWeight: '700' },
   reporterRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },

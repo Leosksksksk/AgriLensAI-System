@@ -24,6 +24,7 @@ export async function addReminder({ diseaseId, diseaseName, cropLabel, daysAhead
   const reminders = await getAllReminders();
 
   const id = `${diseaseId}_${cropLabel}_${Date.now()}`;
+  const createdAt = new Date();
   const dueDate = new Date();
   dueDate.setDate(dueDate.getDate() + daysAhead);
 
@@ -32,6 +33,7 @@ export async function addReminder({ diseaseId, diseaseName, cropLabel, daysAhead
     diseaseId,
     diseaseName,
     cropLabel,
+    createdAtISO: createdAt.toISOString(),
     dueDateISO: dueDate.toISOString(),
     dismissed: false,
   };

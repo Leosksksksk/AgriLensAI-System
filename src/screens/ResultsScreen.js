@@ -1,5 +1,4 @@
 // src/screens/ResultsScreen.js
-import { supabase } from '../../supabaseClient';
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -130,10 +129,9 @@ export default function ResultsScreen({ route, navigation }) {
     onlineInfo: null,
   };
 
-  const cropLabel = 'Crop';
-  
   const profile = getDiseaseProfile(diagnosis.diseaseId);
-  const diseaseName = t(profile.nameKey);
+  const isHealthyResult = diagnosis.diseaseId === 'healthy';
+  const diseaseName = t(isHealthyResult ? 'conditionNormal' : profile.nameKey);
   const diseaseDesc = t(profile.descKey);
   const severityLabel = t(`severity${diagnosis.severity}`);
   const onlineInfo = diagnosis.onlineInfo;
@@ -148,35 +146,6 @@ export default function ResultsScreen({ route, navigation }) {
       default: return colors.textMuted;
     }
   };
-
-  useEffect(() => {
-    async function saveScanToHistory() {
-      if (!route?.params?.diagnosis) return;
-
-      try {
-        const { error } = await supabase
-          .from('scan_results')
-          .insert([
-            {
-              crop_name: cropLabel, 
-              disease_id: diagnosis.diseaseId, 
-              damage_percent: diagnosis.damagePercent, 
-              status: "Analysis Complete",
-            }
-          ]);
-
-        if (error) {
-          console.error("Error saving scan to history:", error);
-        } else {
-          console.log("Successfully saved dynamic scan to Supabase!");
-        }
-      } catch (err) {
-        console.error("Supabase insert failed:", err);
-      }
-    }
-
-    saveScanToHistory();
-  }, [route?.params?.diagnosis, diagnosis]); 
 
   const [localizedSummary, setLocalizedSummary] = useState(onlineInfo?.summary || '');
 
@@ -289,7 +258,7 @@ export default function ResultsScreen({ route, navigation }) {
           <View style={{ alignItems: 'center', marginBottom: 8 }}>
             <SeverityRing
               percent={diagnosis.damagePercent}
-              color={colors.warning}
+              color={isHealthyResult ? colors.ok : colors.warning}
               label={severityLabel}
             />
           </View>
@@ -302,7 +271,7 @@ export default function ResultsScreen({ route, navigation }) {
               </View>
             </View>
           )}
-          <Text style={[styles.diseaseLabel, { color: colors.warning }]}>{diseaseName}</Text>
+          <Text style={[styles.diseaseLabel, { color: isHealthyResult ? colors.ok : colors.warning }]}>{diseaseName}</Text>
           <Text style={[styles.diseaseDesc, { color: colors.textMuted }]}>{diseaseDesc}</Text>
         </View>
 

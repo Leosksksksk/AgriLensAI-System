@@ -124,6 +124,10 @@ export async function buildAlertsFeed({ weatherPromise = fetchWeatherRisk() } = 
           ? { diseaseNameKey: diseaseProfile.nameKey }
           : { disease: r.diseaseName || '' }),
       },
+      createdAtISO: r.createdAtISO || r.id?.match(/_(\d{13})$/)?.[1]
+        ? (r.createdAtISO || new Date(Number(r.id.match(/_(\d{13})$/)[1])).toISOString())
+        : null,
+      dueDateISO: r.dueDateISO || null,
       sortTime: new Date(r.dueDateISO).getTime(),
     });
   });
