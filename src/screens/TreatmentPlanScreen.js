@@ -1,18 +1,20 @@
 // src/screens/TreatmentPlanScreen.js
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { getDiseaseProfile } from '../utils/diseaseCatalog';
 import { addReminder, hasActiveReminder } from '../utils/reminderStorage';
+import { useAppAlert } from '../context/AppAlertContext';
 
 const REMINDER_DAYS_AHEAD = 3;
 
 export default function TreatmentPlanScreen({ route, navigation }) {
   const { t } = useLanguage();
   const { colors, severityColor } = useTheme();
+  const Alert = useAppAlert();
 
   const diseaseId = route?.params?.diseaseId ?? 'leafBlight';
   const damagePercent = route?.params?.damagePercent ?? 0;

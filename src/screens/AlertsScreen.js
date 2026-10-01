@@ -1,6 +1,6 @@
 // src/screens/AlertsScreen.js
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
@@ -69,18 +69,6 @@ export default function AlertsScreen() {
   const { t } = useLanguage();
   const { colors, riskColor, severityColor, isDark } = useTheme();
 
-  const getLabel = (key, fallback) => {
-    try {
-      const res = t(key);
-      if (!res || res === key || res.includes('climateRisk') || res.includes('diseaseRiskForecast')) {
-        return fallback;
-      }
-      return res;
-    } catch {
-      return fallback;
-    }
-  };
-
   const [alerts, setAlerts] = useState([]);
   const [weatherData, setWeatherData] = useState({
     conditionKey: 'weatherLoading',
@@ -116,9 +104,9 @@ export default function AlertsScreen() {
         setLocationCoords({ latitude: weather.latitude, longitude: weather.longitude });
         setWeatherData({
           conditionKey: weather.conditionKey,
-          temp: typeof weather.temperature === 'number' ? weather.temperature.toFixed(1) : '--',
-          humidity: typeof weather.humidity === 'number' ? String(weather.humidity) : '--',
-          windSpeed: typeof weather.windSpeedKmh === 'number' ? weather.windSpeedKmh.toFixed(1) : '--',
+          temp: !weather.isOffline && typeof weather.temperature === 'number' ? weather.temperature.toFixed(1) : '--',
+          humidity: !weather.isOffline && typeof weather.humidity === 'number' ? String(weather.humidity) : '--',
+          windSpeed: !weather.isOffline && typeof weather.windSpeedKmh === 'number' ? weather.windSpeedKmh.toFixed(1) : '--',
           locationName: weather.locationName,
           locationSource: weather.locationSource,
           locationAccuracy: weather.accuracy,
@@ -146,11 +134,11 @@ export default function AlertsScreen() {
   const generateLeafletHTML = useCallback(() => {
     if (!locationCoords) return '';
 
-    const markersJS = alerts.map((alert, index) => {
-      const latOffset = (index === 0 ? 0.008 : index === 1 ? -0.012 : 0.015);
-      const lonOffset = (index === 0 ? 0.012 : index === 1 ? -0.008 : -0.015);
-      const markerLat = locationCoords.latitude + latOffset;
-      const markerLon = locationCoords.longitude + lonOffset;
+    const markersJS = alerts
+      .filter((alert) => alert.isHotspot && Number.isFinite(alert.latitude) && Number.isFinite(alert.longitude))
+      .map((alert) => {
+      const markerLat = alert.latitude;
+      const markerLon = alert.longitude;
 
       const titleTemplate = alert.titleKey ? t(alert.titleKey) : alert.title;
       const title = interpolate(titleTemplate, alert.titleValues || alert.descValues, t) || alert.title;
@@ -159,9 +147,9 @@ export default function AlertsScreen() {
 
       return `
         L.marker([${markerLat}, ${markerLon}]).addTo(map)
-          .bindPopup("<b>${title}</b><br><span style='color:${style.textColor};'>${alert.riskLevel || 'Active Hotspot'}</span>");
+            .bindPopup("<b>${title}</b><br><span style='color:${style.textColor};'>${alert.riskLevel || t('activeHotspot')}</span>");
       `;
-    }).join('\n');
+          }).join('\n');
 
     const mapBgColor = isDark ? '#112516' : '#E8F5E9';
     const userMarkerColor = accentColor;
@@ -207,11 +195,12 @@ export default function AlertsScreen() {
 
   const emptyIconColor = getEmptyStateIconColor(colors, isDark);
   const primaryAccent = isDark ? '#4CD964' : colors.primary;
+  const hotspotCount = alerts.filter((alert) => alert.isHotspot).length;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.headerRow}>
-        <Text style={[styles.headerTitle, { color: isDark ? colors.white : colors.textDark }]}>{getLabel('climateRisk', 'Climate Risk')}</Text>
+        <Text style={[styles.headerTitle, { color: isDark ? colors.white : colors.textDark }]}>{t('climateRisk')}</Text>
         <TouchableOpacity
           style={styles.refreshBtn}
           onPress={handleRefresh}
@@ -259,7 +248,7 @@ export default function AlertsScreen() {
             <View style={styles.metricItem}>
               <Ionicons name="water-outline" size={24} color={colors.white} />
               <Text style={[styles.metricValue, { color: '#FFFFFF' }]}>{weatherData.humidity}%</Text>
-              <Text style={[styles.metricLabel, { color: '#E0F2E3' }]}>{getLabel('humidity', 'Humidity')}</Text>
+              <Text style={[styles.metricLabel, { color: '#E0F2E3' }]}>{t('humidity')}</Text>
             </View>
 
             {/* Divider */}
@@ -269,15 +258,15 @@ export default function AlertsScreen() {
             <View style={styles.metricItem}>
               <Ionicons name="navigate-outline" size={24} color={colors.white} style={{ transform: [{ rotate: '45deg' }] }} />
               <Text style={[styles.metricValue, { color: '#FFFFFF' }]}>{weatherData.windSpeed}</Text>
-              <Text style={[styles.metricLabel, { color: '#E0F2E3' }]}>{getLabel('windKm', 'Wind km/h')}</Text>
+              <Text style={[styles.metricLabel, { color: '#E0F2E3' }]}>{t('windKm')}</Text>
             </View>
           </View>
         </View>
 
         {/* Interactive Outbreak & Risk Map Section */}
         <View style={styles.mapCardHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.textDark }]}>{getLabel('outbreakMap', 'Outbreak & Risk Map')}</Text>
-          <Text style={[styles.mapBadgeText, { color: primaryAccent }]}>{alerts.length} {getLabel('activeHotspots', 'Active Hotspots')}</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textDark }]}>{t('outbreakMap')}</Text>
+          <Text style={[styles.mapBadgeText, { color: primaryAccent }]}>{hotspotCount} {t('activeHotspots')}</Text>
         </View>
 
         <View style={[styles.mapContainer, { backgroundColor: isDark ? '#112516' : '#E8F5E9', borderColor: colors.border }]}>
@@ -290,7 +279,7 @@ export default function AlertsScreen() {
         </View>
 
         {/* Section Title */}
-        <Text style={[styles.sectionTitle, { color: colors.textDark }]}>{getLabel('diseaseRiskForecast', 'Disease Risk Forecast')}</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textDark }]}>{t('diseaseRiskForecast')}</Text>
 
         {/* Forecast Alert Cards */}
         {loading ? (
@@ -300,8 +289,8 @@ export default function AlertsScreen() {
         ) : alerts.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="checkmark-circle-outline" size={48} color={emptyIconColor} />
-            <Text style={[styles.emptyTitle, { color: isDark ? colors.white : colors.textDark }]}>{getLabel('noAlertsTitle', 'No Active Alerts')}</Text>
-            <Text style={[styles.emptyDesc, { color: colors.textMuted }]}>{getLabel('noAlertsDesc', 'Your crops are currently in low-risk climate conditions.')}</Text>
+            <Text style={[styles.emptyTitle, { color: isDark ? colors.white : colors.textDark }]}>{t('noAlertsTitle')}</Text>
+            <Text style={[styles.emptyDesc, { color: colors.textMuted }]}>{t('noAlertsDesc')}</Text>
           </View>
         ) : (
           alerts.map((alert, idx) => {
@@ -315,7 +304,9 @@ export default function AlertsScreen() {
 
             const badgeText = alert.tagKey
               ? t(alert.tagKey)
-              : (alert.riskLevel || getLabel(style.badgeLabelKey, 'Info'));
+              : (alert.riskLevel || t(style.badgeLabelKey));
+            const reporters = Array.isArray(alert.reporters) ? alert.reporters.slice(0, 3) : [];
+            const remainingReporterCount = Math.max(0, (alert.reporterCount || 0) - reporters.length);
 
             return (
               <View key={alert.id || idx.toString()} style={[styles.alertCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -324,12 +315,41 @@ export default function AlertsScreen() {
                   <View style={styles.cardHeader}>
                     <Text style={[styles.alertTitle, { color: colors.textDark }]}>{title}</Text>
                     <View style={[styles.badge, { backgroundColor: style.badgeBg }]}>
-                      <Text style={[styles.badgeText, { color: style.textColor }]}>
+                      <Text numberOfLines={1} style={[styles.badgeText, { color: style.textColor }]}>
                         {badgeText}
                       </Text>
                     </View>
                   </View>
                   <Text style={[styles.alertDescription, { color: colors.textMuted }]}>{desc}</Text>
+                  {reporters.length > 0 && (
+                    <View style={styles.reportersSection}>
+                      <Text style={[styles.reportersHeading, { color: colors.textLight }]}>{t('reportedBy')}</Text>
+                      {reporters.map((reporter, reporterIndex) => (
+                        <View key={reporter.id || `${alert.id}-reporter-${reporterIndex}`} style={styles.reporterRow}>
+                          <View style={[styles.reporterAvatar, { backgroundColor: colors.primaryDark }]}>
+                            {reporter.profile_image_url ? (
+                              <Image source={{ uri: reporter.profile_image_url }} style={styles.reporterAvatarImage} />
+                            ) : (
+                              <Ionicons name="person" size={17} color={colors.white} />
+                            )}
+                          </View>
+                          <View style={styles.reporterDetails}>
+                            <Text numberOfLines={1} style={[styles.reporterName, { color: colors.textDark }]}>
+                              {reporter.full_name || t('farmer')}
+                            </Text>
+                            <Text numberOfLines={1} style={[styles.reporterBarangay, { color: colors.textMuted }]}>
+                              {reporter.barangay || t('unknownBarangay')}
+                            </Text>
+                          </View>
+                        </View>
+                      ))}
+                      {remainingReporterCount > 0 && (
+                        <Text style={[styles.moreReporters, { color: colors.textMuted }]}>
+                          {t('moreReporters').replace('{count}', String(remainingReporterCount))}
+                        </Text>
+                      )}
+                    </View>
+                  )}
                 </View>
               </View>
             );
@@ -337,7 +357,7 @@ export default function AlertsScreen() {
         )}
 
         {/* Timestamp */}
-        {lastUpdated ? <Text style={[styles.timestamp, { color: colors.textLight }]}>Updated: {lastUpdated}</Text> : null}
+        {lastUpdated ? <Text style={[styles.timestamp, { color: colors.textLight }]}>{t('updatedAt').replace('{time}', lastUpdated)}</Text> : null}
 
       </ScrollView>
     </SafeAreaView>
@@ -371,11 +391,20 @@ const styles = StyleSheet.create({
   alertCard: { borderRadius: 14, marginBottom: 16, overflow: 'hidden', position: 'relative', borderWidth: 1 },
   accentStrip: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 5 },
   cardContent: { paddingVertical: 16, paddingHorizontal: 18, paddingLeft: 22 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  alertTitle: { fontSize: 19, fontWeight: '700' },
-  badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20 },
-  badgeText: { fontSize: 14, fontWeight: '700' },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
+  alertTitle: { flex: 1, flexShrink: 1, marginRight: 8, fontSize: 19, fontWeight: '700' },
+  badge: { flexShrink: 0, maxWidth: '42%', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
+  badgeText: { fontSize: 12, fontWeight: '700', textAlign: 'center' },
   alertDescription: { fontSize: 15.5, lineHeight: 22 },
+  reportersSection: { marginTop: 12, gap: 8 },
+  reportersHeading: { fontSize: 12, fontWeight: '700' },
+  reporterRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  reporterAvatar: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  reporterAvatarImage: { width: '100%', height: '100%' },
+  reporterDetails: { flex: 1 },
+  reporterName: { fontSize: 14, fontWeight: '700' },
+  reporterBarangay: { fontSize: 12, marginTop: 1 },
+  moreReporters: { fontSize: 12, fontWeight: '600', marginLeft: 48 },
   timestamp: { textAlign: 'center', fontSize: 14, marginTop: 16, marginBottom: 8 },
 });
 

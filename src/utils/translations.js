@@ -18,7 +18,17 @@ export const translations = {
     saveProfile: "Save Profile",
     editProfile: "Edit Profile",
     history: "Inspection History",
-    language: "Language / Lingwahe",
+    language: "Language",
+    application: "APPLICATION",
+    version: "Version",
+    otaUpdate: "OTA",
+    selectLanguage: "Select Language",
+    tabHome: "Home",
+    tabSync: "Sync",
+    tabAlerts: "Alerts",
+    tabSettings: "Settings",
+    tabProfile: "Profile",
+    tabHistory: "History",
 
     // ---- dynamic screen controls ----
     pointCamera: "Point the camera at the leaf.",
@@ -40,6 +50,16 @@ export const translations = {
     offlineData: "Offline Data",
     recordsWaiting: "records waiting to sync",
     personalInfo: "Personal Information",
+    profilePicture: "Profile Picture",
+    changeProfilePicture: "Change Profile Picture",
+    removeProfilePicture: "Remove Profile Picture",
+    profilePhotoPermissionDesc: "Allow access to your photos to choose a profile picture.",
+    profilePhotoError: "Could not update your profile picture. Please try again.",
+    profilePhotoSignInRequired: "Sign in to share a profile picture with nearby farmers.",
+    reportedBy: "Reported by",
+    farmer: "Farmer",
+    unknownBarangay: "Barangay not provided",
+    moreReporters: "+{count} more farmers",
     fullName: "Full Name",
     phoneNumber: "Phone Number",
     barangay: "Barangay",
@@ -69,9 +89,11 @@ export const translations = {
     diseaseRiskForecast: "Disease Risk Forecast",
     outbreakMap: "Outbreak & Risk Map",
     activeHotspots: "Active Hotspots",
+    activeHotspot: "Active Hotspot",
     windKm: "Wind km/h",
     weatherObservedAt: "Data {time}",
     weatherCheckedAt: "Time: {time}",
+    updatedAt: "Updated: {time}",
     weatherLoading: "Loading weather...",
     weatherClearSky: "Clear sky",
     weatherMainlyClear: "Mainly clear",
@@ -113,11 +135,13 @@ export const translations = {
     alertWindTitle: "Strong Wind Warning",
     alertHighRiskTitle: "High Disease Risk Warning",
     alertBlightTitle: "Early Blight Nearby",
-    alertBlightDesc: "5 farms in your barangay reported early blight on tomatoes. Protect your crops.",
+    alertNearbyDiseaseTitle: "{disease} Nearby",
+    alertBlightDesc: "{count} farm(s) in your barangay reported {disease} recently. Protect your crops.",
     alertPendingTitle: "Pending Offline Scans",
-    alertPendingDesc: "You have 3 records waiting to sync. Connect to internet to sync now.",
+    alertPendingDesc: "You have {count} record(s) waiting to sync. Connect to internet to sync now.",
     alertFungicideTitle: "Apply Fungicide Today",
-    alertFungicideDesc: "Scheduled treatment for your tomato crops in Barangay Bogo.",
+    alertReminderTitle: "Treatment Reminder Due",
+    alertFungicideDesc: "Scheduled treatment reminder for your {crop} regarding {disease}.",
 
     // ---- Climate screen ----
     temperature: "Temperature",
@@ -147,6 +171,7 @@ export const translations = {
     referenceInfoOffline: "Offline — showing saved reference info",
     referenceInfoUnverified: "Couldn't verify this result against reference data. Consider rescanning with a clearer photo.",
     referenceInfoSourceLink: "View source ↗",
+    webReferenceImages: "Web Reference Images",
 
     // ---- Treatment Plan screen ----
     defaultDisease: "Early Blight",
@@ -349,6 +374,18 @@ export const translations = {
     updateAvailableDesc: "A new version of AgriLens AI is available. Please update to get the latest features.",
     updateNow: "Update Now",
 
+    // critical update
+    updateCriticalTitle: "Critical Update Required",
+    updateCriticalDesc: "A critical security update must be installed. The app will restart after update.",
+    updateForceRestart: "The app will restart to apply changes.",
+
+    // rollback
+    rollbackButton: "Rollback Update",
+    rollbackConfirmTitle: "Rollback Update?",
+    rollbackConfirmDesc: "This will revert to the previous version. Are you sure?",
+    rollbackSuccess: "Update rolled back successfully. Please restart the app.",
+    rollbackError: "Failed to rollback update.",
+
     //sync message
     syncSuccessTitle: 'Synced!',
     syncSuccessDesc: 'Image successfully saved to Supabase bucket and database.',
@@ -447,6 +484,16 @@ export const translations = {
     editProfile: "I-edit ang Profile",
     history: "Kasaysayan ng Pagsusuri",
     language: "Wika",
+    application: "APLIKASYON",
+    version: "Bersyon",
+    otaUpdate: "OTA",
+    selectLanguage: "Pumili ng Wika",
+    tabHome: "Tahanan",
+    tabSync: "I-sync",
+    tabAlerts: "Alerto",
+    tabSettings: "Mga Setting",
+    tabProfile: "Profile",
+    tabHistory: "Kasaysayan",
 
     // ---- new keys for the redesigned screens ----
     pointCamera: "Itutok ang kamera sa dahon.",
@@ -468,6 +515,16 @@ export const translations = {
     offlineData: "Offline na Datos",
     recordsWaiting: "na record ang naghihintay i-sync",
     personalInfo: "Personal na Impormasyon",
+    profilePicture: "Larawan sa Profile",
+    changeProfilePicture: "Palitan ang Larawan sa Profile",
+    removeProfilePicture: "Alisin ang Larawan sa Profile",
+    profilePhotoPermissionDesc: "Payagan ang access sa iyong mga larawan upang pumili ng larawan sa profile.",
+    profilePhotoError: "Hindi ma-update ang larawan sa profile. Subukang muli.",
+    profilePhotoSignInRequired: "Mag-sign in upang maibahagi ang larawan sa profile sa mga kalapit na magsasaka.",
+    reportedBy: "Iniulat ni",
+    farmer: "Magsasaka",
+    unknownBarangay: "Walang ibinigay na barangay",
+    moreReporters: "+{count} pang magsasaka",
     fullName: "Buong Pangalan",
     phoneNumber: "Numero ng Telepono",
     barangay: "Barangay",
@@ -497,9 +554,11 @@ export const translations = {
     diseaseRiskForecast: "Pagtataya sa Panganib ng Sakit",
     outbreakMap: "Mapa ng Pagkalat at Panganib",
     activeHotspots: "Mga Aktibong Hotspot",
+    activeHotspot: "Aktibong Hotspot",
     windKm: "Kusog ng Hangin km/h",
     weatherObservedAt: "Datos noong {time}",
     weatherCheckedAt: "Oras: {time}",
+    updatedAt: "Na-update: {time}",
     weatherLoading: "Kinukuha ang lagay ng panahon...",
     weatherClearSky: "Maaliwalas na kalangitan",
     weatherMainlyClear: "Kadalasang maaliwalas",
@@ -541,11 +600,13 @@ export const translations = {
     alertWindTitle: "Babala sa Malakas na Hangin",
     alertHighRiskTitle: "Babala sa Mataas na Panganib ng Sakit",
     alertBlightTitle: "May Early Blight Malapit",
-    alertBlightDesc: "5 sakahan sa inyong barangay ang nag-ulat ng early blight sa kamatis. Protektahan ang inyong pananim.",
+    alertNearbyDiseaseTitle: "{disease} sa Kalapit na Lugar",
+    alertBlightDesc: "{count} sakahan sa inyong barangay ang nag-ulat ng {disease} kamakailan. Protektahan ang inyong pananim.",
     alertPendingTitle: "Naghihintay na Offline Scans",
-    alertPendingDesc: "May 3 record kayong naghihintay i-sync. Kumonekta sa internet para i-sync ngayon.",
+    alertPendingDesc: "May {count} record kayong naghihintay i-sync. Kumonekta sa internet para i-sync ngayon.",
     alertFungicideTitle: "Maglagay ng Fungicide Ngayon",
-    alertFungicideDesc: "Nakaiskedyul na paggamot para sa inyong pananim na kamatis sa Barangay Bogo.",
+    alertReminderTitle: "Oras na para sa paalala ng paggamot",
+    alertFungicideDesc: "Naka-iskedyul na paalala sa paggamot para sa inyong {crop} tungkol sa {disease}.",
 
     // ---- Climate screen ----
     temperature: "Temperatura",
@@ -574,6 +635,7 @@ export const translations = {
     referenceInfoOffline: "Offline — ipinapakita ang naka-save na sanggunian",
     referenceInfoUnverified: "Hindi na-verify ang resultang ito laban sa sanggunian. Subukang mag-scan muli gamit ang mas malinaw na litrato.",
     referenceInfoSourceLink: "Tingnan ang pinagmulan ↗",
+    webReferenceImages: "Mga Larawan mula sa Web",
 
     // ---- Treatment Plan screen ----
     defaultDisease: "Early Blight",
@@ -853,6 +915,18 @@ export const translations = {
     updateAvailableDesc: "May bagong bersyon ang AgriLens AI. Mangyaring mag-update para sa mga pinakabagong feature.",
     updateNow: "I-update Na",
 
+    // critical update
+    updateCriticalTitle: "Kritikal na Update Kinakailangan",
+    updateCriticalDesc: "Kailangang i-install ang kritikal na security update. Magre-restart ang app pagkatapos.",
+    updateForceRestart: "Ang app ay magre-restart para ma-apply ang mga pagbabago.",
+
+    // rollback
+    rollbackButton: "I-rollback ang Update",
+    rollbackConfirmTitle: "I-rollback ang Update?",
+    rollbackConfirmDesc: "Ito ay ibabalik sa nakaraang bersyon. Sigurado ka ba?",
+    rollbackSuccess: "Na-rollback ang update nang matagumpay. Pakire-restart ang app.",
+    rollbackError: "Nabigo ang pag-rollback ng update.",
+
   },
 
   ceb: {
@@ -874,6 +948,16 @@ export const translations = {
     editProfile: "I-edit ang Profile",
     history: "Agi sa Pagsusi",
     language: "Pinulongan",
+    application: "APLIKASYON",
+    version: "Bersyon",
+    otaUpdate: "OTA",
+    selectLanguage: "Pilia ang Pinulongan",
+    tabHome: "Balay",
+    tabSync: "I-sync",
+    tabAlerts: "Alerto",
+    tabSettings: "Mga Setting",
+    tabProfile: "Profile",
+    tabHistory: "Kasaysayan",
 
     // ---- new keys for the redesigned screens ----
     pointCamera: "Itudlo ang camera sa dahon.",
@@ -895,6 +979,16 @@ export const translations = {
     offlineData: "Offline nga Datos",
     recordsWaiting: "ka record ang naghulat i-sync",
     personalInfo: "Personal nga Impormasyon",
+    profilePicture: "Litrato sa Profile",
+    changeProfilePicture: "Ilisi ang Litrato sa Profile",
+    removeProfilePicture: "Kuhaa ang Litrato sa Profile",
+    profilePhotoPermissionDesc: "Tugoti ang access sa imong mga litrato aron makapili og litrato sa profile.",
+    profilePhotoError: "Dili ma-update ang litrato sa profile. Sulayi pag-usab.",
+    profilePhotoSignInRequired: "Pag-sign in aron ipaambit ang litrato sa profile sa mga duol nga mag-uuma.",
+    reportedBy: "Gi-report ni",
+    farmer: "Mag-uuma",
+    unknownBarangay: "Walay gihatag nga barangay",
+    moreReporters: "+{count} pa ka mag-uuma",
     fullName: "Bug-os nga Ngalan",
     phoneNumber: "Numero sa Telepono",
     barangay: "Barangay",
@@ -924,9 +1018,11 @@ export const translations = {
     diseaseRiskForecast: "Panagna sa Risgo sa Sakit",
     outbreakMap: "Mapa sa Pagtakboy ug Risgo",
     activeHotspots: "Mga Aktibong Hotspot",
+    activeHotspot: "Aktibong Hotspot",
     windKm: "Kusog sa Hangin km/h",
     weatherObservedAt: "Datos sa {time}",
     weatherCheckedAt: "Oras: {time}",
+    updatedAt: "Gi-update: {time}",
     weatherLoading: "Gikuha ang kahimtang sa panahon...",
     weatherClearSky: "Hayag ang kalangitan",
     weatherMainlyClear: "Kasagarang hayag",
@@ -968,11 +1064,13 @@ export const translations = {
     alertWindTitle: "Pasidaan sa Kusog nga Hangin",
     alertHighRiskTitle: "Pasidaan sa Taas nga Risgo sa Sakit",
     alertBlightTitle: "Naay Early Blight Duol",
-    alertBlightDesc: "5 ka uma sa inyong barangay ang nagreport og early blight sa kamatis. Panalipdi ang inyong tanom.",
+    alertNearbyDiseaseTitle: "{disease} duol sa inyong lugar",
+    alertBlightDesc: "{count} ka uma sa inyong barangay ang nagreport og {disease} bag-ohay. Panalipdi ang inyong tanom.",
     alertPendingTitle: "Naghulat nga Offline Scans",
-    alertPendingDesc: "Naa moy 3 ka record nga naghulat i-sync. Konekta sa internet para i-sync karon.",
+    alertPendingDesc: "Naa moy {count} ka record nga naghulat i-sync. Konekta sa internet para i-sync karon.",
     alertFungicideTitle: "Ibutang ang Fungicide Karon",
-    alertFungicideDesc: "Naka-iskedyul nga tambal para sa inyong tanom nga kamatis sa Barangay Bogo.",
+    alertReminderTitle: "Panahon na sa pahinumdom sa pagtambal",
+    alertFungicideDesc: "Naka-iskedyul nga pahinumdom sa pagtambal para sa inyong {crop} bahin sa {disease}.",
 
     // ---- Climate screen ----
     temperature: "Temperatura",
@@ -1001,6 +1099,7 @@ export const translations = {
     referenceInfoOffline: "Offline — gipakita ang na-save nga sanggunian",
     referenceInfoUnverified: "Wala ma-verify kini nga resulta batok sa sanggunian. Sulayi pag-scan pag-usab gamit ang mas klaro nga litrato.",
     referenceInfoSourceLink: "Tan-awa ang gigikanan ↗",
+    webReferenceImages: "Mga Litrato gikan sa Web",
 
     // ---- Treatment Plan screen ----
     defaultDisease: "Early Blight",
@@ -1280,6 +1379,18 @@ export const translations = {
     updateAvailableTitle: "Adunay Bag-ong Update",
     updateAvailableDesc: "Adunay bag-ong bersyon ang AgriLens AI. Palihug pag-update aron makuha ang pinakabag-ong feature.",
     updateNow: "I-update Karon",
+
+    // critical update
+    updateCriticalTitle: "Kritikal nga Update Kinahanglan",
+    updateCriticalDesc: "Kinahanglan i-install ang kritikal nga security update. Mo-restart ang app human sa update.",
+    updateForceRestart: "Ang app mo-restart aron ma-apply ang mga pagbag-o.",
+
+    // rollback
+    rollbackButton: "I-rollback ang Update",
+    rollbackConfirmTitle: "I-rollback ang Update?",
+    rollbackConfirmDesc: "Kini mo-balik sa una nga bersyon. Sigurado ka ba?",
+    rollbackSuccess: "Na-rollback ang update ug matagumpay. Pakire-restart ang app.",
+    rollbackError: "Nabigo ang pag-rollback sa update.",
   },
 };
 

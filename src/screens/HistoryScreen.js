@@ -1,11 +1,12 @@
 // src/screens/HistoryScreen.js
 import { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, ActivityIndicator, Alert, Modal, Image, Pressable } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, ActivityIndicator, Modal, Image, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
+import { useAppAlert } from '../context/AppAlertContext';
 
 function formatTime(dateString, t) {
   if (!dateString) return '';
@@ -34,6 +35,7 @@ const getFileNameFromUrl = (url) => {
 export default function HistoryScreen() {
   const { t } = useLanguage();
   const { colors } = useTheme();
+  const Alert = useAppAlert();
   const [query, setQuery] = useState('');
   const [scans, setScans] = useState([]);
   const [isLoading, setIsLoading] = useState(true);

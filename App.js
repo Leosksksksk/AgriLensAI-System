@@ -1,7 +1,6 @@
 // App.js
 import React, { useEffect, useRef, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -11,8 +10,10 @@ import { supabase } from './supabaseClient';
 
 import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import { AppAlertProvider } from './src/context/AppAlertContext';
 import { syncOfflineScans } from './src/services/syncService';
 import BottomTabBar from './src/components/BottomTabBar';
+import UpdateNotificationBanner from './src/components/UpdateNotificationBanner';
 import IntroScreen from './src/screens/IntroScreen';
 import LanguageSelectScreen from './src/screens/LanguageSelectScreen';
 import LoginScreen from './src/screens/LoginScreen';
@@ -49,28 +50,23 @@ function MainTabs() {
 
 function UpdateNotifier() {
   const { t } = useLanguage();
+  const [updateVisible, setUpdateVisible] = useState(false);
+  const [isCritical, setIsCritical] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function checkForUpdates() {
       try {
         if (__DEV__) return;
 
-        const update = await Updates.checkForUpdateAsync();
+        const update = await Updates.checkForUpdateAsync({ branch: 'production' });
 
-        if (update.isAvailable) {
-          await Updates.fetchUpdateAsync();
-          
-          Alert.alert(
-            t('updateAvailableTitle'),
-            t('updateAvailableDesc'),
-            [
-              {
-                text: t('updateNow'),
-                onPress: () => Updates.reloadAsync(),
-              },
-            ],
-            { cancelable: false }
-          );
+        if (update.isAvailable && isMounted) {
+          const manifest = await Updates.fetchUpdateAsync();
+          const critical = manifest?.manifest?.critical === true;
+          setIsCritical(critical);
+          setUpdateVisible(true);
         }
       } catch (error) {
         console.warn('Error checking for updates:', error);
@@ -78,9 +74,29 @@ function UpdateNotifier() {
     }
 
     checkForUpdates();
+
+    return () => {
+      isMounted = false;
+    };
   }, [t]);
 
-  return null;
+  const handleUpdateNow = () => {
+    Updates.reloadAsync();
+    setUpdateVisible(false);
+  };
+
+  const handleLater = () => {
+    setUpdateVisible(false);
+  };
+
+  return (
+    <UpdateNotificationBanner
+      visible={updateVisible}
+      isCritical={isCritical}
+      onDismiss={handleLater}
+      onUpdateNow={handleUpdateNow}
+    />
+  );
 }
 
 function AuthSyncTrigger() {
@@ -166,19 +182,21 @@ function ThemedApp() {
   }
 
   return (
-    <NavigationContainer>
-      <StatusBar style="light" backgroundColor="#094A0D" />
-      <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Intro" component={IntroScreen} />
-        <Stack.Screen name="LanguageSelect" component={LanguageSelectScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="OtpVerify" component={OtpVerifyScreen} />
-        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-        <Stack.Screen name="MainTabs" component={MainTabs} />
-        <Stack.Screen name="Results" component={ResultsScreen} />
-        <Stack.Screen name="TreatmentPlan" component={TreatmentPlanScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <AppAlertProvider>
+      <NavigationContainer>
+        <StatusBar style="light" backgroundColor="#094A0D" />
+        <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Intro" component={IntroScreen} />
+          <Stack.Screen name="LanguageSelect" component={LanguageSelectScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="OtpVerify" component={OtpVerifyScreen} />
+          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+          <Stack.Screen name="MainTabs" component={MainTabs} />
+          <Stack.Screen name="Results" component={ResultsScreen} />
+          <Stack.Screen name="TreatmentPlan" component={TreatmentPlanScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AppAlertProvider>
   );
 }
 

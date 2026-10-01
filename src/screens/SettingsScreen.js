@@ -1,24 +1,57 @@
 // src/screens/SettingsScreen.js
-import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Alert, Modal, Pressable, ActivityIndicator } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Modal, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { CommonActions } from '@react-navigation/native';
 import Constants from 'expo-constants';
+import * as Updates from 'expo-updates';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
-import { t } from '../utils/translations';
+import { rollbackUpdate, isRollbackAvailable } from '../utils/updateManager';
+import DevUpdateMenu from '../components/DevUpdateMenu';
+import { useAppAlert } from '../context/AppAlertContext';
 
 export default function SettingsScreen({ navigation }) {
-  const { language, setLanguage, languages, languageLabels, resetLanguageSelection } = useLanguage();
+  const { language, setLanguage, languages, languageLabels, resetLanguageSelection, t } = useLanguage();
   const { isDark, toggleTheme, colors } = useTheme();
+  const Alert = useAppAlert();
 
   const [notifications, setNotifications] = useState(true);
   const [offlineMode, setOfflineMode] = useState(true);
   const [cameraQuality, setCameraQuality] = useState('High');
   const [languagePickerVisible, setLanguagePickerVisible] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [rollbackAvailable, setRollbackAvailable] = useState(false);
+  const [devMenuVisible, setDevMenuVisible] = useState(false);
+  const [headerTapCount, setHeaderTapCount] = useState(0);
+
+  useEffect(() => {
+    isRollbackAvailable().then(setRollbackAvailable);
+  }, []);
+
+  const handleHeaderPress = () => {
+    setHeaderTapCount(c => {
+      const next = c + 1;
+      if (next >= 5) { setDevMenuVisible(true); return 0; }
+      return next;
+    });
+  };
+
+  const handleRollback = () => {
+    Alert.alert(t('rollbackConfirmTitle'), t('rollbackConfirmDesc'), [
+      { text: t('cancelText'), style: 'cancel' },
+      { text: t('rollbackButton'), style: 'destructive', onPress: async () => {
+          const result = await rollbackUpdate();
+          if (result.success) {
+            Alert.alert(t('rollbackSuccess'));
+          } else {
+            Alert.alert(t('rollbackError'), result.error);
+          }
+        }},
+    ]);
+  };
 
   function selectLanguage(lang) {
     setLanguage(lang);
@@ -60,9 +93,12 @@ export default function SettingsScreen({ navigation }) {
     ]);
   }
 
-  // Fetch app version from app.json config via expo-constants
-  const appVersion = Constants.expoConfig?.version || '1.0.0';
-  const buildVersion = Constants.expoConfig?.ios?.buildNumber || Constants.expoConfig?.android?.versionCode;
+  const nativeVersion = Constants.nativeAppVersion || Constants.expoConfig?.version || '1.0.0';
+  const nativeBuild = Constants.nativeBuildVersion;
+  const otaRevision = Updates.updateId && !Updates.isEmbeddedLaunch
+    ? ` (${t('otaUpdate')} ${Updates.updateId.slice(0, 8)})`
+    : '';
+  const appVersion = `${nativeVersion}${nativeBuild ? ` (${nativeBuild})` : ''}${otaRevision}`;
 
   // STRICT FILTER: Only allow languages that actually exist and have a valid label
   const validLanguages = ['en', 'fil', 'ceb'].filter(
@@ -71,17 +107,17 @@ export default function SettingsScreen({ navigation }) {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
-        <Text style={[styles.headerTitle, { color: colors.white }]}>Settings</Text>
+      <View style={[styles.header, { backgroundColor: colors.primaryDark }]} onPress={handleHeaderPress}>
+        <Text style={[styles.headerTitle, { color: colors.white }]}>{t('settings')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.body}>
-        <Text style={[styles.sectionLabel, { color: colors.textLight }]}>PREFERENCES</Text>
+        <Text style={[styles.sectionLabel, { color: colors.textLight }]}>{t('preferences')}</Text>
         <View style={[styles.card, { backgroundColor: colors.card }]}>
           <TouchableOpacity style={styles.row} onPress={() => setLanguagePickerVisible(true)} activeOpacity={0.7}>
             <View style={styles.rowLeft}>
               <Ionicons name="globe-outline" size={20} color={colors.primary} />
-              <Text style={[styles.rowLabel, { color: colors.textDark }]}>Language</Text>
+              <Text style={[styles.rowLabel, { color: colors.textDark }]}>{t('language')}</Text>
             </View>
             <View style={styles.rowRight}>
               <Text style={[styles.rowValue, { color: colors.textMuted }]}>{languageLabels[language] || 'ENGLISH'}</Text>
@@ -94,7 +130,7 @@ export default function SettingsScreen({ navigation }) {
           <View style={styles.row}>
             <View style={styles.rowLeft}>
               <Ionicons name="notifications-outline" size={20} color={colors.primary} />
-              <Text style={[styles.rowLabel, { color: colors.textDark }]}>Notifications</Text>
+              <Text style={[styles.rowLabel, { color: colors.textDark }]}>{t('notifications')}</Text>
             </View>
             <Switch
               value={notifications}
@@ -109,7 +145,7 @@ export default function SettingsScreen({ navigation }) {
           <View style={styles.row}>
             <View style={styles.rowLeft}>
               <Ionicons name="cloud-offline-outline" size={20} color={colors.primary} />
-              <Text style={[styles.rowLabel, { color: colors.textDark }]}>Offline Mode</Text>
+              <Text style={[styles.rowLabel, { color: colors.textDark }]}>{t('offlineMode')}</Text>
             </View>
             <Switch
               value={offlineMode}
@@ -139,23 +175,42 @@ export default function SettingsScreen({ navigation }) {
           <TouchableOpacity style={styles.row} onPress={cycleCameraQuality} activeOpacity={0.7}>
             <View style={styles.rowLeft}>
               <Ionicons name="camera-outline" size={20} color={colors.primary} />
-              <Text style={[styles.rowLabel, { color: colors.textDark }]}>Camera Quality</Text>
+              <Text style={[styles.rowLabel, { color: colors.textDark }]}>{t('cameraQuality')}</Text>
             </View>
             <View style={styles.rowRight}>
-              <Text style={[styles.rowValue, { color: colors.textMuted }]}>{cameraQuality}</Text>
+              <Text style={[styles.rowValue, { color: colors.textMuted }]}>{t(cameraQuality.toLowerCase())}</Text>
               <Ionicons name="chevron-down" size={18} color={colors.textLight} />
             </View>
           </TouchableOpacity>
         </View>
 
-        <Text style={[styles.sectionLabel, { color: colors.textLight }]}>APPLICATION</Text>
+        <Text style={[styles.sectionLabel, { color: colors.textLight }]}>{t('application')}</Text>
         <View style={[styles.card, { backgroundColor: colors.card }]}>
           <View style={styles.row}>
-            <Text style={[styles.rowLabel, { color: colors.textDark }]}>Version</Text>
+            <Text style={[styles.rowLabel, { color: colors.textDark }]}>{t('version')}</Text>
             <Text style={[styles.rowValue, { color: colors.textMuted }]}>
-              {appVersion}{buildVersion ? ` (${buildVersion})` : ''}
+              {appVersion}
             </Text>
           </View>
+
+          {rollbackAvailable && (
+            <>
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
+              <View style={styles.row}>
+                <View style={styles.rowLeft}>
+                  <Ionicons name="refresh-circle" size={20} color={colors.primary} />
+                  <Text style={[styles.rowLabel, { color: colors.textDark }]}>{t('rollbackButton')}</Text>
+                </View>
+                <TouchableOpacity
+                  style={[styles.rollbackBtn, { backgroundColor: colors.primary }]}
+                  onPress={handleRollback}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.rollbackBtnText, { color: colors.white }]}>{t('rollbackButton')}</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
         </View>
 
         <TouchableOpacity
@@ -167,7 +222,7 @@ export default function SettingsScreen({ navigation }) {
           {loggingOut ? (
             <ActivityIndicator color={colors.danger} />
           ) : (
-            <Text style={[styles.logoutText, { color: colors.danger }]}>Log Out</Text>
+            <Text style={[styles.logoutText, { color: colors.danger }]}>{t('logOut')}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>
@@ -180,7 +235,7 @@ export default function SettingsScreen({ navigation }) {
       >
         <Pressable style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.4)' }]} onPress={() => setLanguagePickerVisible(false)}>
           <Pressable style={[styles.modalSheet, { backgroundColor: colors.card }]} onPress={() => {}}>
-            <Text style={[styles.modalTitle, { color: colors.textDark }]}>Select Language</Text>
+            <Text style={[styles.modalTitle, { color: colors.textDark }]}>{t('selectLanguage')}</Text>
             {validLanguages.map((lang) => (
               <TouchableOpacity
                 key={lang}
@@ -205,6 +260,7 @@ export default function SettingsScreen({ navigation }) {
           </Pressable>
         </Pressable>
       </Modal>
+      <DevUpdateMenu visible={devMenuVisible} onClose={() => setDevMenuVisible(false)} />
     </SafeAreaView>
   );
 }
@@ -256,4 +312,6 @@ const styles = StyleSheet.create({
   },
   modalOptionText: { fontSize: 17 },
   modalOptionTextActive: { fontWeight: '700' },
+  rollbackBtn: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, minWidth: 100, alignItems: 'center' },
+  rollbackBtnText: { fontWeight: '700', fontSize: 13 },
 });

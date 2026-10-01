@@ -4,23 +4,25 @@ import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColors } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { darkColors } from '../theme/colors';
 
 const fallbackColors = darkColors;
 
 const TABS = [
-  { key: 'Home', label: 'Home', icon: 'home-outline', iconActive: 'home' },
-  { key: 'Sync', label: 'Sync', icon: 'phone-portrait-outline', iconActive: 'phone-portrait' },
-  { key: 'Alerts', label: 'Alerts', icon: 'notifications-outline', iconActive: 'notifications' },
-  { key: 'Settings', label: 'Settings', icon: 'settings-outline', iconActive: 'settings' },
-  { key: 'Profile', label: 'Profile', icon: 'person-outline', iconActive: 'person' },
-  { key: 'History', label: 'History', icon: 'time-outline', iconActive: 'time' },
+  { key: 'Home', translationKey: 'tabHome', icon: 'home-outline', iconActive: 'home' },
+  { key: 'Sync', translationKey: 'tabSync', icon: 'phone-portrait-outline', iconActive: 'phone-portrait' },
+  { key: 'Alerts', translationKey: 'tabAlerts', icon: 'notifications-outline', iconActive: 'notifications' },
+  { key: 'Settings', translationKey: 'tabSettings', icon: 'settings-outline', iconActive: 'settings' },
+  { key: 'Profile', translationKey: 'tabProfile', icon: 'person-outline', iconActive: 'person' },
+  { key: 'History', translationKey: 'tabHistory', icon: 'time-outline', iconActive: 'time' },
 ];
 
 export default function BottomTabBar({ state, navigation }) {
   const insets = useSafeAreaInsets();
   const activeRouteName = state.routes[state.index].name;
   const colors = useColors();
+  const { t } = useLanguage();
   const palette = colors ?? fallbackColors;
 
   return (
@@ -38,6 +40,7 @@ export default function BottomTabBar({ state, navigation }) {
           <TouchableOpacity
             key={tab.key}
             style={styles.tabItem}
+            accessibilityLabel={t(tab.translationKey)}
             activeOpacity={0.7}
             onPress={() => navigation.navigate(tab.key)}
           >
@@ -50,8 +53,10 @@ export default function BottomTabBar({ state, navigation }) {
               styles.label, 
               { color: isActive ? palette.primary : palette.textMuted },
               isActive && styles.labelActive
-            ]}>
-              {tab.label}
+            ]}
+              numberOfLines={1}
+            >
+              {t(tab.translationKey)}
             </Text>
           </TouchableOpacity>
         );
@@ -68,13 +73,16 @@ const styles = StyleSheet.create({
   },
   tabItem: { 
     flex: 1, 
+    minWidth: 0,
     alignItems: 'center', 
     justifyContent: 'center', 
     gap: 2 
   },
   label: { 
-    fontSize: 13, 
-    marginTop: 2 
+    width: '100%',
+    fontSize: 11,
+    marginTop: 2,
+    textAlign: 'center'
   },
   labelActive: { 
     fontWeight: '700' 

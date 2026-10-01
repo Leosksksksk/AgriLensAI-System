@@ -1,13 +1,17 @@
 // src/screens/ProfileScreen.js
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system/legacy';
+import { decode } from 'base64-arraybuffer';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../../supabaseClient';
 import { getValidUserSession } from '../utils/auth';
+import { useAppAlert } from '../context/AppAlertContext';
 
 const ALL_CROPS = [
   { id: 'corn', labelKey: 'cropCorn' },
@@ -19,12 +23,15 @@ const ALL_CROPS = [
 export default function ProfileScreen() {
   const { t } = useLanguage();
   const { colors } = useTheme();
+  const Alert = useAppAlert();
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [barangay, setBarangay] = useState('');
   const [farmSize, setFarmSize] = useState('');
   const [selectedCropIds, setSelectedCropIds] = useState([]);
+  const [profilePictureUri, setProfilePictureUri] = useState(null);
+  const [profilePictureStorageKey, setProfilePictureStorageKey] = useState('user_profile_picture_guest');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -63,14 +70,20 @@ export default function ProfileScreen() {
 
       // 2. Fetch from Supabase, but let local storage take precedence if it exists
       const { user } = await getValidUserSession(false);
+      const pictureStorageKey = `user_profile_picture_${user?.id || 'guest'}`;
+      setProfilePictureStorageKey(pictureStorageKey);
+      setProfilePictureUri(await AsyncStorage.getItem(pictureStorageKey));
+      let profileData = null;
       if (user) {
         const { data, error } = await supabase
           .from('farmers')
-          .select('full_name, phone, barangay, farm_size, crop_types')
+          .select('full_name, phone, barangay, farm_size, crop_types, profile_image_url')
           .eq('id', user.id)
           .maybeSingle();
 
         if (!error && data) {
+          profileData = data;
+          setProfilePictureUri(data.profile_image_url || await AsyncStorage.getItem(pictureStorageKey));
           // Prioritize local storage (what the user just typed), fallback to DB
           setFullName(localName || data.full_name || '');
           setPhone(localPhone || data.phone || '');
@@ -84,11 +97,11 @@ export default function ProfileScreen() {
 
       // Save original values for cancel
       setOriginalValues({
-        fullName: fullName || localName || (user ? data?.full_name : '') || '',
-        phone: phone || localPhone || (user ? data?.phone : '') || '',
-        barangay: barangay || localBarangay || (user ? data?.barangay : '') || '',
-        farmSize: farmSize || localFarmSize || (user ? data?.farm_size : '') || '',
-        selectedCropIds: selectedCropIds.length ? selectedCropIds : (localCrops ? JSON.parse(localCrops) : (user && data?.crop_types?.length ? data.crop_types : [])),
+        fullName: fullName || localName || profileData?.full_name || '',
+        phone: phone || localPhone || profileData?.phone || '',
+        barangay: barangay || localBarangay || profileData?.barangay || '',
+        farmSize: farmSize || localFarmSize || profileData?.farm_size || '',
+        selectedCropIds: selectedCropIds.length ? selectedCropIds : (localCrops ? JSON.parse(localCrops) : (profileData?.crop_types?.length ? profileData.crop_types : [])),
       });
     } catch (e) {
       console.warn('Profile load error:', e);
@@ -164,6 +177,92 @@ export default function ProfileScreen() {
     );
   }
 
+  function showProfilePictureOptions() {
+    const actions = [
+      { text: t('cancelText'), style: 'cancel' },
+      ...(profilePictureUri
+        ? [{ text: t('removeProfilePicture'), style: 'destructive', onPress: removeProfilePicture }]
+        : []),
+      { text: t('changeProfilePicture'), onPress: chooseProfilePicture },
+    ];
+    Alert.alert(t('profilePicture'), '', actions);
+  }
+
+  async function chooseProfilePicture() {
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(t('photoPermissionTitle'), t('profilePhotoPermissionDesc'));
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.85,
+      });
+      const asset = result.assets?.[0];
+      if (result.canceled || !asset?.uri) return;
+
+      const { user } = await getValidUserSession(false);
+      if (!user) throw new Error(t('profilePhotoSignInRequired'));
+
+      const extension = asset.fileName?.split('.').pop() || asset.mimeType?.split('/').pop() || 'jpg';
+      const destination = `${FileSystem.documentDirectory}profile-picture-${Date.now()}.${extension}`;
+      await FileSystem.copyAsync({ from: asset.uri, to: destination });
+
+      const base64 = await FileSystem.readAsStringAsync(destination, { encoding: 'base64' });
+      const storagePath = `profile-pictures/${user.id}/${Date.now()}.${extension}`;
+      const { error: uploadError } = await supabase.storage
+        .from('profile-photos')
+        .upload(storagePath, decode(base64), {
+          contentType: asset.mimeType || `image/${extension}`,
+          upsert: true,
+        });
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage.from('profile-photos').getPublicUrl(storagePath);
+      const profileImageUrl = publicUrlData.publicUrl;
+      const { error: profileError } = await supabase
+        .from('farmers')
+        .update({ profile_image_url: profileImageUrl })
+        .eq('id', user.id);
+      if (profileError) throw profileError;
+
+      await AsyncStorage.setItem(profilePictureStorageKey, profileImageUrl);
+      setProfilePictureUri(profileImageUrl);
+
+      if (profilePictureUri?.startsWith(FileSystem.documentDirectory)) {
+        await FileSystem.deleteAsync(profilePictureUri, { idempotent: true }).catch(() => {});
+      }
+    } catch (error) {
+      console.warn('Profile picture update error:', error);
+      Alert.alert(t('profilePicture'), t('profilePhotoError'));
+    }
+  }
+
+  async function removeProfilePicture() {
+    try {
+      const { user } = await getValidUserSession(false);
+      if (user) {
+        const { error } = await supabase
+          .from('farmers')
+          .update({ profile_image_url: null })
+          .eq('id', user.id);
+        if (error) throw error;
+      }
+      await AsyncStorage.removeItem(profilePictureStorageKey);
+      if (profilePictureUri?.startsWith(FileSystem.documentDirectory)) {
+        await FileSystem.deleteAsync(profilePictureUri, { idempotent: true });
+      }
+      setProfilePictureUri(null);
+    } catch (error) {
+      console.warn('Profile picture removal error:', error);
+      Alert.alert(t('profilePicture'), t('profilePhotoError'));
+    }
+  }
+
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, styles.centerFill, { backgroundColor: colors.background }]}>
@@ -199,9 +298,24 @@ export default function ProfileScreen() {
               <Ionicons name="create-outline" size={26} color={colors.white} />
             </TouchableOpacity>
           )}
-          <View style={styles.avatar}>
-            <Ionicons name="person" size={32} color={colors.white} />
-          </View>
+          <TouchableOpacity
+            style={styles.avatarButton}
+            onPress={showProfilePictureOptions}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel={t('changeProfilePicture')}
+          >
+            <View style={styles.avatar}>
+              {profilePictureUri ? (
+                <Image source={{ uri: profilePictureUri }} style={styles.avatarImage} />
+              ) : (
+                <Ionicons name="person" size={32} color={colors.white} />
+              )}
+            </View>
+            <View style={[styles.avatarEditBadge, { backgroundColor: colors.primary, borderColor: colors.primaryDark }]}>
+              <Ionicons name="camera-outline" size={13} color={colors.white} />
+            </View>
+          </TouchableOpacity>
           <Text style={[styles.name, { color: colors.white }]}>{fullName || t('fullName')}</Text>
           <Text style={[styles.subLabel, { color: '#DCEEDC' }]}>{t('farmLabel')} · {barangay || '—'}</Text>
         </View>
@@ -318,7 +432,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
+    overflow: 'hidden',
+  },
+  avatarButton: { position: 'relative', marginBottom: 10 },
+  avatarImage: { width: '100%', height: '100%' },
+  avatarEditBadge: {
+    position: 'absolute',
+    right: -2,
+    bottom: -2,
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   name: { fontSize: 20, fontWeight: '800' },
   subLabel: { fontSize: 14, marginTop: 2, letterSpacing: 0.5 },

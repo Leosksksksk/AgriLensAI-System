@@ -3,6 +3,8 @@ import { supabase } from '../../supabaseClient';
 import { getValidUserSession } from '../utils/auth';
 import { getPendingScanCount as getLocalPendingScanCount } from './syncService';
 
+const MIN_REPORTING_FARMS = 1;
+
 export async function fetchNearbyOutbreaks() {
   const { user } = await getValidUserSession(false);
   if (!user) return [];
@@ -24,23 +26,12 @@ export async function fetchNearbyOutbreaks() {
     return [];
   }
 
-  return data ?? [];
+  return (data ?? []).filter((outbreak) => {
+    const farmCount = Number(outbreak.farm_count);
+    return outbreak.disease_id && Number.isFinite(farmCount) && farmCount >= MIN_REPORTING_FARMS;
+  });
 }
 
-export async function fetchPendingScanCount() {
-  const localCount = await getLocalPendingScanCount().catch(() => 0);
-  const { user } = await getValidUserSession(false);
-  if (!user) return localCount;
-
-  const { data, error } = await supabase
-    .from('scan_results')
-    .select('id')
-    .eq('farmer_id', user.id)
-    .eq('status', 'Pending AI Analysis');
-
-  if (error) {
-    return localCount;
-  }
-
-  return (data?.length ?? 0) + localCount;
+export async function fetchPendingOfflineScanCount() {
+  return getLocalPendingScanCount().catch(() => 0);
 }

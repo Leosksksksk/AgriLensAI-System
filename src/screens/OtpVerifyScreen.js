@@ -1,14 +1,16 @@
 // src/screens/OtpVerifyScreen.js
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
+import { useAppAlert } from '../context/AppAlertContext';
 
 export default function OtpVerifyScreen({ route, navigation }) {
   const { t, language } = useLanguage();
   const { colors } = useTheme();
+  const Alert = useAppAlert();
 
   const { email, phone } = route.params;
   const [code, setCode] = useState('');

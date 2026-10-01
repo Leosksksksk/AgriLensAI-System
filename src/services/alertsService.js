@@ -1,6 +1,6 @@
 // src/services/alertsService.js
 import { fetchWeatherRisk } from './weatherService';
-import { fetchNearbyOutbreaks, fetchPendingScanCount } from './outbreakService';
+import { fetchNearbyOutbreaks, fetchPendingOfflineScanCount } from './outbreakService';
 import { getDueReminders } from '../utils/reminderStorage';
 import { getDiseaseProfile } from '../utils/diseaseCatalog';
 
@@ -47,7 +47,7 @@ export async function buildAlertsFeed({ weatherPromise = fetchWeatherRisk() } = 
       console.warn('Outbreak alert error:', e);
       return [];
     }),
-    fetchPendingScanCount().catch((e) => {
+    fetchPendingOfflineScanCount().catch((e) => {
       console.warn('Pending scan alert error:', e);
       return 0;
     }),
@@ -81,11 +81,17 @@ export async function buildAlertsFeed({ weatherPromise = fetchWeatherRisk() } = 
     alerts.push({
       id: `outbreak_${o.disease_id}`,
       type: 'WARNING',
+      isHotspot: true,
+      latitude: Number(o.latitude ?? o.lat),
+      longitude: Number(o.longitude ?? o.lng),
       tagKey: 'tagWarning',
       time: timeAgo(now),
-      titleKey: 'alertBlightTitle',
+      titleKey: 'alertNearbyDiseaseTitle',
+      titleValues: { diseaseNameKey: profile.nameKey },
       descKey: 'alertBlightNearbyDesc',
       descValues: { count: o.farm_count, diseaseNameKey: profile.nameKey },
+      reporters: Array.isArray(o.reporters) ? o.reporters : [],
+      reporterCount: Number(o.farm_count) || 0,
       sortTime: now.getTime() - 1000,
     });
   });
@@ -104,14 +110,20 @@ export async function buildAlertsFeed({ weatherPromise = fetchWeatherRisk() } = 
   }
 
   reminders.forEach((r) => {
+    const diseaseProfile = r.diseaseId ? getDiseaseProfile(r.diseaseId) : null;
     alerts.push({
       id: `reminder_${r.id}`,
       type: 'REMINDER',
       tagKey: 'tagReminder',
       time: timeAgo(r.dueDateISO),
-      titleKey: 'alertFungicideTitle',
+      titleKey: 'alertReminderTitle',
       descKey: 'alertReminderDesc',
-      descValues: { crop: 'Crop', disease: r.diseaseName },
+      descValues: {
+        crop: r.cropLabel || r.crop || '',
+        ...(diseaseProfile
+          ? { diseaseNameKey: diseaseProfile.nameKey }
+          : { disease: r.diseaseName || '' }),
+      },
       sortTime: new Date(r.dueDateISO).getTime(),
     });
   });

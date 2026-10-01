@@ -1,6 +1,6 @@
 // src/screens/LoginScreen.js
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../context/ThemeContext';
 import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
+import { useAppAlert } from '../context/AppAlertContext';
 
 const PREVIOUS_USER_KEY = '@previous_user_credentials';
 
@@ -29,6 +30,7 @@ function isValidEmail(email) {
 export default function LoginScreen({ navigation }) {
   const { t } = useLanguage();
   const { colors } = useTheme();
+  const Alert = useAppAlert();
   const [fullName, setFullName] = useState('');
   const [barangay, setBarangay] = useState('');
   const [email, setEmail] = useState('');

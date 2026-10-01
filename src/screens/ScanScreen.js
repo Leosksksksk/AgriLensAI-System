@@ -1,7 +1,7 @@
 // src/screens/ScanScreen.js
 import { saveScanOffline } from '../services/syncService';
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -14,12 +14,15 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { analyzeLeaf } from '../services/aiEngineService';
 import { enrichDiagnosis } from '../services/plantInfoLookupService';
+import { enhanceDiagnosisWithWebSearch } from '../services/onlineImageSearchService';
 import { getDueReminders, dismissReminder } from '../utils/reminderStorage';
 import { getValidUserSession } from '../utils/auth';
+import { useAppAlert } from '../context/AppAlertContext';
 
 export default function ScanScreen({ navigation }) {
   const { language, languageLabels, t } = useLanguage();
   const { colors, isDark } = useTheme();
+  const Alert = useAppAlert();
 
   const [permission, requestPermission] = useCameraPermissions();
   const [showCamera, setShowCamera] = useState(false);
@@ -74,6 +77,8 @@ export default function ScanScreen({ navigation }) {
       if (isOnline) {
         try {
           enrichedResult = await enrichDiagnosis(result);
+          
+          enrichedResult = await enhanceDiagnosisWithWebSearch(enrichedResult);
         } catch (err) {
           console.log('Online enrichment skipped due to connection state, using local model result.');
         }
