@@ -286,11 +286,11 @@ export default function ScanScreen({ navigation }) {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
-        <Text style={[styles.headerTitle, { color: colors.white }]}>{t('appName')}</Text>
-        <TouchableOpacity style={[styles.langPill, { backgroundColor: colors.white }]}>
-          <Text style={[styles.langPillText, { color: colors.primaryDark }]}>{languageLabels[language]}</Text>
-        </TouchableOpacity>
+      <View style={[styles.header, { backgroundColor: colors.primaryDark, borderBottomColor: colors.border }]}>
+          <Text style={[styles.headerTitle, { color: colors.white }]}>{t('appName')}</Text>
+          <TouchableOpacity style={[styles.langPill, { backgroundColor: colors.white }]}>
+            <Text style={[styles.langPillText, { color: colors.primaryDark }]}>{languageLabels[language]}</Text>
+          </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.body}>
@@ -306,7 +306,7 @@ export default function ScanScreen({ navigation }) {
           </View>
         ))}
 
-        <View style={[styles.viewfinder, { backgroundColor: colors.mint }]}>
+        <View style={[styles.viewfinder, { backgroundColor: colors.mint, borderColor: colors.border }]}>
           {!isOnline && (
             <View style={[styles.offlineBadge, { backgroundColor: colors.warning }]}>
               <Text style={[styles.offlineBadgeText, { color: colors.white }]}>{t('noInternet')}</Text>
@@ -323,7 +323,7 @@ export default function ScanScreen({ navigation }) {
               <View style={[styles.cornerTR, { borderColor: isDark ? colors.white : colors.primaryDark }]} />
               <View style={[styles.cornerBL, { borderColor: isDark ? colors.white : colors.primaryDark }]} />
               <View style={[styles.cornerBR, { borderColor: isDark ? colors.white : colors.primaryDark }]} />
-              <View style={[styles.viewfinderHintWrap, { backgroundColor: colors.mint }]}>
+              <View style={styles.viewfinderHintWrap}>
                 <Text style={[styles.viewfinderHint, { color: colors.textDark }]}>{t('pointCamera')}</Text>
               </View>
             </>
@@ -344,23 +344,23 @@ export default function ScanScreen({ navigation }) {
 
         {/* UPLOAD & TAKE PHOTO BUTTONS */}
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={[styles.outlineBtn, { borderColor: '#26482D', backgroundColor: '#112214' }]} activeOpacity={0.85} onPress={handleUploadPhoto} disabled={uploading}>
-            <Text style={styles.outlineBtnText}>{uploading ? t('uploadingText') : t('uploadPhoto')}</Text>
+          <TouchableOpacity style={[styles.outlineBtn, { borderColor: colors.border, backgroundColor: colors.card }]} activeOpacity={0.85} onPress={handleUploadPhoto} disabled={uploading}>
+            <Text style={[styles.outlineBtnText, { color: colors.textDark }]}>{uploading ? t('uploadingText') : t('uploadPhoto')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.filledBtn, { backgroundColor: '#2E7D32' }]} activeOpacity={0.85} onPress={handleTakePhoto} disabled={uploading}>
-            <Text style={styles.filledBtnText}>{t('takePhoto')}</Text>
+          <TouchableOpacity style={[styles.filledBtn, { backgroundColor: colors.primary }]} activeOpacity={0.85} onPress={handleTakePhoto} disabled={uploading}>
+            <Text style={[styles.filledBtnText, { color: isDark ? colors.primaryDark : colors.white }]}>{t('takePhoto')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* MAIN SCAN BUTTON */}
-        <TouchableOpacity style={[styles.scanBtn, { backgroundColor: '#4CAF50' }]} activeOpacity={0.85} onPress={handleAnalyze}>
-          <Text style={styles.scanBtnText}>{t('scanLeafBtn')}</Text>
+        <TouchableOpacity style={[styles.scanBtn, { backgroundColor: colors.primary }]} activeOpacity={0.85} onPress={handleAnalyze}>
+          <Text style={[styles.scanBtnText, { color: colors.white }]}>{t('scanLeafBtn')}</Text>
         </TouchableOpacity>
 
         {/* OFFLINE AI BUTTON */}
-        <TouchableOpacity style={[styles.analyzeBtn, { backgroundColor: '#112214', borderColor: '#1da038' }]} activeOpacity={0.85} onPress={handleOfflineAnalyze}>
-          <Ionicons name="sparkles" size={18} color="#A2E0A2" style={{ marginRight: 8 }} />
-          <Text style={styles.analyzeBtnText}>{t('analyzeOffline')}</Text>
+        <TouchableOpacity style={[styles.analyzeBtn, { backgroundColor: colors.card, borderColor: colors.border }]} activeOpacity={0.85} onPress={handleOfflineAnalyze}>
+          <Ionicons name="sparkles" size={18} color={colors.primaryLight} style={{ marginRight: 8 }} />
+          <Text style={[styles.analyzeBtnText, { color: colors.textDark }]}>{t('analyzeOffline')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -376,9 +376,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    borderBottomWidth: 1,
   },
   headerTitle: { fontSize: 24, fontWeight: '800' },
-  langPill: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 },
+  langPill: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20, borderWidth: 1 },
   langPillText: { fontWeight: '700', fontSize: 14 },
   body: { padding: 20, paddingBottom: 40 },
   reminderBanner: {
@@ -388,6 +389,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     marginBottom: 14,
+    borderWidth: 1,
   },
   reminderBannerText: { flex: 1, fontSize: 15, fontWeight: '600' },
   viewfinder: {
@@ -397,6 +399,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 20,
     overflow: 'hidden',
+    borderWidth: 1,
+    shadowColor: '#092516',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.16,
+    shadowRadius: 18,
+    elevation: 5,
   },
   previewImage: { width: '100%', height: '100%' },
   offlineBadge: {
@@ -409,7 +417,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   offlineBadgeText: { fontSize: 13, fontWeight: '700' },
-  viewfinderHintWrap: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
+  viewfinderHintWrap: { paddingHorizontal: 12, paddingVertical: 8 },
   viewfinderHint: { fontSize: 15, fontWeight: '600' },
   analyzingOverlay: {
     position: 'absolute',
@@ -448,24 +456,16 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
   },
-  outlineBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 15 },
-
-  filledBtn: {
-    flex: 1,
-    borderRadius: 10,
-    paddingVertical: 14,
-    alignItems: 'center'
-  },
-  filledBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 15 },
-
+  outlineBtnText: { fontWeight: '700', fontSize: 15 },
+  filledBtn: { flex: 1, borderRadius: 10, paddingVertical: 14, alignItems: 'center' },
+  filledBtnText: { fontWeight: '700', fontSize: 15 },
   scanBtn: {
     borderRadius: 10,
     paddingVertical: 16,
     alignItems: 'center',
-    marginBottom: 12
+    marginBottom: 12,
   },
-  scanBtnText: { color: '#09150B', fontWeight: '800', fontSize: 17 },
-
+  scanBtnText: { fontWeight: '800', fontSize: 17 },
   analyzeBtn: {
     borderWidth: 1,
     borderRadius: 10,
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  analyzeBtnText: { color: '#A2E0A2', fontWeight: '800', fontSize: 16 },
+  analyzeBtnText: { fontWeight: '800', fontSize: 16 },
 
   cameraControls: {
     position: 'absolute',

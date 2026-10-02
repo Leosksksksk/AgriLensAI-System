@@ -1,7 +1,8 @@
 // App.js
 import React, { useEffect, useRef, useState } from 'react';
+import { ImageBackground, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { NavigationContainer } from '@react-navigation/native';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as Updates from 'expo-updates';
@@ -36,6 +37,7 @@ function MainTabs() {
   return (
     <Tab.Navigator
       tabBar={(props) => <BottomTabBar {...props} />}
+      sceneContainerStyle={{ backgroundColor: 'transparent' }}
       screenOptions={{ headerShown: false }}
     >
       <Tab.Screen name="Home" component={ScanScreen} />
@@ -174,18 +176,46 @@ function NetworkSyncTrigger() {
 }
 
 function ThemedApp() {
-  const { isLoading } = useTheme();
+  const { isLoading, isDark, colors } = useTheme();
   const { t } = useLanguage();
 
   if (isLoading) {
     return null;
   }
 
+  const navigationTheme = {
+    ...DefaultTheme,
+    dark: isDark,
+    colors: {
+      ...DefaultTheme.colors,
+      primary: colors.primary,
+      background: 'transparent',
+      card: 'transparent',
+      text: colors.textDark,
+      border: colors.border,
+      notification: colors.warning,
+    },
+  };
+
   return (
     <AppAlertProvider>
-      <NavigationContainer>
-        <StatusBar style="light" backgroundColor="#094A0D" />
-        <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
+      <ImageBackground
+        source={require('./assets/leaf-glass-background.jpg')}
+        style={{ flex: 1 }}
+        imageStyle={{ opacity: isDark ? 0.92 : 0.38 }}
+        blurRadius={isDark ? 2 : 12}
+        resizeMode="cover"
+      >
+        <View
+          pointerEvents="none"
+          style={[
+            StyleSheet.absoluteFillObject,
+            { backgroundColor: isDark ? 'rgba(5, 31, 32, 0.3)' : 'rgba(218, 241, 222, 0.42)' },
+          ]}
+        />
+        <NavigationContainer theme={navigationTheme}>
+        <StatusBar style="light" backgroundColor={colors.primaryDark} />
+        <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }}>
           <Stack.Screen name="Intro" component={IntroScreen} />
           <Stack.Screen name="LanguageSelect" component={LanguageSelectScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
@@ -195,7 +225,8 @@ function ThemedApp() {
           <Stack.Screen name="Results" component={ResultsScreen} />
           <Stack.Screen name="TreatmentPlan" component={TreatmentPlanScreen} />
         </Stack.Navigator>
-      </NavigationContainer>
+        </NavigationContainer>
+      </ImageBackground>
     </AppAlertProvider>
   );
 }

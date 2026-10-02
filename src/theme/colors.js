@@ -1,18 +1,18 @@
 // src/theme/colors.js
 export const lightColors = {
-  primaryDark: '#094a0df3',
-  primary: '#2E7D32',
-  primaryLight: '#43A047',
-  stepIconGreen: '#6FCF74',
-  leafGreen: '#0b950b',
-  mint: '#E8F5E9',
+  primaryDark: '#051F20',
+  primary: '#235347',
+  primaryLight: '#8EB69B',
+  stepIconGreen: '#8EB69B',
+  leafGreen: '#235347',
+  mint: '#8EB69B',
 
-  background: '#EBF5EB',
-  card: '#FFFFFF',
+  background: 'rgba(218, 241, 222, 0.56)',
+  card: 'rgba(244, 251, 245, 0.92)',
 
-  textDark: '#2E3A2E',
-  textMuted: '#5A6B5A',
-  textLight: '#4A5A4A',
+  textDark: '#163832',
+  textMuted: '#235347',
+  textLight: '#163832',
 
   warning: '#F5A623',
   warningBg: '#FFF7E6',
@@ -20,28 +20,28 @@ export const lightColors = {
   dangerBg: '#FDECEA',
   info: '#1565C0',
   infoBg: '#E8F0FE',
-  ok: '#2E7D32',
-  okBg: '#E8F5E9',
+  ok: '#235347',
+  okBg: '#DAF1DE',
 
-  border: '#D4E4D4',
+  border: '#8EB69B',
   white: '#FFFFFF',
   black: '#000000',
 };
 
 export const darkColors = {
-  primaryDark: '#094a0df3',
-  primary: '#4CAF50',
-  primaryLight: '#66BB6A',
-  stepIconGreen: '#6FCF74',
-  leafGreen: '#4CAF50',
-  mint: '#1B3A1B',
+  primaryDark: '#051F20',
+  primary: '#8EB69B',
+  primaryLight: '#DAF1DE',
+  stepIconGreen: '#8EB69B',
+  leafGreen: '#8EB69B',
+  mint: '#163832',
 
-  background: '#042804',
-  card: '#0D3D0D',
+  background: 'rgba(5, 31, 32, 0.64)',
+  card: 'rgba(11, 43, 38, 0.78)',
 
-  textDark: '#E8F0E8',
-  textMuted: '#A8C0A8',
-  textLight: '#C8D8C8',
+  textDark: '#DAF1DE',
+  textMuted: '#8EB69B',
+  textLight: '#DAF1DE',
 
   warning: '#FFB74D',
   warningBg: '#3A2E1A',
@@ -49,10 +49,10 @@ export const darkColors = {
   dangerBg: '#3A1A1A',
   info: '#64B5F6',
   infoBg: '#1A2A3A',
-  ok: '#81C784',
-  okBg: '#1B3A1B',
+  ok: '#8EB69B',
+  okBg: '#163832',
 
-  border: '#2E4A2E',
+  border: '#235347',
   white: '#FFFFFF',
   black: '#000000',
 };

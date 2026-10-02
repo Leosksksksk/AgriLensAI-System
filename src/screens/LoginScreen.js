@@ -203,7 +203,7 @@ export default function LoginScreen({ navigation }) {
   }, [savedCredentials]);
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.primaryDark }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         <View style={[styles.headerContainer, { backgroundColor: colors.primaryDark }]}>
           <View style={styles.iconCircle}>

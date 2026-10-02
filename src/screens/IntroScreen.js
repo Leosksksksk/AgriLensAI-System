@@ -81,7 +81,7 @@ export default function IntroScreen({ navigation }) {
   });
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.primaryDark }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         <View style={styles.phoneBody}>
           <View style={styles.phoneNotch} />

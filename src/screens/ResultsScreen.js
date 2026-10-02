@@ -11,6 +11,7 @@ import { getDiseaseProfile } from '../utils/diseaseCatalog';
 
 const baseStyles = StyleSheet.create({
   container: { flex: 1 },
+  foregroundLayer: { flex: 1, zIndex: 1, elevation: 1 },
   header: {
     paddingTop: 16,
     paddingBottom: 16,
@@ -21,17 +22,45 @@ const baseStyles = StyleSheet.create({
   },
   headerTitle: { fontSize: 20, fontWeight: '800' },
   body: { padding: 20, paddingBottom: 50 },
-  card: { borderRadius: 14, padding: 20, marginBottom: 16 },
+  card: {
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    shadowColor: '#082718',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.13,
+    shadowRadius: 16,
+    elevation: 4,
+  },
+  diagnosisCard: { alignItems: 'center' },
   diseaseLabel: { textAlign: 'center', fontWeight: '800', fontSize: 17, marginTop: 6 },
   diseaseDesc: { textAlign: 'center', fontSize: 14, marginTop: 6, lineHeight: 19 },
-  confidenceRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  confidenceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    shadowOpacity: 0,
+    elevation: 0,
+  },
   confidenceLabel: { fontSize: 14, fontWeight: '600' },
   confidenceValue: { fontSize: 14, fontWeight: '800' },
   confidenceTrack: { height: 8, borderRadius: 4, overflow: 'hidden' },
   confidenceFill: { height: 8 },
   sectionTitle: { fontWeight: '800', fontSize: 18, marginBottom: 14 },
 
-  onlineHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+  onlineHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    shadowOpacity: 0,
+    elevation: 0,
+  },
   offlinePill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -41,6 +70,10 @@ const baseStyles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 10,
     alignSelf: 'flex-start',
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    shadowOpacity: 0,
+    elevation: 0,
   },
   offlinePillText: { fontSize: 13, fontWeight: '600' },
   unverifiedPill: {
@@ -50,6 +83,10 @@ const baseStyles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    shadowOpacity: 0,
+    elevation: 0,
   },
   unverifiedPillText: { flex: 1, fontSize: 14, fontWeight: '600' },
   onlineSummary: { fontSize: 15, lineHeight: 21 },
@@ -93,9 +130,12 @@ const baseStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    borderRadius: 8,
     padding: 10,
     marginTop: 10,
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    shadowOpacity: 0,
+    elevation: 0,
   },
   webSearchErrorText: { flex: 1, fontSize: 13 },
 });
@@ -109,13 +149,26 @@ const PROGRESSION_STAGES = [
 
 export default function ResultsScreen({ route, navigation }) {
   const { t, language } = useLanguage();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const glass = isDark
+    ? {
+        header: 'rgba(5, 31, 32, 0.78)',
+        surface: 'rgba(235, 250, 239, 0.2)',
+        border: 'rgba(235, 250, 239, 0.3)',
+        subtle: 'rgba(208, 241, 215, 0.1)',
+      }
+    : {
+        header: 'rgba(5, 31, 32, 0.78)',
+        surface: 'rgba(244, 251, 245, 0.82)',
+        border: 'rgba(255, 255, 255, 0.58)',
+        subtle: 'rgba(35, 83, 71, 0.1)',
+      };
 
   const styles = {
     ...baseStyles,
-    webImageWrapper: { ...baseStyles.webImageWrapper, backgroundColor: colors.border },
+    webImageWrapper: { ...baseStyles.webImageWrapper, backgroundColor: colors.border, borderWidth: 1, borderColor: glass.border },
     webImageSource: { ...baseStyles.webImageSource, color: colors.white },
-    webSearchError: { ...baseStyles.webSearchError, backgroundColor: colors.warningBg },
+    webSearchError: { ...baseStyles.webSearchError },
     webSearchErrorText: { ...baseStyles.webSearchErrorText, color: colors.textDark },
   };
 
@@ -243,25 +296,24 @@ export default function ResultsScreen({ route, navigation }) {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
-        <TouchableOpacity
-          onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs')}
-        >
-          <Ionicons name="chevron-back" size={26} color={colors.white} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.white }]}>{t('scanResults')}</Text>
-        <View style={{ width: 48 }} />
-      </View>
+      <View style={styles.foregroundLayer}>
+        <View style={[styles.header, { backgroundColor: glass.header, borderBottomColor: glass.border, borderBottomWidth: 1 }]}>
+          <TouchableOpacity
+            onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs')}
+          >
+            <Ionicons name="chevron-back" size={26} color={colors.white} />
+          </TouchableOpacity>
+          <Text style={[styles.headerTitle, { color: colors.white }]}>{t('scanResults')}</Text>
+          <View style={{ width: 48 }} />
+        </View>
 
-      <ScrollView contentContainerStyle={styles.body}>
-        <View style={[styles.card, { backgroundColor: colors.card }]}>
-          <View style={{ alignItems: 'center', marginBottom: 8 }}>
-            <SeverityRing
-              percent={diagnosis.damagePercent}
-              color={isHealthyResult ? colors.ok : colors.warning}
-              label={severityLabel}
-            />
-          </View>
+        <ScrollView contentContainerStyle={styles.body}>
+        <View style={[styles.card, styles.diagnosisCard, { backgroundColor: glass.surface, borderColor: glass.border }]}>
+          <SeverityRing
+            percent={diagnosis.damagePercent}
+            color={isHealthyResult ? colors.ok : colors.warning}
+            label={severityLabel}
+          />
           {diagnosis.diseaseId !== 'healthy' && (
             <View style={styles.severityBadgeContainer}>
               <View style={[styles.severityBadge, { backgroundColor: getSeverityColor(diagnosis.severity) }]}>
@@ -275,32 +327,32 @@ export default function ResultsScreen({ route, navigation }) {
           <Text style={[styles.diseaseDesc, { color: colors.textMuted }]}>{diseaseDesc}</Text>
         </View>
 
-        <View style={[styles.card, { backgroundColor: colors.card }]}>
+        <View style={[styles.card, { backgroundColor: glass.surface, borderColor: glass.border }]}>
           <View style={styles.confidenceRow}>
             <Text style={[styles.confidenceLabel, { color: colors.textMuted }]}>Confidence</Text>
             <Text style={[styles.confidenceValue, { color: colors.textDark }]}>{Math.round(diagnosis.confidence * 100)}%</Text>
           </View>
-          <View style={[styles.confidenceTrack, { backgroundColor: colors.border }]}>
+          <View style={[styles.confidenceTrack, { backgroundColor: glass.subtle }]}>
             <View style={[styles.confidenceFill, { width: `${diagnosis.confidence * 100}%`, backgroundColor: colors.primary }]} />
           </View>
         </View>
 
         {onlineInfo && (
-          <View style={[styles.card, { backgroundColor: colors.card }]}>
+          <View style={[styles.card, { backgroundColor: glass.surface, borderColor: glass.border }]}>
             <View style={styles.onlineHeaderRow}>
               <Ionicons name="globe-outline" size={18} color={colors.textMuted} />
               <Text style={[styles.sectionTitle, { color: colors.textDark }]}>{t('referenceInfoTitle')}</Text>
             </View>
 
             {onlineInfo.isOffline && (
-              <View style={[styles.offlinePill, { backgroundColor: colors.border }]}>
+              <View style={styles.offlinePill}>
                 <Ionicons name="cloud-offline-outline" size={15} color={colors.textMuted} />
                 <Text style={[styles.offlinePillText, { color: colors.textMuted }]}>{t('referenceInfoOffline')}</Text>
               </View>
             )}
 
             {onlineInfo.verified === false && (
-              <View style={[styles.unverifiedPill, { backgroundColor: colors.warningBg }]}>
+              <View style={styles.unverifiedPill}>
                 <Ionicons name="alert-circle-outline" size={16} color={colors.warning} />
                 <Text style={[styles.unverifiedPillText, { color: colors.textDark }]}>{t('referenceInfoUnverified')}</Text>
               </View>
@@ -347,7 +399,7 @@ export default function ResultsScreen({ route, navigation }) {
         )}
 
         {diagnosis.diseaseId !== 'healthy' && (
-          <View style={[styles.card, { backgroundColor: colors.card }]}>
+          <View style={[styles.card, { backgroundColor: glass.surface, borderColor: glass.border }]}>
             <Text style={[styles.sectionTitle, { color: colors.textDark }]}>{t('diseaseProgression')}</Text>
             {PROGRESSION_STAGES.slice().reverse().map((stage, i) => {
               const isActive = activeStage?.labelKey === stage.labelKey;
@@ -368,10 +420,10 @@ export default function ResultsScreen({ route, navigation }) {
           activeOpacity={0.40}
           onPress={handleToggleAudio}
         >
-          <Ionicons name={playing ? 'square' : 'play'} size={22} color={colors.white} />
-          <Text style={[styles.audioText, { color: colors.white }]}>{t('listenDiagnosis')}</Text>
-          <View style={styles.audioTrack}>
-            <View style={[styles.audioProgress, { width: playing ? '100%' : '0%' }, { backgroundColor: colors.white }]} />
+          <Ionicons name={playing ? 'square' : 'play'} size={22} color={isDark ? '#051F20' : colors.white} />
+          <Text style={[styles.audioText, { color: isDark ? '#051F20' : colors.white }]}>{t('listenDiagnosis')}</Text>
+          <View style={[styles.audioTrack, { backgroundColor: isDark ? 'rgba(5, 31, 32, 0.28)' : 'rgba(255,255,255,0.4)' }]}>
+            <View style={[styles.audioProgress, { width: playing ? '100%' : '0%' }, { backgroundColor: isDark ? '#051F20' : colors.white }]} />
           </View>
         </TouchableOpacity>
 
@@ -386,9 +438,10 @@ export default function ResultsScreen({ route, navigation }) {
             });
           }}
         >
-          <Text style={[styles.treatmentBtnText, { color: colors.white }]}>{t('viewTreatmentPlan')}</Text>
+          <Text style={[styles.treatmentBtnText, { color: isDark ? '#051F20' : colors.white }]}>{t('viewTreatmentPlan')}</Text>
         </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
