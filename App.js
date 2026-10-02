@@ -203,7 +203,7 @@ function ThemedApp() {
         source={require('./assets/leaf-glass-background.jpg')}
         style={{ flex: 1 }}
         imageStyle={{ opacity: isDark ? 0.92 : 0.38 }}
-        blurRadius={isDark ? 2 : 12}
+        blurRadius={isDark ? 2 : 3}
         resizeMode="cover"
       >
         <View
