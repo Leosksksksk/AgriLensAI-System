@@ -27,9 +27,7 @@
         {
           "locationAlwaysAndWhenInUsePermission": "AgriLens AI needs location access to map crop disease risk hotspots near your farm."
         }
-      ],
-      "expo-status-bar",
-      "expo-font"
+      ]
     ],
     "extra": {
       "eas": {

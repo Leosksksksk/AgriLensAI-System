@@ -12,6 +12,7 @@ import { supabase } from '../../supabaseClient';
 import { rollbackUpdate, isRollbackAvailable } from '../utils/updateManager';
 import DevUpdateMenu from '../components/DevUpdateMenu';
 import { useAppAlert } from '../context/AppAlertContext';
+import { glassPopupTheme } from '../theme/colors';
 
 export default function SettingsScreen({ navigation }) {
   const { language, setLanguage, languages, languageLabels, resetLanguageSelection, t } = useLanguage();
@@ -107,8 +108,8 @@ export default function SettingsScreen({ navigation }) {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.primaryDark }]} onPress={handleHeaderPress}>
-        <Text style={[styles.headerTitle, { color: colors.white }]}>{t('settings')}</Text>
+      <View style={styles.header} onPress={handleHeaderPress}>
+        <Text style={[styles.headerTitle, { color: isDark ? colors.white : colors.textDark }]}>{t('settings')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.body}>
@@ -234,12 +235,12 @@ export default function SettingsScreen({ navigation }) {
         onRequestClose={() => setLanguagePickerVisible(false)}
       >
         <Pressable style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.4)' }]} onPress={() => setLanguagePickerVisible(false)}>
-          <Pressable style={[styles.modalSheet, { backgroundColor: colors.card }]} onPress={() => {}}>
-            <Text style={[styles.modalTitle, { color: colors.textDark }]}>{t('selectLanguage')}</Text>
+          <Pressable style={styles.modalSheet} onPress={() => {}}>
+            <Text style={[styles.modalTitle, { color: glassPopupTheme.text }]}>{t('selectLanguage')}</Text>
             {validLanguages.map((lang) => (
               <TouchableOpacity
                 key={lang}
-                style={[styles.modalOption, { borderBottomColor: colors.border }]}
+                style={[styles.modalOption, { borderBottomColor: glassPopupTheme.border }]}
                 onPress={() => selectLanguage(lang)}
                 activeOpacity={0.7}
               >
@@ -247,13 +248,13 @@ export default function SettingsScreen({ navigation }) {
                   style={[
                     styles.modalOptionText,
                     lang === language && styles.modalOptionTextActive,
-                    { color: lang === language ? colors.primary : colors.textDark }
+                    { color: lang === language ? glassPopupTheme.accent : glassPopupTheme.text }
                   ]}
                 >
                   {languageLabels[lang]}
                 </Text>
                 {lang === language && (
-                  <Ionicons name="checkmark" size={22} color={colors.primary} />
+                  <Ionicons name="checkmark" size={22} color={glassPopupTheme.accent} />
                 )}
               </TouchableOpacity>
             ))}
@@ -267,7 +268,7 @@ export default function SettingsScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  header: { backgroundColor: 'transparent', paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 0, elevation: 0, shadowOpacity: 0 },
   headerTitle: { fontSize: 24, fontWeight: '800' },
   body: { padding: 20, paddingBottom: 40 },
   sectionLabel: { fontSize: 13, fontWeight: '800', marginBottom: 8, marginTop: 12, letterSpacing: 0.5 },
@@ -292,11 +293,17 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalSheet: {
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-    paddingHorizontal: 20,
-    paddingTop: 16,
+    backgroundColor: glassPopupTheme.surface,
+    borderWidth: 1,
+    borderColor: glassPopupTheme.border,
+    borderRadius: 16,
+    padding: 20,
     paddingBottom: 32,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: -6 },
+    shadowOpacity: 0.24,
+    shadowRadius: 16,
+    elevation: 12,
   },
   modalTitle: {
     fontSize: 17,

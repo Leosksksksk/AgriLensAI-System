@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
+import { glassPopupTheme } from '../theme/colors';
 import { buildAlertsFeed } from '../services/alertsService';
 import { fetchWeatherRisk, getCurrentLocation } from '../services/weatherService';
 
@@ -457,16 +458,16 @@ export default function AlertsScreen() {
                       <Text style={[styles.profileName, { color: colors.textDark }]}>
                         {reporter.full_name || t('farmer')}
                       </Text>
-                      <Text style={[styles.profileField, { color: colors.textMuted }]}>
+                      <Text style={[styles.profileField, { color: glassPopupTheme.muted }]}>
                         {t('barangay')}: {reporter.barangay || t('unknownBarangay')}
                       </Text>
                       {!!reporter.farm_size && (
-                        <Text style={[styles.profileField, { color: colors.textMuted }]}>
+                        <Text style={[styles.profileField, { color: glassPopupTheme.muted }]}>
                           {t('farmSize')}: {reporter.farm_size}
                         </Text>
                       )}
                       {!!crops && (
-                        <Text style={[styles.profileField, { color: colors.textMuted }]}>
+                        <Text style={[styles.profileField, { color: glassPopupTheme.muted }]}>
                           {t('cropTypes')}: {crops}
                         </Text>
                       )}
@@ -475,7 +476,7 @@ export default function AlertsScreen() {
                 );
               })}
               {(!selectedWarningAlert?.reporters || selectedWarningAlert.reporters.length === 0) && (
-                <Text style={[styles.noReporterInfo, { color: colors.textMuted }]}>{t('reporterInfoUnavailable')}</Text>
+                <Text style={[styles.noReporterInfo, { color: glassPopupTheme.muted }]}>{t('reporterInfoUnavailable')}</Text>
               )}
             </ScrollView>
           </Pressable>
@@ -487,8 +488,8 @@ export default function AlertsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  headerRow: { paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  headerTitle: { fontSize: 28, fontWeight: '800', letterSpacing: 0.3 },
+  headerRow: { backgroundColor: 'transparent', paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 0, elevation: 0, shadowOpacity: 0 },
+  headerTitle: { fontSize: 24, fontWeight: '800' },
   refreshBtn: { width: 38, height: 38, borderRadius: 12, backgroundColor: 'rgba(255, 255, 255, 0.08)', justifyContent: 'center', alignItems: 'center' },
   centerFill: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   body: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40 },
@@ -521,7 +522,7 @@ const styles = StyleSheet.create({
   reminderDates: { borderTopWidth: 1, marginTop: 12, paddingTop: 10, gap: 5 },
   reminderDateText: { fontSize: 13, lineHeight: 18 },
   profileModalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, backgroundColor: 'rgba(0,0,0,0.55)' },
-  profileModal: { width: '100%', maxWidth: 440, maxHeight: '78%', borderRadius: 16, padding: 18 },
+  profileModal: { width: '100%', maxWidth: 440, maxHeight: '78%', backgroundColor: glassPopupTheme.surface, borderWidth: 1, borderColor: glassPopupTheme.border, borderRadius: 16, padding: 20, shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.24, shadowRadius: 16, elevation: 12 },
   profileModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   profileModalTitle: { flex: 1, fontSize: 19, fontWeight: '800' },
   profileList: { gap: 12 },

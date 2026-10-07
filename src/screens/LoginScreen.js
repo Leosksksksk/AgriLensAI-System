@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useTheme } from '../context/ThemeContext';
-import { supabase } from '../../supabaseClient';
+import { isSupabaseAvailable, supabase } from '../../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
 import { useAppAlert } from '../context/AppAlertContext';
 
@@ -95,6 +95,12 @@ export default function LoginScreen({ navigation }) {
     try {
       setLoading(true);
 
+      const isOnline = await isSupabaseAvailable();
+      if (!isOnline) {
+        Alert.alert('Connection issue', 'Please check your internet connection and try again.');
+        return;
+      }
+
       const cleanName = fullName.trim();
       const cleanBarangay = barangay.trim();
       const cleanEmail = email.trim();
@@ -136,16 +142,21 @@ export default function LoginScreen({ navigation }) {
       });
 
     } catch (error) {
-      console.warn(error);
+      const message = error?.message || 'Unable to reach the server right now.';
+
+      if (message.includes('fetch failed') || message.includes('Failed to connect') || message.includes('network')) {
+        Alert.alert('Connection issue', 'Unable to reach the server. Please check your internet connection and try again.');
+        return;
+      }
 
       // Clean alert for Supabase email rate limits
-      if (error.message && error.message.includes('security purposes')) {
+      if (message.includes('security purposes')) {
         Alert.alert(
           t('pleaseWaitTitle'),
           t('pleaseWaitDesc')
         );
       } else {
-        Alert.alert(t('loginFailedTitle'), error.message);
+        Alert.alert(t('loginFailedTitle'), message);
       }
     } finally {
       setLoading(false);

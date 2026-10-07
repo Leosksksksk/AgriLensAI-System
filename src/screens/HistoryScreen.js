@@ -9,6 +9,7 @@ import { supabase } from '../../supabaseClient';
 import { useAppAlert } from '../context/AppAlertContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { deletePendingScan, getPendingScans } from '../services/syncService';
+import { glassPopupTheme } from '../theme/colors';
 
 function getConditionKey(scan) {
   const diseaseId = String(scan.disease_id || '').toLowerCase();
@@ -59,7 +60,7 @@ const getFileNameFromUrl = (url) => {
 
 export default function HistoryScreen() {
   const { t } = useLanguage();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const Alert = useAppAlert();
   const [query, setQuery] = useState('');
   const [scans, setScans] = useState([]);
@@ -347,11 +348,11 @@ function renderItem({ item, index }) {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {isSelectMode ? (
-        <View style={[styles.header, { backgroundColor: colors.textDark }]}>
+        <View style={styles.header}>
           <TouchableOpacity onPress={() => { setIsSelectMode(false); setSelectedIds([]); }}>
             <Ionicons name="close" size={26} color={colors.white} />
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.white }]}>{selectedIds.length} Selected</Text>
+          <Text style={[styles.headerTitle, { color: isDark ? colors.white : colors.textDark }]}>{selectedIds.length} Selected</Text>
           <TouchableOpacity onPress={toggleSelectAll}>
             <Ionicons 
               name={selectedIds.length === filtered.length ? "checkbox" : "square-outline"} 
@@ -367,8 +368,8 @@ function renderItem({ item, index }) {
           </TouchableOpacity>
         </View>
       ) : (
-        <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
-          <Text style={[styles.headerTitle, { color: colors.white }]}>{t('scanHistory')}</Text>
+        <View style={styles.header}>
+          <Text style={[styles.headerTitle, { color: isDark ? colors.white : colors.textDark }]}>{t('scanHistory')}</Text>
           <TouchableOpacity onPress={() => setSortModalVisible(true)}>
             <Ionicons name="filter-outline" size={22} color={colors.white} />
           </TouchableOpacity>
@@ -383,8 +384,8 @@ function renderItem({ item, index }) {
         onRequestClose={() => setSortModalVisible(false)}
       >
         <Pressable style={styles.sortModalOverlay} onPress={() => setSortModalVisible(false)}>
-          <Pressable style={[styles.sortModalSheet, { backgroundColor: colors.card }]} onPress={() => {}}>
-            <Text style={[styles.sortModalTitle, { color: colors.textDark }]}>{t('sortBy') || 'Sort By'}</Text>
+          <Pressable style={styles.sortModalSheet} onPress={() => {}}>
+            <Text style={[styles.sortModalTitle, { color: glassPopupTheme.text }]}>{t('sortBy') || 'Sort By'}</Text>
             {[
               { key: 'newest', label: t('sortNewest') || 'Newest First' },
               { key: 'oldest', label: t('sortOldest') || 'Oldest First' },
@@ -393,15 +394,15 @@ function renderItem({ item, index }) {
             ].map((option) => (
               <TouchableOpacity
                 key={option.key}
-                style={[styles.sortModalOption, { borderBottomColor: colors.border }, sortBy === option.key && styles.sortModalOptionActive]}
+                style={[styles.sortModalOption, { borderBottomColor: glassPopupTheme.border }, sortBy === option.key && styles.sortModalOptionActive]}
                 onPress={() => { setSortBy(option.key); setSortModalVisible(false); }}
                 activeOpacity={0.7}
               >
-                <Text style={[styles.sortModalOptionText, sortBy === option.key && styles.sortModalOptionTextActive, { color: sortBy === option.key ? colors.primary : colors.textDark }]}>
+                <Text style={[styles.sortModalOptionText, sortBy === option.key && styles.sortModalOptionTextActive, { color: sortBy === option.key ? glassPopupTheme.accent : glassPopupTheme.text }]}>
                   {option.label}
                 </Text>
                 {sortBy === option.key && (
-                  <Ionicons name="checkmark" size={22} color={colors.primary} />
+                  <Ionicons name="checkmark" size={22} color={glassPopupTheme.accent} />
                 )}
               </TouchableOpacity>
             ))}
@@ -488,7 +489,7 @@ function renderItem({ item, index }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  header: { backgroundColor: 'transparent', paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 0, elevation: 0, shadowOpacity: 0 },
   headerTitle: { fontSize: 24, fontWeight: '800' },
   selectAllText: { fontSize: 12, marginTop: 2 },
   searchWrap: {
@@ -574,11 +575,17 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   sortModalSheet: {
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-    paddingHorizontal: 20,
-    paddingTop: 16,
+    backgroundColor: glassPopupTheme.surface,
+    borderWidth: 1,
+    borderColor: glassPopupTheme.border,
+    borderRadius: 16,
+    padding: 20,
     paddingBottom: 32,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: -6 },
+    shadowOpacity: 0.24,
+    shadowRadius: 16,
+    elevation: 12,
   },
   sortModalTitle: {
     fontSize: 17,

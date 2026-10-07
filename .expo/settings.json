@@ -1,3 +1,6 @@
 {
-  "urlRandomness": "xmeOVRI"
+  "urlRandomness": "xmeOVRI",
+  "dev": true,
+  "minify": false,
+  "https": false
 }

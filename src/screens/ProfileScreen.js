@@ -274,11 +274,11 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-        <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
+        <View style={styles.header}>
           {editing ? (
             <View style={styles.headerEditActions}>
               <TouchableOpacity onPress={handleCancelPress} activeOpacity={0.7}>
-                <Text style={[styles.headerActionText, { color: colors.white }]}>{t('cancelText')}</Text>
+                <Text style={[styles.headerActionText, { color: colors.textDark }]}>{t('cancelText')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.saveBtnSmall, { backgroundColor: colors.primary }]}
@@ -295,7 +295,7 @@ export default function ProfileScreen() {
             </View>
           ) : (
             <TouchableOpacity style={styles.editBtn} onPress={handleEditPress} activeOpacity={0.7}>
-              <Ionicons name="create-outline" size={26} color={colors.white} />
+              <Ionicons name="create-outline" size={26} color={colors.textDark} />
             </TouchableOpacity>
           )}
           <TouchableOpacity
@@ -316,8 +316,8 @@ export default function ProfileScreen() {
               <Ionicons name="camera-outline" size={13} color={colors.white} />
             </View>
           </TouchableOpacity>
-          <Text style={[styles.name, { color: colors.white }]}>{fullName || t('fullName')}</Text>
-          <Text style={[styles.subLabel, { color: '#DCEEDC' }]}>{t('farmLabel')} · {barangay || '—'}</Text>
+          <Text style={[styles.name, { color: colors.textDark }]}>{fullName || t('fullName')}</Text>
+          <Text style={[styles.subLabel, { color: colors.textMuted }]}>{t('farmLabel')} · {barangay || '—'}</Text>
         </View>
 
         <View style={[styles.card, { backgroundColor: colors.card }]}>
@@ -401,7 +401,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   centerFill: { alignItems: 'center', justifyContent: 'center' },
-  header: { paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, alignItems: 'center', position: 'relative' },
+  header: { backgroundColor: 'transparent', paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, alignItems: 'center', position: 'relative', borderBottomWidth: 0, elevation: 0, shadowOpacity: 0 },
   headerEditActions: {
     position: 'absolute',
     top: 16,

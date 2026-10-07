@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { syncOfflineScans } from '../services/syncService';
+import { glassPopupTheme } from '../theme/colors';
 
 const QUEUE_KEY = '@offline_scan_queue';
 
@@ -25,7 +26,7 @@ function timeAgo(dateString, t) {
 
 export default function SyncScreen() {
   const { t } = useLanguage();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
 
   const [syncing, setSyncing] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -106,8 +107,8 @@ export default function SyncScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
-        <Text style={[styles.headerTitle, { color: colors.white }]}>{t('sync')}</Text>
+      <View style={styles.header}>
+        <Text style={[styles.headerTitle, { color: isDark ? colors.white : colors.textDark }]}>{t('sync')}</Text>
         <TouchableOpacity style={styles.syncIcon} onPress={handleSync} disabled={syncing}>
           <Animated.View style={{ transform: [{ rotate }] }}>
             <Ionicons name="refresh" size={22} color={colors.white} />
@@ -122,15 +123,15 @@ export default function SyncScreen() {
         }
       >
         {!isOnline && (
-          <View style={[styles.offlineBanner, { backgroundColor: colors.dangerBg }]}>
+          <View style={[styles.offlineBanner, { borderColor: colors.danger }]}>
             <Ionicons name="cloud-offline-outline" size={18} color={colors.danger} />
-            <Text style={[styles.offlineBannerText, { color: colors.danger }]}>{t('noInternet')}</Text>
+            <Text style={[styles.offlineBannerText, { color: glassPopupTheme.text }]}>{t('noInternet')}</Text>
           </View>
         )}
 
         {errorMsg && (
-          <View style={[styles.errorBanner, { backgroundColor: colors.dangerBg }]}>
-            <Text style={[styles.errorBannerText, { color: colors.danger }]}>{errorMsg}</Text>
+          <View style={[styles.errorBanner, { borderColor: colors.danger }]}>
+            <Text style={[styles.errorBannerText, { color: glassPopupTheme.text }]}>{errorMsg}</Text>
           </View>
         )}
 
@@ -181,7 +182,7 @@ export default function SyncScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  header: { backgroundColor: 'transparent', paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 0, elevation: 0, shadowOpacity: 0 },
   headerTitle: { fontSize: 24, fontWeight: '800' },
   syncIcon: {
     width: 34,
@@ -193,17 +194,23 @@ const styles = StyleSheet.create({
   },
   body: { padding: 20, paddingBottom: 40 },
   offlineBanner: {
+    backgroundColor: glassPopupTheme.surface,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    borderRadius: 10,
-    padding: 12,
+    borderWidth: 1,
+    borderColor: glassPopupTheme.border,
+    borderRadius: 16,
+    padding: 20,
     marginBottom: 14,
   },
   offlineBannerText: { fontSize: 14, fontWeight: '700' },
   errorBanner: {
-    borderRadius: 10,
-    padding: 12,
+    backgroundColor: glassPopupTheme.surface,
+    borderWidth: 1,
+    borderColor: glassPopupTheme.border,
+    borderRadius: 16,
+    padding: 20,
     marginBottom: 14,
   },
   errorBannerText: { fontSize: 14 },

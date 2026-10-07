@@ -18,6 +18,7 @@ import { enhanceDiagnosisWithWebSearch } from '../services/onlineImageSearchServ
 import { getDueReminders, dismissReminder } from '../utils/reminderStorage';
 import { getValidUserSession } from '../utils/auth';
 import { useAppAlert } from '../context/AppAlertContext';
+import { glassPopupTheme } from '../theme/colors';
 
 export default function ScanScreen({ navigation }) {
   const { language, languageLabels, t } = useLanguage();
@@ -286,8 +287,8 @@ export default function ScanScreen({ navigation }) {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.primaryDark, borderBottomColor: colors.border }]}>
-          <Text style={[styles.headerTitle, { color: colors.white }]}>{t('appName')}</Text>
+      <View style={styles.header}>
+          <Text style={[styles.headerTitle, { color: isDark ? colors.white : colors.textDark }]}>{t('appName')}</Text>
           <TouchableOpacity style={[styles.langPill, { backgroundColor: colors.white }]}>
             <Text style={[styles.langPillText, { color: colors.primaryDark }]}>{languageLabels[language]}</Text>
           </TouchableOpacity>
@@ -295,21 +296,21 @@ export default function ScanScreen({ navigation }) {
 
       <ScrollView contentContainerStyle={styles.body}>
         {dueReminders.map((reminder) => (
-          <View key={reminder.id} style={[styles.reminderBanner, { backgroundColor: colors.warningBg }]}>
+          <View key={reminder.id} style={styles.reminderBanner}>
             <Ionicons name="notifications" size={20} color={colors.warning} />
-            <Text style={[styles.reminderBannerText, { color: colors.textDark }]}>
+            <Text style={[styles.reminderBannerText, { color: glassPopupTheme.text }]}>
               {reminder.diseaseName}
             </Text>
             <TouchableOpacity onPress={() => handleDismissReminder(reminder.id)}>
-              <Ionicons name="close" size={20} color={colors.textMuted} />
+              <Ionicons name="close" size={20} color={glassPopupTheme.muted} />
             </TouchableOpacity>
           </View>
         ))}
 
         <View style={[styles.viewfinder, { backgroundColor: colors.mint, borderColor: colors.border }]}>
           {!isOnline && (
-            <View style={[styles.offlineBadge, { backgroundColor: colors.warning }]}>
-              <Text style={[styles.offlineBadgeText, { color: colors.white }]}>{t('noInternet')}</Text>
+            <View style={styles.offlineBadge}>
+              <Text style={[styles.offlineBadgeText, { color: glassPopupTheme.text }]}>{t('noInternet')}</Text>
             </View>
           )}
           {imageUri ? (
@@ -329,15 +330,15 @@ export default function ScanScreen({ navigation }) {
             </>
           )}
           {analyzing && (
-            <View style={[styles.analyzingOverlay, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
+            <View style={styles.analyzingOverlay}>
               <ActivityIndicator color={colors.white} />
               <Text style={[styles.analyzingText, { color: colors.white }]}>{t('analyzingImage')}</Text>
             </View>
           )}
           {!analyzing && notPlantWarning && (
-            <View style={[styles.notPlantOverlay, { backgroundColor: colors.danger }]}>
-              <Ionicons name="alert-circle" size={18} color={colors.white} />
-              <Text style={[styles.notPlantText, { color: colors.white }]}>{t('notAPlantBanner')}</Text>
+            <View style={styles.notPlantOverlay}>
+              <Ionicons name="alert-circle" size={18} color={colors.danger} />
+              <Text style={[styles.notPlantText, { color: glassPopupTheme.text }]}>{t('notAPlantBanner')}</Text>
             </View>
           )}
         </View>
@@ -370,26 +371,31 @@ export default function ScanScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
+    backgroundColor: 'transparent',
     paddingTop: 16,
     paddingBottom: 16,
     paddingHorizontal: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
+    elevation: 0,
+    shadowOpacity: 0,
   },
   headerTitle: { fontSize: 24, fontWeight: '800' },
   langPill: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20, borderWidth: 1 },
   langPillText: { fontWeight: '700', fontSize: 14 },
   body: { padding: 20, paddingBottom: 40 },
   reminderBanner: {
+    backgroundColor: glassPopupTheme.surface,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 14,
     borderWidth: 1,
+    borderColor: glassPopupTheme.border,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 14,
   },
   reminderBannerText: { flex: 1, fontSize: 15, fontWeight: '600' },
   viewfinder: {
@@ -411,9 +417,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 14,
     left: 14,
+    backgroundColor: glassPopupTheme.surface,
+    borderWidth: 1,
+    borderColor: glassPopupTheme.border,
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 6,
+    borderRadius: 8,
     zIndex: 2,
   },
   offlineBadgeText: { fontSize: 13, fontWeight: '700' },
@@ -421,27 +430,45 @@ const styles = StyleSheet.create({
   viewfinderHint: { fontSize: 15, fontWeight: '600' },
   analyzingOverlay: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    bottom: 16,
+    left: 16,
+    right: 16,
+    backgroundColor: glassPopupTheme.surface,
+    borderColor: glassPopupTheme.border,
+    borderWidth: 1,
+    borderRadius: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
+    padding: 20,
     gap: 8,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.24,
+    shadowRadius: 16,
+    elevation: 12,
   },
   analyzingText: { fontSize: 14, fontWeight: '600' },
   notPlantOverlay: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    bottom: 16,
+    left: 16,
+    right: 16,
+    backgroundColor: glassPopupTheme.surface,
+    borderColor: glassPopupTheme.border,
+    borderWidth: 1,
+    borderRadius: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
+    padding: 20,
     gap: 8,
-  },  //camera frames
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.24,
+    shadowRadius: 16,
+    elevation: 12,
+  },
   notPlantText: { fontSize: 14, fontWeight: '700' },
   cornerTL: { position: 'absolute', top: 20, left: 20, width: 26, height: 26, borderTopWidth: 0.4, borderLeftWidth: 0.4 }, //upper left corner
   cornerTR: { position: 'absolute', top: 20, right: 20, width: 26, height: 26, borderTopWidth: 0.4, borderRightWidth: 0.4 }, //upper right corner

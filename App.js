@@ -109,6 +109,11 @@ function AuthSyncTrigger() {
 
     const checkSessionAndSync = async () => {
       try {
+        const netInfo = await NetInfo.fetch();
+        if (!netInfo?.isConnected) {
+          return;
+        }
+
         const { data: { session } } = await supabase.auth.getSession();
         if (session && !synced && isMounted) {
           console.log('User session detected, triggering offline scan sync...');
@@ -119,7 +124,10 @@ function AuthSyncTrigger() {
           setSynced(true);
         }
       } catch (error) {
-        console.warn('Auth sync trigger error:', error);
+        const message = error?.message || '';
+        if (!message.includes('fetch failed') && !message.includes('Failed to connect')) {
+          console.warn('Auth sync trigger error:', error);
+        }
       }
     };
 
@@ -153,7 +161,13 @@ function NetworkSyncTrigger() {
     const unsubscribe = NetInfo.addEventListener(async (state) => {
       if (state.isConnected && wasOffline.current) {
         console.log('Internet restored! Checking for offline scans to sync...');
-        
+
+        const netInfo = await NetInfo.fetch();
+        if (!netInfo?.isConnected) {
+          wasOffline.current = true;
+          return;
+        }
+
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           console.log('Active session found, triggering background sync...');
@@ -165,7 +179,7 @@ function NetworkSyncTrigger() {
           console.log('No active session, skipping background sync. Will sync when user logs in.');
         }
       }
-      
+
       wasOffline.current = !state.isConnected;
     });
 
@@ -203,7 +217,7 @@ function ThemedApp() {
         source={require('./assets/leaf-glass-background.jpg')}
         style={{ flex: 1 }}
         imageStyle={{ opacity: isDark ? 0.92 : 0.38 }}
-        blurRadius={isDark ? 2 : 3}
+        blurRadius={isDark ? 2 : 8}
         resizeMode="cover"
       >
         <View
@@ -214,7 +228,7 @@ function ThemedApp() {
           ]}
         />
         <NavigationContainer theme={navigationTheme}>
-        <StatusBar style="light" backgroundColor={colors.primaryDark} />
+        <StatusBar style="light" backgroundColor="transparent" translucent={true} />
         <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }}>
           <Stack.Screen name="Intro" component={IntroScreen} />
           <Stack.Screen name="LanguageSelect" component={LanguageSelectScreen} />

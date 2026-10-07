@@ -4,10 +4,11 @@ import { View, Text, StyleSheet, TouchableOpacity, Animated, Easing, Platform } 
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
+import { glassPopupTheme } from '../theme/colors';
 
 export default function UpdateNotificationBanner({ visible, isCritical, onDismiss, onUpdateNow }) {
   const { t } = useLanguage();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
 
   const translateY = useRef(new Animated.Value(-120)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -73,45 +74,44 @@ export default function UpdateNotificationBanner({ visible, isCritical, onDismis
     opacity,
   };
 
-  const shadowColor = isDark ? '#000000' : '#000000';
-  const cardBg = isDark ? colors.card : '#FFFFFF';
-  const borderColor = isCritical ? colors.danger : colors.border;
+  const shadowColor = '#000000';
+  const borderColor = isCritical ? colors.danger : glassPopupTheme.border;
 
   return (
     <Animated.View style={[styles.container, animatedStyle]} pointerEvents={visible ? 'auto' : 'none'}>
-      <View style={[styles.card, { backgroundColor: cardBg, shadowColor, elevation: 6, borderColor, borderWidth: isCritical ? 2 : 1 }]}>
+      <View style={[styles.card, { backgroundColor: glassPopupTheme.surface, shadowColor, elevation: 12, borderColor }]}>
         <View style={styles.contentRow}>
-          <View style={[styles.iconWrapper, { backgroundColor: (isCritical ? colors.danger : colors.primary) + '1A' }]}>
-            <Ionicons name={isCritical ? 'alert-circle-outline' : 'cloud-download-outline'} size={22} color={isCritical ? colors.danger : colors.primary} />
+          <View style={[styles.iconWrapper, { backgroundColor: isCritical ? colors.danger + '33' : glassPopupTheme.iconSurface }]}>
+            <Ionicons name={isCritical ? 'alert-circle-outline' : 'cloud-download-outline'} size={22} color={isCritical ? colors.danger : glassPopupTheme.accent} />
           </View>
 
           <View style={styles.textSection}>
-            <Text style={[styles.title, { color: colors.textDark }]}>{isCritical ? t('updateCriticalTitle') : t('updateAvailableTitle')}</Text>
-            <Text style={[styles.description, { color: colors.textMuted }]}>{isCritical ? t('updateCriticalDesc') : t('updateAvailableDesc')}</Text>
+            <Text style={[styles.title, { color: glassPopupTheme.text }]}>{isCritical ? t('updateCriticalTitle') : t('updateAvailableTitle')}</Text>
+            <Text style={[styles.description, { color: glassPopupTheme.muted }]}>{isCritical ? t('updateCriticalDesc') : t('updateAvailableDesc')}</Text>
           </View>
         </View>
 
-        <View style={styles.divider} />
+        <View style={[styles.divider, { backgroundColor: glassPopupTheme.border }]} />
 
         <View style={styles.buttonRow}>
           {!isCritical && (
             <TouchableOpacity
-              style={[styles.secondaryBtn, { borderColor: colors.border }]}
+              style={[styles.secondaryBtn, { borderColor: glassPopupTheme.border }]}
               onPress={onDismiss}
               activeOpacity={0.7}
             >
-              <Text style={[styles.secondaryBtnText, { color: colors.textDark }]}>
+              <Text style={[styles.secondaryBtnText, { color: glassPopupTheme.muted }]}>
                 {t('later') || 'Later'}
               </Text>
             </TouchableOpacity>
           )}
 
           <TouchableOpacity
-            style={[styles.primaryBtn, { backgroundColor: isCritical ? colors.danger : colors.primary }]}
+            style={[styles.primaryBtn, { backgroundColor: isCritical ? colors.danger : glassPopupTheme.accent }]}
             onPress={onUpdateNow}
             activeOpacity={0.85}
           >
-            <Text style={[styles.primaryBtnText, { color: colors.white }]}>{t('updateNow') || 'Update Now'}</Text>
+            <Text style={[styles.primaryBtnText, { color: isCritical ? colors.white : glassPopupTheme.surface }]}>{t('updateNow') || 'Update Now'}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -128,12 +128,15 @@ const styles = StyleSheet.create({
     zIndex: 9999,
   },
   card: {
-    borderRadius: 14,
-    padding: 16,
+    backgroundColor: glassPopupTheme.surface,
+    borderRadius: 16,
+    padding: 20,
     borderWidth: 1,
+    borderColor: glassPopupTheme.border,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
+    shadowOpacity: 0.24,
+    shadowRadius: 16,
+    elevation: 12,
   },
   contentRow: {
     flexDirection: 'row',

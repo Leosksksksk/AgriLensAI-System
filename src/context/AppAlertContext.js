@@ -2,11 +2,12 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from './ThemeContext';
+import { glassPopupTheme } from '../theme/colors';
 
 const AppAlertContext = createContext(null);
 
 export function AppAlertProvider({ children }) {
-  const { colors, isDark } = useTheme();
+    const { colors } = useTheme();
   const [alert, setAlert] = useState(null);
 
   const showAlert = useCallback((title, message, buttons) => {
@@ -35,24 +36,15 @@ export function AppAlertProvider({ children }) {
         onRequestClose={() => dismiss(buttons.find((button) => button.style === 'cancel'))}
       >
         <View style={styles.backdrop}>
-          <View
-            accessibilityViewIsModal
-            style={[
-              styles.dialog,
-              {
-                backgroundColor: isDark ? '#035103' : colors.card,
-                borderColor: colors.border,
-              },
-            ]}
-          >
-            <View style={[styles.iconWrap, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : colors.mint }]}>
-              <Ionicons name="leaf" size={18} color={isDark ? '#81C784' : colors.primary} />
+          <View accessibilityViewIsModal style={styles.dialog}>
+            <View style={[styles.iconWrap, { backgroundColor: glassPopupTheme.iconSurface }]}>
+              <Ionicons name="leaf" size={18} color={glassPopupTheme.accent} />
             </View>
             {alert?.title ? (
-              <Text style={[styles.title, { color: isDark ? '#FFFFFF' : colors.textDark }]}>{alert.title}</Text>
+              <Text style={[styles.title, { color: glassPopupTheme.text }]}>{alert.title}</Text>
             ) : null}
             {alert?.message ? (
-              <Text style={[styles.message, { color: isDark ? '#D4E8D4' : colors.textMuted }]}>{alert.message}</Text>
+              <Text style={[styles.message, { color: glassPopupTheme.muted }]}>{alert.message}</Text>
             ) : null}
             <View style={[styles.actions, buttons.length > 2 && styles.stackedActions]}>
               {buttons.map((button, index) => {
@@ -61,8 +53,8 @@ export function AppAlertProvider({ children }) {
                 const color = destructive
                   ? colors.danger
                   : cancel
-                    ? (isDark ? '#D4E8D4' : colors.textMuted)
-                    : (isDark ? '#81C784' : colors.primary);
+                    ? glassPopupTheme.muted
+                    : glassPopupTheme.accent;
 
                 return (
                   <Pressable
@@ -103,13 +95,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.58)',
   },
   dialog: {
+    backgroundColor: glassPopupTheme.surface,
     width: '92%',
     maxWidth: 400,
     borderWidth: 1,
-    borderRadius: 14,
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-    elevation: 16,
+    borderColor: glassPopupTheme.border,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.24,
+    shadowRadius: 16,
+    elevation: 12,
   },
   iconWrap: {
     width: 32,

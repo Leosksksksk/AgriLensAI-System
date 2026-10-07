@@ -9,7 +9,7 @@ import { fetchWeatherRisk, fetch7DayForecast, getCurrentLocation } from '../serv
 
 export default function ClimateScreen({ location = 'Bogo City Cebu' }) {
   const { t } = useLanguage();
-  const { colors, riskColor } = useTheme();
+  const { colors, isDark, riskColor } = useTheme();
   const [loading, setLoading] = useState(true);
   const [weather, setWeather] = useState(null);
   const [forecast, setForecast] = useState([]);
@@ -50,8 +50,8 @@ export default function ClimateScreen({ location = 'Bogo City Cebu' }) {
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
-          <Text style={[styles.headerTitle, { color: colors.white }]}>{t('climate')}</Text>
+        <View style={styles.header}>
+          <Text style={[styles.headerTitle, { color: isDark ? colors.white : colors.textDark }]}>{t('climate')}</Text>
         </View>
         <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
           <ActivityIndicator color={colors.primary} size="large" />
@@ -66,8 +66,8 @@ export default function ClimateScreen({ location = 'Bogo City Cebu' }) {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.primaryDark }]}>
-        <Text style={[styles.headerTitle, { color: colors.white }]}>{t('climate')}</Text>
+      <View style={styles.header}>
+        <Text style={[styles.headerTitle, { color: isDark ? colors.white : colors.textDark }]}>{t('climate')}</Text>
         <View style={styles.locationRow}>
           <Ionicons name="location-outline" size={16} color={colors.white} />
           <Text style={[styles.locationText, { color: '#DCEEDC' }]}>
@@ -144,7 +144,7 @@ export default function ClimateScreen({ location = 'Bogo City Cebu' }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  header: { backgroundColor: 'transparent', paddingTop: 16, paddingBottom: 16, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 0, elevation: 0, shadowOpacity: 0 },
   headerTitle: { fontSize: 24, fontWeight: '800' },
   locationRow: { flexDirection: 'row', alignItems: 'center', marginTop: 6, gap: 4 },
   locationText: { fontSize: 14 },

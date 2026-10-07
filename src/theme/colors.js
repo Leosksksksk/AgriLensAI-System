@@ -57,6 +57,15 @@ export const darkColors = {
   black: '#000000',
 };
 
+export const glassPopupTheme = {
+  surface: 'rgba(20, 35, 25, 0.88)',
+  border: 'rgba(255, 255, 255, 0.15)',
+  text: '#F4F8F4',
+  muted: '#D4E8D4',
+  accent: '#A8D5A2',
+  iconSurface: 'rgba(255, 255, 255, 0.08)',
+};
+
 export const colors = darkColors;
 
 export function severityColor(level, isDark = true) {
