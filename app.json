@@ -38,6 +38,7 @@
     "android": {
       "package": "com.junrel.agrilensai",
       "versionCode": 4,
+      "newArchEnabled": false,
       "permissions": [
         "android.permission.RECORD_AUDIO",
         "android.permission.ACCESS_FINE_LOCATION",
@@ -53,6 +54,7 @@
       "url": "https://u.expo.dev/c3941f92-ffaa-4510-aa9e-522a3857bb77"
     },
     "ios": {
+      "newArchEnabled": false,
       "runtimeVersion": {
         "policy": "appVersion"
       }
