@@ -188,7 +188,7 @@ export default function SettingsScreen({ navigation }) {
         <Text style={[styles.sectionLabel, { color: colors.textLight }]}>{t('application')}</Text>
         <View style={[styles.card, { backgroundColor: colors.card }]}>
           <View style={styles.row}>
-            <Text style={[styles.rowLabel, { color: colors.textDark }]}>{t('version')}</Text>
+            <Text style={[styles.rowLabel, { color: colors.textDark }]}>{('Version')}</Text>
             <Text style={[styles.rowValue, { color: colors.textMuted }]}>
               {appVersion}
             </Text>

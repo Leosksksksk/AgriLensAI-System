@@ -35,6 +35,7 @@ export const translations = {
     noInternet: "No Internet Connection",
     scanLeafBtn: "Scan the Leaf",
     analyzeOffline: "Analyze Using Offline AI",
+    scanOfflineMessage: "Scan the Leaf needs internet. Use Analyze Using Offline AI to scan without internet.",
     scanResults: "Scan Results",
     moderateSeverity: "Moderate Severity",
     diseaseProgression: "Disease Progression",
@@ -72,6 +73,7 @@ export const translations = {
     historyCropNumber: "Crop {number}",
     cropConditionLabel: "{crop} ({condition})",
     conditionNormal: "Normal",
+    conditionUnknown: "Unknown",
     conditionPending: "Pending",
     searchScans: "Search scans...",
     recentScans: "Recent Scans",
@@ -180,6 +182,30 @@ export const translations = {
     referenceInfoSourceLink: "View source ↗",
     webReferenceImages: "Web Reference Images",
 
+    // ---- Reference Info fallbacks (context-aware) ----
+    referenceFallbackNonPlant: "Please photograph a single leaf against a plain background in good lighting. Avoid blurry images, soil, hands, or non-leaf objects.",
+    referenceFallbackHealthy: "Healthy plants show vibrant green leaves without spots, discoloration, or lesions. Regular monitoring helps catch issues early. Proper watering, nutrition, and sunlight are essential for continued health.",
+    referenceFallbackGeneric: "Common {cropName} diseases include fungal leaf spots, bacterial infections, and viral mosaics. Symptoms vary by pathogen but often include spots, wilting, or discoloration. Accurate diagnosis requires lab testing or expert examination.",
+    referenceFallbackDisease: "This condition affects {cropName} and is characterized by specific visual symptoms. For detailed information about the pathogen, lifecycle, and management strategies, consult the reference link below.",
+    // ---- Severity-aware disease fallbacks ----
+    referenceFallbackDiseaseMild: "Mild symptoms consistent with {diseaseName} on {cropName}. Monitor the affected leaves and consider early preventive treatment.",
+    referenceFallbackDiseaseModerate: "Moderate symptoms consistent with {diseaseName} on {cropName}. Inspect nearby plants and begin prompt disease-appropriate treatment.",
+    referenceFallbackDiseaseSevere: "Severe symptoms consistent with {diseaseName} on {cropName}. Extensive damage may progress quickly; isolate affected material and seek urgent local crop guidance.",
+    referenceSeverityNone: "No measurable damage is currently classified for {diseaseName} on {cropName}. Continue routine monitoring.",
+    referenceSeverityNone: "No measurable damage is currently classified. Continue routine monitoring.",
+    referenceSeverityMild: "Severity: Mild. Symptoms consistent with {diseaseName} on {cropName} appear limited. Monitor closely and remove affected leaves.",
+    referenceSeverityModerate: "Severity: Moderate. Damage consistent with {diseaseName} on {cropName} may be spreading. Inspect nearby plants and begin prompt treatment.",
+    referenceSeveritySevere: "Severity: Severe. Extensive damage consistent with {diseaseName} on {cropName} can threaten the crop. Isolate affected material and seek urgent local agricultural guidance.",
+    referenceDiscolorationNone: "The {percent}% color estimate is below the damage threshold and is not a confirmed disease diagnosis.",
+    referenceDiscolorationMild: "The {percent}% color estimate is {severity}. This is not a confirmed disease; monitor the plant and check for new symptoms.",
+    referenceDiscolorationModerate: "The {percent}% color estimate is {severity}. This is not a confirmed disease; inspect the plant closely and seek crop guidance if damage spreads.",
+    referenceDiscolorationSevere: "The {percent}% color estimate is {severity}. This is not a confirmed disease, but the visible damage is critical; isolate affected material and seek urgent local agricultural guidance.",
+    referenceNonPlantTip: "For best results, capture a clear, well-lit photo of a single leaf filling most of the frame.",
+
+    // ---- Non-plant detection alert ----
+    notAPlantAlertTitle: "Not a Plant",
+    notAPlantAlertMessage: "The captured photo does not appear to be a plant. Please take a clear photo of a leaf. This image will not sync to Supabase.",
+
     // ---- Treatment Plan screen ----
     defaultDisease: "Early Blight",
     defaultCrop: "Tomato",
@@ -198,6 +224,7 @@ export const translations = {
     cropPepper: "Pepper",
     cropTomato: "Tomato",
     cropPotato: "Potato",
+    cropPlant: "plant",
 
     // ---- HistoryScreen ----
     statusHealthy: "Healthy",
@@ -254,6 +281,8 @@ export const translations = {
     // ---- Image translation ----
     analyzingImage: "Analyzing leaf photo...",
     selectCropForScan: "Choose a crop before taking or uploading a photo.",
+    plantGateRejectedTitle: "No Plant Detected",
+    plantGateRejectedDesc: "This image contains too little leaf-colored area. Please capture a closer photo of the plant.",
     customBuildRequiredTitle: "On-device model unavailable",
     customBuildRequiredDesc: "Expo Go does not include the native TFLite module. Install the AgriLens custom development build to scan crops.",
     severityNone: "None",
@@ -261,6 +290,10 @@ export const translations = {
     severityModerate: "Moderate",
     severitySevere: "Severe",
     severityUnknown: "Unknown",
+    unknownCropTitle: "Unknown Crop",
+    unknownCropDesc: "This plant did not confidently match Corn, Pepper, Potato, or Tomato. Try a clear photo focused on the crop.",
+    estimatedDiscolorationTitle: "Discoloration Detected",
+    estimatedDiscolorationDesc: "The color-based estimate detected {percent}% discoloration. This is not a specific disease diagnosis.",
     diseaseHealthy: "Healthy Leaf",
     diseaseHealthyDesc: "No significant discoloration or tissue damage detected.",
     healthyTip1: "No treatment needed. Continue routine monitoring.",
@@ -514,6 +547,7 @@ export const translations = {
     noInternet: "Walang Koneksyon sa Internet",
     scanLeafBtn: "I-scan ang Dahon",
     analyzeOffline: "Suriin Gamit ang Offline AI",
+    scanOfflineMessage: "Kailangan ng internet ang Scan the Leaf. Gamitin ang Analyze Using Offline AI para mag-scan nang walang internet.",
     scanResults: "Resulta ng Scan",
     moderateSeverity: "Katamtamang Kalubhaan",
     diseaseProgression: "Paglambo sa Sakit",
@@ -551,6 +585,7 @@ export const translations = {
     historyCropNumber: "Pananim {number}",
     cropConditionLabel: "{crop} ({condition})",
     conditionNormal: "Normal",
+    conditionUnknown: "Hindi matukoy",
     conditionPending: "Naghihintay",
     searchScans: "Maghanap ng scan...",
     recentScans: "Mga Kamakailang Scan",
@@ -658,6 +693,29 @@ export const translations = {
     referenceInfoSourceLink: "Tingnan ang pinagmulan ↗",
     webReferenceImages: "Mga Larawan mula sa Web",
 
+    // ---- Reference Info fallbacks (context-aware) ----
+    referenceFallbackNonPlant: "Kumuha ng malinaw na litrato ng isang dahon sa mahinang background sa maaliwanas na ilaw. Iwasan ang malabong larawan, lupa, kamay, o mga bagay na hindi dahon.",
+    referenceFallbackHealthy: "Ang malusog na halaman ay may makukulay-birang dahon nang walang batik, pagbabago ng kulay, o lesyon. Ang regular na pagsubaybay ay tumutulong sa maagang pagtuklas ng suliranin. Ang wastong pagdidilig, nutrisyon, at araw ay mahalaga para sa patuloy na kalusugan.",
+    referenceFallbackGeneric: "Ang karaniwang sakit ng {cropName} ay kinabibilangan ng fungal leaf spots, bacterial infections, at viral mosaics. Naiiba ang mga sintomas ayon sa pathogen ngunit kadalasang kinabibilangan ng mga batik, paglalambot, o pagbabago ng kulay. Kailangan ng laboratoryo o eksperto para sa tumpak na diagnosis.",
+    referenceFallbackDisease: "Ang kondisyong ito ay nakakaapekto sa {cropName} at may partikular na biswal na mga sintomas. Para sa detalyadong impormasyon tungkol sa pathogen, lifecycle, at pamamahala, tingnan ang link sa sanggunian sa ibaba.",
+    // ---- Severity-aware disease fallbacks ----
+    referenceFallbackDiseaseMild: "Banayad na sintomas na tugma sa {diseaseName} sa {cropName}. Bantayan ang mga apektadong dahon at isaalang-alang ang maagang pag-iwas.",
+    referenceFallbackDiseaseModerate: "Katamtamang sintomas na tugma sa {diseaseName} sa {cropName}. Suriin ang mga kalapit na halaman at simulan ang angkop na paggamot.",
+    referenceFallbackDiseaseSevere: "Malubhang sintomas na tugma sa {diseaseName} sa {cropName}. Maaaring mabilis lumala ang pinsala; ihiwalay ang apektadong bahagi at humingi agad ng payo sa lokal na eksperto sa pananim.",
+    referenceSeverityNone: "Walang nasusukat na pinsala mula sa {diseaseName} sa {cropName}. Ipagpatuloy ang regular na pagsubaybay.",
+    referenceSeverityMild: "Kalubhaan: Banayad. Limitado ang mga sintomas na tugma sa {diseaseName} sa {cropName}. Bantayan at alisin ang mga apektadong dahon.",
+    referenceSeverityModerate: "Kalubhaan: Katamtaman. Maaaring kumakalat ang pinsalang tugma sa {diseaseName} sa {cropName}. Suriin ang mga kalapit na halaman at simulan agad ang angkop na paggamot.",
+    referenceSeveritySevere: "Kalubhaan: Malubha. Maaaring magbanta sa ani ang malawak na pinsalang tugma sa {diseaseName} sa {cropName}. Ihiwalay ang apektadong bahagi at humingi agad ng payo sa lokal na eksperto sa pananim.",
+    referenceDiscolorationNone: "Ang {percent}% pagtataya ng pagbabago ng kulay ay mas mababa sa itinakdang antas ng pinsala at hindi kumpirmadong diagnosis ng sakit.",
+    referenceDiscolorationMild: "Ang {percent}% pagtataya ng pagbabago ng kulay ay {severity}. Hindi ito kumpirmadong sakit; bantayan ang halaman at tingnan kung may bagong sintomas.",
+    referenceDiscolorationModerate: "Ang {percent}% pagtataya ng pagbabago ng kulay ay {severity}. Hindi ito kumpirmadong sakit; suriing mabuti at humingi ng payo kung kumakalat ang pinsala.",
+    referenceDiscolorationSevere: "Ang {percent}% pagtataya ng pagbabago ng kulay ay {severity}. Hindi ito kumpirmadong sakit, ngunit kritikal ang nakikitang pinsala; ihiwalay ang apektadong bahagi at humingi agad ng payo sa lokal na eksperto.",
+    referenceNonPlantTip: "Para sa pinakamahusay na resulta, kumuha ng malinaw, maaliwanas na litrato ng isang dahon na pumupuno sa karamihan ng frame.",
+
+    // ---- Non-plant detection alert ----
+    notAPlantAlertTitle: "Hindi Halaman",
+    notAPlantAlertMessage: "Ang nakuha nitong litrato ay mukhang hindi halaman. Mangyaring kumuha ng malinaw na litrato ng dahon. Ang litratong ito ay hindi mae-sync sa Supabase.",
+
     // ---- Treatment Plan screen ----
     defaultDisease: "Early Blight",
     defaultCrop: "Kamatis",
@@ -676,6 +734,7 @@ export const translations = {
     cropPepper: "Pepper",
     cropTomato: "Kamatis",
     cropPotato: "Patatas",
+    cropPlant: "halaman",
 
     // ---- HistoryScreen ----
     statusHealthy: "Malusog",
@@ -732,6 +791,8 @@ export const translations = {
     // ---- Image translation ----
     analyzingImage: "Sinusuri ang litrato ng dahon...",
     selectCropForScan: "Pumili muna ng pananim bago kumuha o mag-upload ng litrato.",
+    plantGateRejectedTitle: "Walang Natukoy na Halaman",
+    plantGateRejectedDesc: "Napakaliit ng bahaging kulay-dahon sa larawang ito. Kumuha ng mas malapit na litrato ng halaman.",
     customBuildRequiredTitle: "Hindi available ang on-device na modelo",
     customBuildRequiredDesc: "Walang native TFLite module ang Expo Go. I-install ang custom development build ng AgriLens para makapag-scan ng pananim.",
     severityNone: "Wala",
@@ -739,6 +800,10 @@ export const translations = {
     severityModerate: "Katamtaman",
     severitySevere: "Malubha",
     severityUnknown: "Hindi Tiyak",
+    unknownCropTitle: "Hindi Kilalang Pananim",
+    unknownCropDesc: "Hindi tiyak na tumugma ang halamang ito sa mais, sili, patatas, o kamatis. Subukang kumuha ng malinaw na litrato na nakatuon sa pananim.",
+    estimatedDiscolorationTitle: "May Pagbabago ng Kulay",
+    estimatedDiscolorationDesc: "Tinataya ng pagsusuri sa kulay na {percent}% ang bahaging may pagbabago ng kulay. Hindi ito tumutukoy sa isang tiyak na sakit.",
     diseaseHealthy: "Malusog na Dahon",
     diseaseHealthyDesc: "Walang makabuluhang pagbabago ng kulay o pinsala sa tisyu.",
     healthyTip1: "Walang kailangang gamot. Ipagpatuloy ang regular na pagsubaybay.",
@@ -992,6 +1057,7 @@ export const translations = {
     noInternet: "Walay Internet Connection",
     scanLeafBtn: "I-scan ang Dahon",
     analyzeOffline: "Susihon Gamit ang Offline AI",
+    scanOfflineMessage: "Kinahanglan og internet ang Scan the Leaf. Gamita ang Analyze Using Offline AI aron maka-scan nga walay internet.",
     scanResults: "Resulta sa Scan",
     moderateSeverity: "Katunga nga Kagrabe",
     diseaseProgression: "Paglambo sa Sakit",
@@ -1029,6 +1095,7 @@ export const translations = {
     historyCropNumber: "Tanom {number}",
     cropConditionLabel: "{crop} ({condition})",
     conditionNormal: "Normal",
+    conditionUnknown: "Dili matino",
     conditionPending: "Naghulat",
     searchScans: "Pangitaa ang scan...",
     recentScans: "Bag-ong mga Scan",
@@ -1136,6 +1203,29 @@ export const translations = {
     referenceInfoSourceLink: "Tan-awa ang gigikanan ↗",
     webReferenceImages: "Mga Litrato gikan sa Web",
 
+    // ---- Reference Info fallbacks (context-aware) ----
+    referenceFallbackNonPlant: "Kuhai og klaro nga litrato sa usa ka dahon sa malinaw nga background sa maayong kahayag. Likayi ang malabong litrato, yuta, kamot, o mga butang nga dili dahon.",
+    referenceFallbackHealthy: "Ang himsog nga tanom adunay malinaw nga berde nga mga dahon nga walay batik, pagkausab sa kolor, o lesyon. Ang regular nga pagbantay makatabang sa sayo nga pagkakita sa mga suliranin. Ang timaan nga pagbisbis, nutrisyon, ug adlaw kinahanglan para sa padayon nga kalusugan.",
+    referenceFallbackGeneric: "Ang kinaiyang mga sakit sa {cropName} naglakip og fungal leaf spots, bacterial infections, ug viral mosaics. Maglain ang mga sintomas depende sa pathogen apan kasagarang naglakip ug mga batik, paglambot, o pagkausab sa kolor. Kinahanglan ang lab testing o eksperto para sa tumpak nga diagnosis.",
+    referenceFallbackDisease: "Kini nga kondisyon nakakaapekto sa {cropName} ug adunay espesipiko nga biswal nga mga sintomas. Para sa detalyado nga impormasyon bahin sa pathogen, lifecycle, ug pagpadala, tan-awa ang link sa sanggunian sa ubos.",
+    // ---- Severity-aware disease fallbacks ----
+    referenceFallbackDiseaseMild: "Gamay nga sintomas nga susama sa {diseaseName} sa {cropName}. Bantayi ang naapektuhang mga dahon ug hunahunaa ang sayong paglikay.",
+    referenceFallbackDiseaseModerate: "Katungang sintomas nga susama sa {diseaseName} sa {cropName}. Susiha ang duol nga mga tanom ug sugdi dayon ang angay nga pagtambal.",
+    referenceFallbackDiseaseSevere: "Grabe nga sintomas nga susama sa {diseaseName} sa {cropName}. Mahimong paspas modako ang kadaot; ibulag ang naapektuhan ug pangayo dayon og tambag sa lokal nga eksperto sa tanom.",
+    referenceSeverityNone: "Walay masukod nga kadaot nga giklasipikar para sa {diseaseName} sa {cropName}. Padayon sa regular nga pagbantay.",
+    referenceSeverityMild: "Kagrabe: Gamay. Limitado ang sintomas nga susama sa {diseaseName} sa {cropName}. Bantayi pag-ayo ug kuhaa ang naapektuhang mga dahon.",
+    referenceSeverityModerate: "Kagrabe: Katunga. Mahimong nagkaylap ang kadaot nga susama sa {diseaseName} sa {cropName}. Susiha ang duol nga mga tanom ug sugdi dayon ang pagtambal.",
+    referenceSeveritySevere: "Kagrabe: Grabe. Mahimong mameligro ang ani tungod sa dakong kadaot nga susama sa {diseaseName} sa {cropName}. Ibulag ang naapektuhan ug pangayo dayon og tambag sa lokal nga eksperto sa tanom.",
+    referenceDiscolorationNone: "Ang {percent}% nga banabana sa kausaban sa kolor ubos sa sukdanan sa kadaot ug dili kumpirmadong diagnosis sa sakit.",
+    referenceDiscolorationMild: "Ang {percent}% nga banabana sa kausaban sa kolor kay {severity}. Dili kini kumpirmadong sakit; bantayi ang tanom ug susiha kung adunay bag-ong sintomas.",
+    referenceDiscolorationModerate: "Ang {percent}% nga banabana sa kausaban sa kolor kay {severity}. Dili kini kumpirmadong sakit; susiha pag-ayo ug pangayo og tambag kung mokaylap ang kadaot.",
+    referenceDiscolorationSevere: "Ang {percent}% nga banabana sa kausaban sa kolor kay {severity}. Dili kini kumpirmadong sakit, apan kritikal ang makita nga kadaot; ibulag ang naapektuhan ug pangayo dayon og tambag sa lokal nga eksperto.",
+    referenceNonPlantTip: "Para sa labing maayong resulta, kuhai og klaro, maayong kahayag nga litrato sa usa ka dahon nga mopuno sa daghan sa frame.",
+
+    // ---- Non-plant detection alert ----
+    notAPlantAlertTitle: "Dili Tanom",
+    notAPlantAlertMessage: "Ang gikuha nga litrato mukhang dili tanom. Palihug kuhai og klaro nga litrato sa usa ka dahon. Ang litratong kini dili mae-sync sa Supabase.",
+
     // ---- Treatment Plan screen ----
     defaultDisease: "Early Blight",
     defaultCrop: "Kamatis",
@@ -1155,6 +1245,7 @@ export const translations = {
     cropPepper: "Pepper",
     cropTomato: "Kamatis",
     cropPotato: "Patatas",
+    cropPlant: "tanom",
 
     // ---- HistoryScreen ----
     statusHealthy: "Himsog",
@@ -1211,6 +1302,8 @@ export const translations = {
     // ---- Image translation ----
     analyzingImage: "Gisusi ang litrato sa dahon...",
     selectCropForScan: "Pagpili una og tanom sa dili pa mokuha o mag-upload og litrato.",
+    plantGateRejectedTitle: "Walay Nakita nga Tanom",
+    plantGateRejectedDesc: "Gamaya ra sa hulagway ang bahin nga kolor-dahon. Kuhaa og mas duol nga litrato sa tanom.",
     customBuildRequiredTitle: "Dili magamit ang on-device nga modelo",
     customBuildRequiredDesc: "Walay native TFLite module ang Expo Go. I-install ang custom development build sa AgriLens aron maka-scan og tanom.",
     severityNone: "Wala",
@@ -1218,6 +1311,10 @@ export const translations = {
     severityModerate: "Katunga",
     severitySevere: "Grabe",
     severityUnknown: "Wala Mahibaloi",
+    unknownCropTitle: "Wala Mailhing nga Tanom",
+    unknownCropDesc: "Wala matino nga motakdo kining tanoma sa mais, sili, patatas, o kamatis. Sulayi og klaro nga hulagway nga nakatutok sa tanom.",
+    estimatedDiscolorationTitle: "Nakit-an ang Pagbag-o sa Kolor",
+    estimatedDiscolorationDesc: "Gibanabana sa pagsusi sa kolor nga {percent}% ang bahin nga nausab ang kolor. Dili kini espesipikong pagdayagnos sa sakit.",
     diseaseHealthy: "Himsog nga Dahon",
     diseaseHealthyDesc: "Walay dakong pagbag-o sa kolor o kadaot sa tisyu nga nakit-an.",
     healthyTip1: "Walay kinahanglan nga tambal. Padayon sa regular nga pagbantay.",

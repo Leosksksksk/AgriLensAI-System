@@ -2,3 +2,5 @@ node_modules
 .expo
 .expo-export
 dist/
+jdk17.zip
+jdk17/

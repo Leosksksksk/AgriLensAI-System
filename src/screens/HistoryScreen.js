@@ -16,11 +16,6 @@ function getConditionKey(scan) {
   const status = String(scan.status || '').toLowerCase();
   if (diseaseId === 'healthy' || status === 'healthy') return 'conditionNormal';
 
-  const severity = String(scan.severity || '').toLowerCase();
-  if (['mild', 'moderate', 'severe'].includes(severity)) {
-    return `severity${severity[0].toUpperCase()}${severity.slice(1)}`;
-  }
-
   const hasDamage = scan.damage_percent !== null && scan.damage_percent !== undefined && scan.damage_percent !== '';
   const damage = Number(scan.damage_percent);
   if (hasDamage && Number.isFinite(damage)) {
@@ -30,8 +25,14 @@ function getConditionKey(scan) {
     return 'severitySevere';
   }
 
-  if (status.includes('pending')) return 'conditionPending';
-  return status === 'analysis complete' ? 'conditionNormal' : 'conditionPending';
+  const severity = String(scan.severity || '').toLowerCase();
+  if (severity === 'normal') return 'conditionNormal';
+  if (['mild', 'moderate', 'severe'].includes(severity)) {
+    return `severity${severity[0].toUpperCase()}${severity.slice(1)}`;
+  }
+
+  if (diseaseId || status === 'analysis complete') return 'conditionUnknown';
+  return status.includes('pending') ? 'conditionPending' : 'conditionUnknown';
 }
 
 function formatTime(dateString, t) {

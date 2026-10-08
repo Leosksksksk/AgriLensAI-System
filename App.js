@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import * as ImagePicker from 'expo-image-picker';
 import * as Updates from 'expo-updates';
 import NetInfo from '@react-native-community/netinfo';
 import { supabase } from './supabaseClient';
@@ -192,6 +193,38 @@ function NetworkSyncTrigger() {
 function ThemedApp() {
   const { isLoading, isDark, colors } = useTheme();
   const { t } = useLanguage();
+  const navigationRef = useRef(null);
+  const [navigationReady, setNavigationReady] = useState(false);
+  const [pendingPhotoUri, setPendingPhotoUri] = useState(null);
+
+  useEffect(() => {
+    let isActive = true;
+
+    ImagePicker.getPendingResultAsync()
+      .then((pendingResult) => {
+        if (!isActive || !pendingResult || 'code' in pendingResult || pendingResult.canceled) return;
+        const uri = pendingResult.assets?.[0]?.uri;
+        if (uri) setPendingPhotoUri(uri);
+      })
+      .catch((error) => console.warn('Could not recover Android image picker result:', error));
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!navigationReady || !pendingPhotoUri) return;
+
+    navigationRef.current?.resetRoot({
+      index: 0,
+      routes: [{
+        name: 'MainTabs',
+        params: { screen: 'Home', params: { pendingPickerUri: pendingPhotoUri } },
+      }],
+    });
+    setPendingPhotoUri(null);
+  }, [navigationReady, pendingPhotoUri]);
 
   if (isLoading) {
     return null;
@@ -214,7 +247,7 @@ function ThemedApp() {
   return (
     <AppAlertProvider>
       <ImageBackground
-        source={require('./assets/leaf-glass-background.jpg')}
+        source={require('./assets/leaf-glass-background.jpg')} //background image
         style={{ flex: 1 }}
         imageStyle={{ opacity: isDark ? 0.92 : 0.38 }} //background image opacity
         blurRadius={isDark ? 2 : 8} //main background blur
@@ -227,7 +260,11 @@ function ThemedApp() {
             { backgroundColor: isDark ? 'rgba(5, 32, 5, 0.30)' : 'rgba(218, 241, 222, 0.42)' },
           ]}
         />
-        <NavigationContainer theme={navigationTheme}>
+        <NavigationContainer
+          ref={navigationRef}
+          theme={navigationTheme}
+          onReady={() => setNavigationReady(true)}
+        >
         <StatusBar style="light" backgroundColor="transparent" translucent={true} />
         <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }}>
           <Stack.Screen name="Intro" component={IntroScreen} />

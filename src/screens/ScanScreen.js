@@ -12,27 +12,45 @@ import { decode } from 'base64-arraybuffer';
 import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { analyzeLeafPixels } from '../services/aiEngineService';
 import {
-  DISEASE_IDS_BY_CROP,
-  loadCropModel,
   preprocessImageForModel,
-  runCropInference,
+  runAutoCropInference,
 } from '../utils/aiService';
 import { enrichDiagnosis } from '../services/plantInfoLookupService';
-import { enhanceDiagnosisWithWebSearch } from '../services/onlineImageSearchService';
 import { getDueReminders, dismissReminder } from '../utils/reminderStorage';
 import { getValidUserSession } from '../utils/auth';
 import { useAppAlert } from '../context/AppAlertContext';
 import { glassPopupTheme } from '../theme/colors';
 
-const CROP_OPTIONS = [
-  { id: 'corn', labelKey: 'cropCorn', name: 'Corn' },
-  { id: 'pepper', labelKey: 'cropPepper', name: 'Pepper' },
-  { id: 'potato', labelKey: 'cropPotato', name: 'Potato' },
-  { id: 'tomato', labelKey: 'cropTomato', name: 'Tomato' },
-];
+const CROP_NAMES_BY_ID = {
+  corn: 'Corn',
+  pepper: 'Pepper',
+  potato: 'Potato',
+  tomato: 'Tomato',
+};
 
-export default function ScanScreen({ navigation }) {
+/**
+ * Fast non-plant validation using local heuristic analysis.
+ * Runs synchronously on the image without TFLite models.
+ * Returns { isPlant: boolean, reason?: string }
+ */
+async function validatePlantContent(uri) {
+  try {
+    const inputTensor = await preprocessImageForModel(uri);
+    const heuristicAnalysis = analyzeLeafPixels(inputTensor);
+    return {
+      isPlant: heuristicAnalysis.isPlant,
+      reason: heuristicAnalysis.reason || (heuristicAnalysis.isPlant ? 'plant_detected' : 'not_plant'),
+    };
+  } catch (error) {
+    console.warn('Validation error, assuming plant:', error);
+    // On validation error, assume it's a plant to not block legitimate scans
+    return { isPlant: true, reason: 'validation_error' };
+  }
+}
+
+export default function ScanScreen({ navigation, route }) {
   const { language, languageLabels, t } = useLanguage();
   const { colors, isDark } = useTheme();
   const Alert = useAppAlert();
@@ -42,14 +60,20 @@ export default function ScanScreen({ navigation }) {
   const [imageUri, setImageUri] = useState(null);
   const [isOnline, setIsOnline] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [analyzing, setAnalyzing] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isAnalyzingOffline, setIsAnalyzingOffline] = useState(false);
   const [diagnosis, setDiagnosis] = useState(null);
-  const [selectedCropType, setSelectedCropType] = useState(null);
+  const [showOfflineNotice, setShowOfflineNotice] = useState(false);
   const cameraRef = useRef(null);
+  const scanRequestId = useRef(0);
   const [dueReminders, setDueReminders] = useState([]);
 
   useEffect(() => {
-    const unsub = NetInfo.addEventListener((state) => setIsOnline(!!state.isConnected));
+    const unsub = NetInfo.addEventListener((state) => {
+      const connected = !!state.isConnected && state.isInternetReachable !== false;
+      setIsOnline(connected);
+      if (connected) setShowOfflineNotice(false);
+    });
     return unsub;
   }, []);
 
@@ -57,16 +81,40 @@ export default function ScanScreen({ navigation }) {
     getDueReminders().then(setDueReminders);
   }, []);
 
+  useEffect(() => {
+    const pendingPickerUri = route?.params?.pendingPickerUri;
+    if (!pendingPickerUri) return;
+
+    navigation.setParams({ pendingPickerUri: null });
+    // Run validation on pending picker URI as well
+    validatePlantContent(pendingPickerUri).then(({ isPlant, reason }) => {
+      if (!isPlant) {
+        Alert.alert(
+          'Not a Plant',
+          'The captured photo does not appear to be a plant. Please take a clear photo of a leaf. This image will not sync to Supabase.'
+        );
+        setImageUri(null);
+        setDiagnosis(null);
+        setShowOfflineNotice(false);
+        return;
+      }
+      setImageUri(pendingPickerUri);
+      setDiagnosis(null);
+      setShowOfflineNotice(false);
+    }).catch((error) => {
+      console.warn('Validation error on pending URI, proceeding:', error);
+      setImageUri(pendingPickerUri);
+      setDiagnosis(null);
+      setShowOfflineNotice(false);
+    });
+  }, [route?.params?.pendingPickerUri]);
+
   async function handleDismissReminder(id) {
     await dismissReminder(id);
     setDueReminders((prev) => prev.filter((r) => r.id !== id));
   }
 
   async function handleTakePhoto() {
-    if (!selectedCropType) {
-      Alert.alert(t('cropTypes'), t('selectCropForScan'));
-      return;
-    }
     if (!permission?.granted) {
       const res = await requestPermission();
       if (!res.granted) {
@@ -77,51 +125,62 @@ export default function ScanScreen({ navigation }) {
     setShowCamera(true);
   }
 
-  async function runAnalysis(uri, cropType) {
-    setAnalyzing(true);
-    setDiagnosis(null);
-    try {
-      const model = await loadCropModel(cropType);
-      const inputTensor = await preprocessImageForModel(uri);
-      const prediction = await runCropInference(
-        model,
-        inputTensor,
-        cropType,
-        DISEASE_IDS_BY_CROP
-      );
-      const result = {
-        isPlant: true,
-        cropName: CROP_OPTIONS.find((crop) => crop.id === cropType)?.name || 'Crop',
-        diseaseId: prediction.diseaseId,
-        damagePercent: null,
-        severity: 'Unknown',
-        confidence: prediction.confidence,
-      };
+  async function runAnalysis(uri, onEstimate) {
+    let localEstimate = {
+      isPlant: true,
+      cropName: 'Plant',
+      diseaseId: 'leafSpot',
+      damagePercent: 0,
+      severity: 'None',
+      confidence: 0,
+      isBestFit: true,
+    };
 
-      let enrichedResult = result;
-      if (isOnline) {
-        try {
-          enrichedResult = await enrichDiagnosis(result);
-          
-          enrichedResult = await enhanceDiagnosisWithWebSearch(enrichedResult);
-        } catch (err) {
-          console.log('Online enrichment skipped due to connection state, using local model result.');
-        }
+    try {
+      const inputTensor = await preprocessImageForModel(uri);
+      const heuristicAnalysis = analyzeLeafPixels(inputTensor);
+      
+      // Handle non-plant detection
+      if (!heuristicAnalysis.isPlant) {
+        return {
+          ...localEstimate,
+          isPlant: false,
+          cropName: 'Not a Plant',
+          diseaseId: 'notPlant',
+          damagePercent: 0,
+          severity: 'None',
+          confidence: 0.05,
+          isBestFit: false,
+          heuristicReason: heuristicAnalysis.reason || 'unknown',
+        };
       }
 
-      setDiagnosis(enrichedResult);
-      return enrichedResult;
-    } catch (e) {
-      console.warn('Analysis error:', e);
-      setDiagnosis(null);
-      const isNativeRuntimeMissing = /TFLite is unavailable in Expo Go/i.test(e?.message || '');
-      Alert.alert(
-        isNativeRuntimeMissing ? t('customBuildRequiredTitle') : t('analysisUnavailableTitle'),
-        isNativeRuntimeMissing ? t('customBuildRequiredDesc') : t('analysisUnavailableDesc')
-      );
-      return null;
-    } finally {
-      setAnalyzing(false);
+      // Determine if healthy (damage is essentially 0)
+      const isHealthy = heuristicAnalysis.damagePercent <= 0.5; // threshold for healthy
+      
+      localEstimate = {
+        ...localEstimate,
+        diseaseId: isHealthy ? 'healthy' : 'leafSpot',
+        damagePercent: heuristicAnalysis.damagePercent,
+        severity: heuristicAnalysis.severity === 'Unknown' ? 'None' : heuristicAnalysis.severity,
+        confidence: heuristicAnalysis.isPlant ? 0.25 : 0.05,
+      };
+      onEstimate?.(localEstimate);
+
+      const prediction = await runAutoCropInference(inputTensor);
+      const refinedResult = {
+        ...localEstimate,
+        cropName: CROP_NAMES_BY_ID[prediction.cropType] || 'Plant',
+        diseaseId: prediction.diseaseId === 'unknownCrop' ? localEstimate.diseaseId : prediction.diseaseId,
+        confidence: prediction.confidence,
+        isBestFit: prediction.isBestFit || false,
+      };
+      onEstimate?.(refinedResult);
+      return refinedResult;
+    } catch (error) {
+      console.warn('Using local scan estimate:', error);
+      onEstimate?.(localEstimate);
+      return localEstimate;
     }
   }
 
@@ -162,7 +221,7 @@ export default function ScanScreen({ navigation }) {
         .insert([{
           image_url: publicUrl,
           crop_name: diagnosisResult?.cropName || 'Crop',
-          status: 'Pending AI Analysis',
+          status: diagnosisResult?.diseaseId ? 'Analysis Complete' : 'Pending AI Analysis',
           farmer_id: user.id,
           disease_id: diagnosisResult?.diseaseId ?? null,
           damage_percent: diagnosisResult?.damagePercent ?? null,
@@ -199,39 +258,132 @@ export default function ScanScreen({ navigation }) {
     }
   }
 
-  async function handleImageReady(uri) {
-    if (!selectedCropType) {
-      Alert.alert(t('cropTypes'), t('selectCropForScan'));
-      return;
-    }
+  async function handleImageReady(uri, { syncResult = true, allowOffline = false, actionType = 'analyze' } = {}) {
     setImageUri(uri);
-    const result = await runAnalysis(uri, selectedCropType);
+    setShowOfflineNotice(false);
+    setDiagnosis(null);
+    if (!isOnline && !allowOffline) return;
 
-    if (!result) {
-      return;
+    const scanId = ++scanRequestId.current;
+    
+    // Set the appropriate loading state based on action type
+    if (actionType === 'analyze') {
+      setIsAnalyzing(true);
+    } else {
+      setIsAnalyzingOffline(true);
     }
+    
+    try {
+      let resultsOpened = false;
+      const publishEstimate = (result) => {
+        if (scanId !== scanRequestId.current) return;
+        setDiagnosis(result);
+        if (!resultsOpened) {
+          resultsOpened = true;
+          navigation.navigate('Results', { imageUri: uri, diagnosis: result, scanId });
+          return;
+        }
 
-    uploadAndSyncToSupabase(uri, result);
+        const parentNavigation = navigation.getParent();
+        const state = parentNavigation?.getState();
+        const currentRoute = state?.routes?.[state.index];
+        if (currentRoute?.name === 'Results' && currentRoute.params?.scanId === scanId) {
+          parentNavigation.setParams({ diagnosis: result });
+        }
+      };
+
+      const result = await runAnalysis(uri, publishEstimate);
+      if (scanId !== scanRequestId.current) return;
+      setDiagnosis(result);
+      if (!resultsOpened) {
+        navigation.navigate('Results', { imageUri: uri, diagnosis: result, scanId });
+      }
+      
+      // Only sync to Supabase if it's a plant and syncResult is true
+      const shouldSync = syncResult && result.isPlant !== false;
+      if (shouldSync) void uploadAndSyncToSupabase(uri, result);
+
+      if (isOnline) {
+        // Prepare diagnosis for enrichment based on result type
+        let lookupDiagnosis = result;
+        if (!result.isPlant) {
+          // Non-plant: skip Wikipedia lookup entirely
+          lookupDiagnosis = null;
+        } else if (result.diseaseId === 'healthy' && result.damagePercent > 0) {
+          lookupDiagnosis = { ...result, diseaseId: 'plantDiseaseOverview' };
+        }
+        
+        if (lookupDiagnosis) {
+          void enrichDiagnosis(lookupDiagnosis, language)
+            .then((enrichedResult) => {
+              const parentNavigation = navigation.getParent();
+              const state = parentNavigation?.getState();
+              const currentRoute = state?.routes?.[state.index];
+              if (currentRoute?.name === 'Results' && currentRoute.params?.scanId === scanId) {
+                parentNavigation.setParams({
+                  diagnosis: { ...result, onlineInfo: enrichedResult.onlineInfo },
+                });
+              }
+            })
+            .catch((error) => console.warn('Wikipedia reference lookup failed:', error));
+        }
+      }
+    } finally {
+      // Always reset the appropriate loading state
+      if (actionType === 'analyze') {
+        setIsAnalyzing(false);
+      } else {
+        setIsAnalyzingOffline(false);
+      }
+    }
+  }
+
+  function showImagePreview(uri) {
+    // Run instant plant validation before showing preview
+    validatePlantContent(uri).then(({ isPlant, reason }) => {
+      if (!isPlant) {
+        // Non-plant detected: show immediate alert and clear image state
+        Alert.alert(
+          t('notAPlantAlertTitle'),
+          t('notAPlantAlertMessage')
+        );
+        // Clear any existing image to prevent invalid preview
+        setImageUri(null);
+        setDiagnosis(null);
+        setShowOfflineNotice(false);
+        return;
+      }
+      // Plant detected: proceed with normal preview
+      setImageUri(uri);
+      setDiagnosis(null);
+      setShowOfflineNotice(false);
+    }).catch((error) => {
+      console.warn('Validation error, proceeding with preview:', error);
+      // On validation error, proceed with preview (fail-open)
+      setImageUri(uri);
+      setDiagnosis(null);
+      setShowOfflineNotice(false);
+    });
   }
 
   async function handleUploadPhoto() {
-    if (!selectedCropType) {
-      Alert.alert(t('cropTypes'), t('selectCropForScan'));
-      return;
-    }
-    const res = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!res.granted) {
-      Alert.alert(t('photoPermissionTitle'), t('photoPermissionDesc'));
-      return;
-    }
-    const picked = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      quality: 0.7,
-      allowsEditing: true,
-    });
+    try {
+      const res = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!res.granted) {
+        Alert.alert(t('photoPermissionTitle'), t('photoPermissionDesc'));
+        return;
+      }
+      const picked = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        quality: 0.7,
+        allowsEditing: true,
+      });
 
-    if (!picked.canceled && picked.assets?.length) {
-      handleImageReady(picked.assets[0].uri);
+      if (picked.canceled) return;
+      const croppedUri = picked.assets?.[0]?.uri;
+      if (croppedUri) showImagePreview(croppedUri);
+    } catch (error) {
+      console.error('Photo selection or cropping failed:', error);
     }
   }
 
@@ -240,38 +392,25 @@ export default function ScanScreen({ navigation }) {
       Alert.alert(t('noPhotoTitle'), t('noPhotoDesc'));
       return;
     }
-    if (analyzing) {
-      Alert.alert(t('analyzingTitle'), t('analyzingDesc'));
+    if (!isOnline) {
+      setShowOfflineNotice(true);
       return;
     }
-    if (!diagnosis) {
-      Alert.alert(t('analysisUnavailableTitle'), t('analysisUnavailableDesc'));
+    setShowOfflineNotice(false);
+    if (diagnosis) {
+      navigation.navigate('Results', { imageUri, diagnosis });
       return;
     }
-    navigation.navigate('Results', { imageUri, diagnosis });
+    void handleImageReady(imageUri, { syncResult: false, actionType: 'analyze' });
   }
 
-  async function handleOfflineAnalyze() {
+  function handleOfflineAnalyze() {
     if (!imageUri) {
       Alert.alert(t('noPhotoTitle'), t('noPhotoDesc'));
       return;
     }
-    if (analyzing) {
-      Alert.alert(t('analyzingTitle'), t('analyzingDesc'));
-      return;
-    }
-    if (!selectedCropType) {
-      Alert.alert(t('cropTypes'), t('selectCropForScan'));
-      return;
-    }
-
-    const result = await runAnalysis(imageUri, selectedCropType);
-
-    if (!result) {
-      return;
-    }
-
-    navigation.navigate('Results', { imageUri, diagnosis: result });
+    setShowOfflineNotice(false);
+    void handleImageReady(imageUri, { syncResult: false, allowOffline: true, actionType: 'offline' });
   }
 
   if (showCamera) {
@@ -291,7 +430,7 @@ export default function ScanScreen({ navigation }) {
                   const photo = await cameraRef.current.takePictureAsync({ quality: 0.7 });
                   setShowCamera(false);
                   if (photo?.uri) {
-                    handleImageReady(photo.uri);
+                    showImagePreview(photo.uri);
                   }
                 } catch (err) {
                   console.error('Capture error:', err);
@@ -322,38 +461,6 @@ export default function ScanScreen({ navigation }) {
       </View>
 
       <ScrollView contentContainerStyle={styles.body}>
-        <View style={styles.cropSelectorWrap}>
-          <Text style={[styles.cropSelectorLabel, { color: colors.textDark }]}>{t('cropTypes')}</Text>
-          <View style={styles.cropSelector}>
-            {CROP_OPTIONS.map((crop) => {
-              const isSelected = selectedCropType === crop.id;
-              return (
-                <TouchableOpacity
-                  key={crop.id}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: isSelected }}
-                  style={[
-                    styles.cropOption,
-                    {
-                      backgroundColor: isSelected ? colors.primary : colors.card,
-                      borderColor: isSelected ? colors.primary : colors.border,
-                    },
-                  ]}
-                  onPress={() => {
-                    setSelectedCropType(crop.id);
-                    setImageUri(null);
-                    setDiagnosis(null);
-                  }}
-                >
-                  <Text style={[styles.cropOptionText, { color: isSelected ? colors.white : colors.textDark }]}>
-                    {t(crop.labelKey)}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-
         {dueReminders.map((reminder) => (
           <View key={reminder.id} style={styles.reminderBanner}>
             <Ionicons name="notifications" size={20} color={colors.warning} />
@@ -388,34 +495,65 @@ export default function ScanScreen({ navigation }) {
               </View>
             </>
           )}
-          {analyzing && (
-            <View style={styles.analyzingOverlay}>
-              <ActivityIndicator color={colors.white} />
-              <Text style={[styles.analyzingText, { color: colors.white }]}>{t('analyzingImage')}</Text>
-            </View>
-          )}
         </View>
 
         {/* UPLOAD & TAKE PHOTO BUTTONS */}
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={[styles.outlineBtn, { borderColor: colors.border, backgroundColor: colors.card }]} activeOpacity={0.85} onPress={handleUploadPhoto} disabled={uploading}>
-            <Text style={[styles.outlineBtnText, { color: colors.textDark }]}>{uploading ? t('uploadingText') : t('uploadPhoto')}</Text>
+          <TouchableOpacity
+            style={[styles.outlineBtn, { borderColor: colors.border, backgroundColor: colors.card }]}
+            activeOpacity={0.85}
+            onPress={handleUploadPhoto}
+            disabled={uploading}
+          >
+            <Text style={[styles.outlineBtnText, { color: colors.textDark }]}>
+              {uploading ? t('uploadingText') : t('uploadPhoto')}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.filledBtn, { backgroundColor: colors.primary }]} activeOpacity={0.85} onPress={handleTakePhoto} disabled={uploading}>
-            <Text style={[styles.filledBtnText, { color: isDark ? colors.primaryDark : colors.white }]}>{t('takePhoto')}</Text>
+
+          <TouchableOpacity
+            style={[styles.filledBtn, { backgroundColor: colors.primary }]}
+            activeOpacity={0.85}
+            onPress={handleTakePhoto}
+            disabled={uploading}
+          >
+            <Text style={[styles.filledBtnText, { color: isDark ? colors.primaryDark : colors.white }]}>
+              {t('takePhoto')}
+            </Text>
           </TouchableOpacity>
         </View>
 
-        {/* MAIN SCAN BUTTON */}
-        <TouchableOpacity style={[styles.scanBtn, { backgroundColor: colors.primary }]} activeOpacity={0.85} onPress={handleAnalyze}>
-          <Text style={[styles.scanBtnText, { color: colors.white }]}>{t('scanLeafBtn')}</Text>
+        <TouchableOpacity
+          style={[styles.scanBtn, { backgroundColor: colors.primary }]}
+          activeOpacity={0.85}
+          onPress={handleAnalyze}
+          disabled={isAnalyzing}
+        >
+          {isAnalyzing ? <ActivityIndicator color={isDark ? colors.primaryDark : colors.white} /> : (
+            <Text style={[styles.scanBtnText, { color: isDark ? colors.primaryDark : colors.white }]}>{t('scanLeafBtn')}</Text>
+          )}
         </TouchableOpacity>
 
-        {/* OFFLINE AI BUTTON */}
-        <TouchableOpacity style={[styles.analyzeBtn, { backgroundColor: colors.card, borderColor: colors.border }]} activeOpacity={0.85} onPress={handleOfflineAnalyze}>
-          <Ionicons name="sparkles" size={18} color={colors.primaryLight} style={{ marginRight: 8 }} />
-          <Text style={[styles.analyzeBtnText, { color: colors.textDark }]}>{t('analyzeOffline')}</Text>
+        {showOfflineNotice && (
+          <View style={[styles.offlineNotice, { backgroundColor: `${colors.warning}1A`, borderColor: colors.warning }]}>
+            <Ionicons name="cloud-offline-outline" size={18} color={colors.warning} />
+            <Text style={[styles.offlineNoticeText, { color: colors.textDark }]}>{t('scanOfflineMessage')}</Text>
+          </View>
+        )}
+
+        <TouchableOpacity
+          style={[styles.analyzeBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+          activeOpacity={0.85}
+          onPress={handleOfflineAnalyze}
+          disabled={isAnalyzingOffline}
+        >
+          {isAnalyzingOffline ? <ActivityIndicator color={colors.primaryLight} /> : (
+            <>
+              <Ionicons name="sparkles" size={18} color={colors.primaryLight} style={{ marginRight: 8 }} />
+              <Text style={[styles.analyzeBtnText, { color: colors.textDark }]}>{t('analyzeOffline')}</Text>
+            </>
+          )}
         </TouchableOpacity>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -439,19 +577,6 @@ const styles = StyleSheet.create({
   langPill: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20, borderWidth: 1 },
   langPillText: { fontWeight: '700', fontSize: 14 },
   body: { padding: 20, paddingBottom: 40 },
-  cropSelectorWrap: { marginBottom: 16 },
-  cropSelectorLabel: { fontSize: 14, fontWeight: '700', marginBottom: 8 },
-  cropSelector: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  cropOption: {
-    flexGrow: 1,
-    minWidth: '22%',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  cropOptionText: { fontSize: 14, fontWeight: '700' },
   reminderBanner: {
     backgroundColor: glassPopupTheme.surface,
     flexDirection: 'row',
@@ -494,27 +619,6 @@ const styles = StyleSheet.create({
   offlineBadgeText: { fontSize: 13, fontWeight: '700' },
   viewfinderHintWrap: { paddingHorizontal: 12, paddingVertical: 8 },
   viewfinderHint: { fontSize: 15, fontWeight: '600' },
-  analyzingOverlay: {
-    position: 'absolute',
-    bottom: 16,
-    left: 16,
-    right: 16,
-    backgroundColor: glassPopupTheme.surface,
-    borderColor: glassPopupTheme.border,
-    borderWidth: 1,
-    borderRadius: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-    gap: 8,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.24,
-    shadowRadius: 16,
-    elevation: 12,
-  },
-  analyzingText: { fontSize: 14, fontWeight: '600' },
   cornerTL: { position: 'absolute', top: 20, left: 20, width: 26, height: 26, borderTopWidth: 0.4, borderLeftWidth: 0.4 }, //upper left corner
   cornerTR: { position: 'absolute', top: 20, right: 20, width: 26, height: 26, borderTopWidth: 0.4, borderRightWidth: 0.4 }, //upper right corner
   cornerBL: { position: 'absolute', bottom: 20, left: 20, width: 26, height: 26, borderBottomWidth: 0.4, borderLeftWidth: 0.4 }, //lower left corner
@@ -538,6 +642,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   scanBtnText: { fontWeight: '800', fontSize: 17 },
+  offlineNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 12,
+  },
+  offlineNoticeText: { flex: 1, fontSize: 14, lineHeight: 19 },
   analyzeBtn: {
     borderWidth: 1,
     borderRadius: 10,

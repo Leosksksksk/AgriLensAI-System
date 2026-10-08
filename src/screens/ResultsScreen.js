@@ -9,6 +9,33 @@ import SeverityRing from '../components/SeverityRing';
 import { useLanguage } from '../context/LanguageContext';
 import { getDiseaseProfile } from '../utils/diseaseCatalog';
 
+// Crop names to sanitize in summaries/URLs
+const CROP_NAMES_TO_SANITIZE = ['tomato', 'potato', 'corn', 'pepper', 'maize'];
+
+// Localized generic plant term per language
+const GENERIC_PLANT_TERM = {
+  en: 'plant',
+  fil: 'halaman',
+  ceb: 'tanom',
+  tl: 'halaman',
+  bis: 'tanom',
+  bisaya: 'tanom',
+};
+
+/**
+ * Replaces specific crop names with localized generic plant term in text
+ */
+function sanitizeCropNames(text, language = 'en') {
+  if (!text) return text;
+  const genericTerm = GENERIC_PLANT_TERM[language] || GENERIC_PLANT_TERM.en;
+  let sanitized = text;
+  CROP_NAMES_TO_SANITIZE.forEach(crop => {
+    const regex = new RegExp(`\\b${crop}\\b`, 'gi');
+    sanitized = sanitized.replace(regex, GENERIC_PLANT_TERM[language] || GENERIC_PLANT_TERM.en);
+  });
+  return sanitized;
+}
+
 const baseStyles = StyleSheet.create({
   container: { flex: 1 },
   foregroundLayer: { flex: 1, zIndex: 1, elevation: 1 },
@@ -90,7 +117,15 @@ const baseStyles = StyleSheet.create({
   },
   unverifiedPillText: { flex: 1, fontSize: 14, fontWeight: '600' },
   onlineSummary: { fontSize: 15, lineHeight: 21 },
-  sourceLink: { marginTop: 10, fontSize: 14, fontWeight: '700' },
+  sourceLink: { 
+    marginTop: 12, 
+    fontSize: 13, 
+    fontWeight: '700',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    alignSelf: 'flex-start',
+  },
 
   progressionRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   dot: { width: 10, height: 10, borderRadius: 5, marginRight: 12 },
@@ -174,21 +209,179 @@ export default function ResultsScreen({ route, navigation }) {
 
   const [playing, setPlaying] = useState(false);
 
-  const diagnosis = route?.params?.diagnosis ?? {
+  const routeDiagnosis = route?.params?.diagnosis ?? {
     diseaseId: 'healthy',
     damagePercent: 0,
     severity: 'None',
     confidence: 0.5,
     onlineInfo: null,
+    isPlant: true, // default to true for backwards compatibility
   };
 
-  const profile = getDiseaseProfile(diagnosis.diseaseId);
+  // Check if this is a non-plant detection
+  const isNonPlant = routeDiagnosis.isPlant === false || routeDiagnosis.diseaseId === 'notPlant';
+
+  const isUnknownCrop = routeDiagnosis.diseaseId === 'unknownCrop';
+  const diseaseId = isNonPlant ? 'notPlant' : isUnknownCrop ? 'leafSpot' : routeDiagnosis.diseaseId;
+  const estimatedDamage = Number.isFinite(routeDiagnosis.damagePercent)
+    ? Math.max(0, Math.min(100, routeDiagnosis.damagePercent))
+    : 0;
+  const diagnosis = {
+    ...routeDiagnosis,
+    diseaseId,
+    damagePercent: estimatedDamage,
+    confidence: Number.isFinite(routeDiagnosis.confidence)
+      ? Math.max(0, Math.min(1, routeDiagnosis.confidence))
+      : 0,
+    severity: ['None', 'Mild', 'Moderate', 'Severe'].includes(routeDiagnosis.severity)
+      ? routeDiagnosis.severity
+      : estimatedDamage >= 40 ? 'Severe' : estimatedDamage >= 15 ? 'Moderate' : estimatedDamage > 0 ? 'Mild' : 'None',
+  };
+  const profile = getDiseaseProfile(diseaseId);
   const isHealthyResult = diagnosis.diseaseId === 'healthy';
-  const hasDamageEstimate = Number.isFinite(diagnosis.damagePercent);
-  const diseaseName = t(isHealthyResult ? 'conditionNormal' : profile.nameKey);
-  const diseaseDesc = t(profile.descKey);
+  const hasDamageEstimate = true;
+  const hasEstimatedDiscoloration = hasDamageEstimate && diagnosis.damagePercent > 0;
+  const healthyWithDiscoloration = isHealthyResult && hasEstimatedDiscoloration;
+  
+  // Handle non-plant case
+  const diseaseName = isNonPlant
+    ? 'Not a Plant'
+    : healthyWithDiscoloration
+      ? t('estimatedDiscolorationTitle')
+      : t(profile.nameKey);
+  const diseaseDesc = isNonPlant
+    ? 'The captured photo does not appear to be a plant. This image will not sync to Supabase.'
+    : healthyWithDiscoloration
+      ? t('estimatedDiscolorationDesc').replace('{percent}', diagnosis.damagePercent.toFixed(1))
+      : t(profile.descKey);
   const severityLabel = t(`severity${diagnosis.severity}`);
-  const onlineInfo = diagnosis.onlineInfo;
+  const translateReference = (key, values = {}) => Object.entries(values).reduce(
+    (text, [name, value]) => text.replace(`{${name}}`, String(value)),
+    t(key)
+  );
+  
+  // Helper to generate dynamic Wikipedia URL from diseaseId
+  const buildDynamicWikiUrl = (diseaseId) => {
+    const cropPrefixes = ['tomato', 'potato', 'corn', 'pepper'];
+    let diseasePart = diseaseId;
+    for (const prefix of cropPrefixes) {
+      if (diseaseId.toLowerCase().startsWith(prefix)) {
+        diseasePart = diseaseId.slice(prefix.length);
+        break;
+      }
+    }
+    const title = diseasePart
+      .replace(/([A-Z])/g, '_$1')
+      .toLowerCase()
+      .replace(/^_/, '');
+    return `https://en.wikipedia.org/wiki/${encodeURIComponent(title)}`;
+  };
+
+  // Online info is now completely independent from the top card description
+  const onlineInfo = {
+    ...diagnosis.onlineInfo,
+    // Use dynamic summary from API/local fallback; this is now completely separate from diseaseDesc
+    summary: diagnosis.onlineInfo?.summary,
+    // sourceUrl: dynamically generated from diseaseId if not provided by enrichment
+    sourceUrl: diagnosis.onlineInfo?.sourceUrl || buildDynamicWikiUrl(diseaseId),
+    verified: diagnosis.onlineInfo?.verified ?? null,
+    isOffline: diagnosis.onlineInfo?.isOffline ?? false,
+    isNonPlant: diagnosis.onlineInfo?.isNonPlant ?? isNonPlant,
+    isHealthy: diagnosis.onlineInfo?.isHealthy ?? isHealthyResult,
+    isGeneric: diagnosis.onlineInfo?.isGeneric ?? false,
+    offlineSummary: diagnosis.onlineInfo?.offlineSummary,
+  };
+  const [localizedSummary, setLocalizedSummary] = useState('');
+
+  useEffect(() => {
+    let isActive = true;
+    const summary = onlineInfo.summary;
+    const targetLanguage = language === 'fil' ? 'tl' : language === 'ceb' ? 'ceb' : 'en';
+
+    if (!summary) {
+      setLocalizedSummary('');
+      return () => {
+        isActive = false;
+      };
+    }
+
+    // Sanitize crop names from online summary BEFORE translation
+    const sanitizedSummary = sanitizeCropNames(summary, language);
+
+    if (targetLanguage === 'en' || onlineInfo.isOffline) {
+      setLocalizedSummary(sanitizedSummary);
+      return () => {
+        isActive = false;
+      };
+    }
+
+    async function translateSummary() {
+      try {
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLanguage}&dt=t&q=${encodeURIComponent(sanitizedSummary)}`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Translation failed with status ${response.status}`);
+        const data = await response.json();
+        const translatedText = data[0].map((item) => item[0]).join('');
+        if (isActive) setLocalizedSummary(translatedText || sanitizedSummary);
+      } catch (error) {
+        if (isActive) setLocalizedSummary(sanitizedSummary);
+        console.warn('Reference summary translation failed:', error);
+      }
+    }
+
+    translateSummary();
+    return () => {
+      isActive = false;
+    };
+  }, [onlineInfo.summary, onlineInfo.isOffline, language]);
+
+  // Generate context-aware fallback summary for Reference Info card
+  // Uses translation function t() for dynamic language switching
+  const getReferenceFallback = () => {
+    if (onlineInfo.isNonPlant) {
+      return t('referenceFallbackNonPlant');
+    }
+    if (onlineInfo.isHealthy && !healthyWithDiscoloration) {
+      return t('referenceFallbackHealthy');
+    }
+    if (onlineInfo.isGeneric || healthyWithDiscoloration) {
+      return translateReference('referenceFallbackGeneric', { cropName: diagnosis.cropName || t('cropPlant') });
+    }
+    // Specific disease detected — use severity-aware fallback
+    const severity = diagnosis.severity || 'Unknown';
+    const cropName = diagnosis.cropName || t('cropPlant');
+    switch (severity) {
+      case 'Mild':
+        return translateReference('referenceFallbackDiseaseMild', { cropName, diseaseName });
+      case 'Moderate':
+        return translateReference('referenceFallbackDiseaseModerate', { cropName, diseaseName });
+      case 'Severe':
+        return translateReference('referenceFallbackDiseaseSevere', { cropName, diseaseName });
+      default:
+        return translateReference('referenceFallbackDisease', { cropName });
+    }
+  };
+
+  const referenceBaseSummary = onlineInfo.isOffline
+    ? getReferenceFallback()
+    : localizedSummary || onlineInfo.offlineSummary || getReferenceFallback();
+  const referenceSeverity = diagnosis.severity || onlineInfo.severity;
+  const referenceSeverityGuidance = isNonPlant
+    ? ''
+    : healthyWithDiscoloration
+      ? translateReference(`referenceDiscoloration${referenceSeverity}`, {
+          percent: diagnosis.damagePercent.toFixed(1),
+          severity: t(`severity${referenceSeverity}`).toLowerCase(),
+        })
+      : ['None', 'Mild', 'Moderate', 'Severe'].includes(referenceSeverity)
+        ? translateReference(`referenceSeverity${referenceSeverity}`, {
+            diseaseName,
+            cropName: diagnosis.cropName || t('cropPlant'),
+          })
+        : '';
+  const referenceSummary = [referenceBaseSummary, referenceSeverityGuidance]
+    .filter(Boolean)
+    .join('\n\n');
 
   const activeStage = PROGRESSION_STAGES.find((s) => diagnosis.damagePercent >= s.threshold);
 
@@ -201,36 +394,16 @@ export default function ResultsScreen({ route, navigation }) {
     }
   };
 
-  const [localizedSummary, setLocalizedSummary] = useState(onlineInfo?.summary || '');
-
-  useEffect(() => {
-    async function translateSummary() {
-      if (!onlineInfo?.summary) return;
-
-      let targetLang = 'en';
-      if (language === 'fil' || language === 'tl' || language === 'filipino') targetLang = 'tl';
-      else if (language === 'bis' || language === 'ceb' || language === 'bisaya') targetLang = 'ceb';
-
-      if (targetLang === 'en') {
-        setLocalizedSummary(onlineInfo.summary);
-        return;
-      }
-
-      try {
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(onlineInfo.summary)}`;
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        const translatedText = data[0].map((item) => item[0]).join('');
-        setLocalizedSummary(translatedText);
-      } catch (error) {
-        console.error("Translation error:", error);
-        setLocalizedSummary(onlineInfo.summary);
-      }
-    }
-
-    translateSummary();
-  }, [onlineInfo?.summary, language]);
+  const conditionLabel = isNonPlant
+      ? t('notAPlantTitle')
+      : isHealthyResult && !hasEstimatedDiscoloration
+        ? t('conditionNormal')
+        : severityLabel;
+  const resultColor = isNonPlant
+      ? colors.textMuted
+      : isHealthyResult && !hasEstimatedDiscoloration
+        ? colors.ok
+        : getSeverityColor(diagnosis.severity);
 
   useEffect(() => {
     return () => {
@@ -279,12 +452,17 @@ export default function ResultsScreen({ route, navigation }) {
 
   const handleOpenSourceUrl = async (sourceUrl) => {
     if (!sourceUrl) return;
-//horizontal scrolabble gallery below the wikipedia link
+    
+    // Detect if URL is DuckDuckGo (which handles language internally)
+    const isDuckDuckGo = sourceUrl.includes('duckduckgo.com');
+    
     let targetLang = 'en'; 
     if (language === 'fil' || language === 'tl' || language === 'filipino') targetLang = 'tl';
     else if (language === 'bis' || language === 'ceb' || language === 'bisaya') targetLang = 'ceb';
 
-    const finalUrl = targetLang === 'en' 
+    // Skip Google Translate wrapper for DuckDuckGo (it handles language internally)
+    // Also skip for non-English Wikipedia (we could use the language-specific wiki)
+    const finalUrl = (targetLang === 'en' || isDuckDuckGo) 
       ? sourceUrl 
       : `https://translate.google.com/translate?sl=en&tl=${targetLang}&u=${encodeURIComponent(sourceUrl)}`;
 
@@ -310,23 +488,22 @@ export default function ResultsScreen({ route, navigation }) {
 
         <ScrollView contentContainerStyle={styles.body}>
         <View style={[styles.card, styles.diagnosisCard, { backgroundColor: glass.surface, borderColor: glass.border }]}>
-          {hasDamageEstimate && (
+          {/* Hide SeverityRing for non-plant detection */}
+          {!isNonPlant && hasDamageEstimate && (
             <SeverityRing
               percent={diagnosis.damagePercent}
-              color={isHealthyResult ? colors.ok : colors.warning}
+              color={isHealthyResult && !hasEstimatedDiscoloration ? colors.ok : getSeverityColor(diagnosis.severity)}
               label={severityLabel}
             />
           )}
-          {diagnosis.diseaseId !== 'healthy' && diagnosis.severity !== 'Unknown' && (
-            <View style={styles.severityBadgeContainer}>
-              <View style={[styles.severityBadge, { backgroundColor: getSeverityColor(diagnosis.severity) }]}>
-                <Text style={[styles.severityBadgeText, { color: colors.white }]}>
-                  {t(`severity${diagnosis.severity}`).toUpperCase()}
-                </Text>
-              </View>
+          <View style={styles.severityBadgeContainer}>
+            <View style={[styles.severityBadge, { backgroundColor: resultColor }]}>
+              <Text style={[styles.severityBadgeText, { color: colors.white }]}>
+                {conditionLabel.toUpperCase()}
+              </Text>
             </View>
-          )}
-          <Text style={[styles.diseaseLabel, { color: isHealthyResult ? colors.ok : colors.warning }]}>{diseaseName}</Text>
+          </View>
+          <Text style={[styles.diseaseLabel, { color: resultColor }]}>{diseaseName}</Text>
           <Text style={[styles.diseaseDesc, { color: colors.textMuted }]}>{diseaseDesc}</Text>
         </View>
 
@@ -340,7 +517,7 @@ export default function ResultsScreen({ route, navigation }) {
           </View>
         </View>
 
-        {onlineInfo && (
+        {!!onlineInfo && (
           <View style={[styles.card, { backgroundColor: glass.surface, borderColor: glass.border }]}>
             <View style={styles.onlineHeaderRow}>
               <Ionicons name="globe-outline" size={18} color={colors.textMuted} />
@@ -361,13 +538,28 @@ export default function ResultsScreen({ route, navigation }) {
               </View>
             )}
 
-            {!!localizedSummary && (
-              <Text style={[styles.onlineSummary, { color: colors.textMuted }]}>{localizedSummary}</Text>
+            {/* Reference Info now uses completely independent summary from onlineInfo */}
+            <Text style={[styles.onlineSummary, { color: colors.textMuted }]}>
+              {referenceSummary}
+            </Text>
+
+            {/* Show non-plant specific guidance if applicable */}
+            {onlineInfo.isNonPlant && (
+              <Text style={[styles.onlineSummary, { color: colors.textMuted, marginTop: 8 }]}>
+                {t('referenceNonPlantTip')}
+              </Text>
             )}
 
+            {/* Always show View Source link - it now points to context-appropriate URLs */}
             {!!onlineInfo.sourceUrl && (
-              <TouchableOpacity onPress={() => handleOpenSourceUrl(onlineInfo.sourceUrl)}>
-                <Text style={[styles.sourceLink, { color: colors.primary }]}>{t('referenceInfoSourceLink')}</Text>
+              <TouchableOpacity 
+                onPress={() => handleOpenSourceUrl(onlineInfo.sourceUrl)}
+                style={{ marginTop: 12, paddingBottom: 4 }}
+              >
+                <Text style={[styles.sourceLink, { color: colors.primary }]}>
+                  {t('referenceInfoSourceLink')}
+                  <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+                </Text>
               </TouchableOpacity>
             )}
 
@@ -401,7 +593,7 @@ export default function ResultsScreen({ route, navigation }) {
           </View>
         )}
 
-        {diagnosis.diseaseId !== 'healthy' && hasDamageEstimate && (
+        {hasDamageEstimate && !isNonPlant && !isHealthyResult && (
           <View style={[styles.card, { backgroundColor: glass.surface, borderColor: glass.border }]}>
             <Text style={[styles.sectionTitle, { color: colors.textDark }]}>{t('diseaseProgression')}</Text>
             {PROGRESSION_STAGES.slice().reverse().map((stage, i) => {
@@ -430,19 +622,21 @@ export default function ResultsScreen({ route, navigation }) {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.treatmentBtn, { backgroundColor: colors.leafGreen }]}
-          activeOpacity={0.85}
-          onPress={() => {
-            Speech.stop();
-            navigation.navigate('TreatmentPlan', {
-              diseaseId: diagnosis.diseaseId,
-              damagePercent: hasDamageEstimate ? diagnosis.damagePercent : null,
-            });
-          }}
-        >
-          <Text style={[styles.treatmentBtnText, { color: isDark ? '#051F20' : colors.white }]}>{t('viewTreatmentPlan')}</Text>
-        </TouchableOpacity>
+        {!isNonPlant && (
+          <TouchableOpacity
+            style={[styles.treatmentBtn, { backgroundColor: colors.leafGreen }]}
+            activeOpacity={0.85}
+            onPress={() => {
+              Speech.stop();
+              navigation.navigate('TreatmentPlan', {
+                diseaseId: diagnosis.diseaseId,
+                damagePercent: diagnosis.damagePercent,
+              });
+            }}
+          >
+            <Text style={[styles.treatmentBtnText, { color: isDark ? '#051F20' : colors.white }]}>{t('viewTreatmentPlan')}</Text>
+          </TouchableOpacity>
+        )}
         </ScrollView>
       </View>
     </SafeAreaView>

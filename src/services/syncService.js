@@ -120,7 +120,7 @@ export const syncOfflineScans = async (options = {}) => {
         .insert([{
           image_url: publicUrl,
           crop_name: scan.diagnosisResult?.cropName || 'Crop',
-          status: 'Pending AI Analysis',
+          status: scan.diagnosisResult?.diseaseId ? 'Analysis Complete' : 'Pending AI Analysis',
           farmer_id: user.id,
           disease_id: scan.diagnosisResult?.diseaseId ?? null,
           damage_percent: scan.diagnosisResult?.damagePercent ?? null,

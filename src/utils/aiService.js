@@ -19,15 +19,18 @@ export const DISEASE_IDS_BY_CROP = {
   tomato: ['tomatoEarlyBlight', 'tomatoLateBlight', 'tomatoLeafMold', 'healthy'],
 };
 
+export const MIN_CROP_MATCH_SCORE = 0.5;
+export const MIN_CROP_MATCH_MARGIN = 0.12;
+
 const loadedModels = new Map();
 
 export async function preprocessImageForModel(imageUri) {
   const resizedImage = await ImageManipulator.manipulateAsync(
     imageUri,
     [{ resize: { width: MODEL_INPUT_SIZE, height: MODEL_INPUT_SIZE } }],
-    { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
+    { compress: 1, format: ImageManipulator.SaveFormat.JPEG, base64: true }
   );
-  const base64 = await FileSystem.readAsStringAsync(resizedImage.uri, {
+  const base64 = resizedImage.base64 || await FileSystem.readAsStringAsync(resizedImage.uri, {
     encoding: 'base64',
   });
 
@@ -108,7 +111,69 @@ export async function runCropInference(model, inputTensor, cropType, diseaseIdsB
   };
 }
 
-export async function loadCropModel(cropType) {
+export function selectCropPrediction(predictions) {
+  const scoredPredictions = predictions
+    .filter((prediction) => Number.isFinite(prediction.confidence) && prediction.classCount > 1)
+    .map((prediction) => {
+      const baseline = 1 / prediction.classCount;
+      const cropMatchScore = Math.max(
+        0,
+        Math.min(1, (prediction.confidence - baseline) / (1 - baseline))
+      );
+      return { ...prediction, cropMatchScore };
+    })
+    .sort((first, second) => second.cropMatchScore - first.cropMatchScore);
+
+  const best = scoredPredictions[0];
+  const runnerUp = scoredPredictions[1];
+  const hasClearMatch = best &&
+    best.cropMatchScore >= MIN_CROP_MATCH_SCORE &&
+    runnerUp &&
+    best.cropMatchScore - runnerUp.cropMatchScore >= MIN_CROP_MATCH_MARGIN;
+
+  if (!hasClearMatch) {
+    if (!best) {
+      return { cropType: 'unknownCrop', diseaseId: 'unknownCrop', confidence: 0, cropMatchScore: 0 };
+    }
+    const { classCount, ...bestFit } = best;
+    return { ...bestFit, isBestFit: true };
+  }
+
+  const { classCount, ...prediction } = best;
+  return prediction;
+}
+
+export async function runAutoCropInference(inputTensor) {
+  const predictions = [];
+  const modelErrors = [];
+
+  for (const cropType of Object.keys(MODEL_ASSETS)) {
+    try {
+        const model = await loadCropModel(cropType);
+        const prediction = await runCropInference(
+          model,
+          inputTensor,
+          cropType,
+          DISEASE_IDS_BY_CROP
+        );
+      predictions.push({
+        ...prediction,
+        classCount: DISEASE_IDS_BY_CROP[cropType].length,
+      });
+    } catch (error) {
+      console.warn(`Crop model ${cropType} could not analyze the image:`, error);
+      modelErrors.push(error);
+    }
+  }
+
+  if (predictions.length === 0) {
+    throw modelErrors[0] || new Error('None of the supported crop models could analyze the image.');
+  }
+
+  return selectCropPrediction(predictions);
+}
+
+export async function loadCropModel(cropType, { cache = true } = {}) {
   const normalizedCropType = String(cropType ?? '').trim().toLowerCase();
   const modelAsset = MODEL_ASSETS[normalizedCropType];
 
@@ -116,23 +181,40 @@ export async function loadCropModel(cropType) {
     throw new Error(`Unsupported crop type: ${cropType}`);
   }
 
-  if (!loadedModels.has(normalizedCropType)) {
-    loadedModels.set(
-      normalizedCropType,
-      import('react-native-fast-tflite').then(({ loadTensorflowModel }) =>
-        loadTensorflowModel(modelAsset, [])
-      )
-    );
-  }
+  const unsupportedNativeMessage =
+    'TFLite is unavailable in Expo Go. Install and open the AgriLens custom development build to run crop scans.';
 
   try {
-    return await loadedModels.get(normalizedCropType);
-  } catch (error) {
-    loadedModels.delete(normalizedCropType);
-    if (/nitromodules|native.*module/i.test(error?.message || '')) {
-      throw new Error(
-        'TFLite is unavailable in Expo Go. Install and open the AgriLens custom development build to run crop scans.'
+    if (cache && loadedModels.has(normalizedCropType)) {
+      return await loadedModels.get(normalizedCropType);
+    }
+
+    {
+      const tfliteModule = await import('react-native-fast-tflite').catch((error) => {
+        const message = error?.message || String(error || '');
+        if (
+          /native module|failed to call.*react-native-fast-tflite|cannot find module|bundler.*module/i.test(message)
+        ) {
+          throw new Error(unsupportedNativeMessage);
+        }
+        throw error;
+      });
+
+      if (!tfliteModule || typeof tfliteModule.loadTensorflowModel !== 'function') {
+        throw new Error(unsupportedNativeMessage);
+      }
+
+      const modelPromise = Promise.resolve().then(() =>
+        tfliteModule.loadTensorflowModel(modelAsset, [])
       );
+      if (cache) loadedModels.set(normalizedCropType, modelPromise);
+      return await modelPromise;
+    }
+  } catch (error) {
+    if (cache) loadedModels.delete(normalizedCropType);
+    const message = error?.message || String(error || '');
+    if (/TFLite is unavailable in Expo Go|native module|nitromodules|react-native-fast-tflite/i.test(message)) {
+      throw new Error(unsupportedNativeMessage);
     }
     throw error;
   }
