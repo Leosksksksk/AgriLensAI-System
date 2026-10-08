@@ -1,25 +1,6 @@
 // src/utils/diseaseCatalog.js
 
-/**
- * Static disease knowledge base. Maps a diseaseId (from aiEngineService)
- * to display name/description/mitigation translation keys.
- *
- * Tomato-specific entries (added from the "tomatoleaf" Kaggle dataset's
- * 10-class label set): tomatoEarlyBlight, tomatoSeptoriaLeafSpot,
- * tomatoLeafMold, tomatoTargetSpot are LIVE-DETECTABLE — the color
- * engine's 4 signature buckets now map directly to these.
- *
- * tomatoBacterialSpot, tomatoLateBlight, tomatoSpiderMites,
- * tomatoYellowLeafCurlVirus, tomatoMosaicVirus are REFERENCE-ONLY: real
- * agronomic data, but the color-heuristic engine cannot visually
- * distinguish them from the 4 detectable diseases above. They're kept
- * here so a future trained model (or a disease-library browse screen)
- * can use them, but analyzeLeaf() will never return these IDs today.
- *
- * The old generic ids (leafBlight, leafSpot, powderyMildew, leafRust)
- * are kept for backward compatibility with any scans already saved to
- * Supabase under those ids before this update.
- */
+/** Maps model disease IDs to localized diagnosis and mitigation content. */
 export const DISEASE_CATALOG = {
   healthy: {
     id: 'healthy',
@@ -58,6 +39,56 @@ export const DISEASE_CATALOG = {
     mitigationKeys: ['targetSpotAction1', 'targetSpotAction2', 'targetSpotAction3'],
     urgencyRank: 2,
   },
+  tomatoLateBlight: {
+    id: 'tomatoLateBlight',
+    nameKey: 'diseaseLateBlight',
+    descKey: 'diseaseLateBlightDesc',
+    mitigationKeys: ['lateBlightAction1', 'lateBlightAction2', 'lateBlightAction3'],
+    urgencyRank: 1,
+  },
+
+  cornCommonRust: {
+    id: 'cornCommonRust',
+    nameKey: 'diseaseRust',
+    descKey: 'diseaseRustDesc',
+    mitigationKeys: ['rustAction1', 'rustAction2', 'rustAction3'],
+    urgencyRank: 1,
+  },
+  cornGrayLeafSpot: {
+    id: 'cornGrayLeafSpot',
+    nameKey: 'diseaseLeafSpot',
+    descKey: 'diseaseLeafSpotDesc',
+    mitigationKeys: ['leafSpotAction1', 'leafSpotAction2', 'leafSpotAction3'],
+    urgencyRank: 2,
+  },
+  cornNorthernLeafBlight: {
+    id: 'cornNorthernLeafBlight',
+    nameKey: 'diseaseLeafBlight',
+    descKey: 'diseaseBlightDesc',
+    mitigationKeys: ['action1', 'action2', 'action3', 'action4'],
+    urgencyRank: 1,
+  },
+  pepperBacterialSpot: {
+    id: 'pepperBacterialSpot',
+    nameKey: 'diseaseBacterialSpot',
+    descKey: 'diseaseBacterialSpotDesc',
+    mitigationKeys: ['bacterialSpotAction1', 'bacterialSpotAction2', 'bacterialSpotAction3'],
+    urgencyRank: 1,
+  },
+  potatoEarlyBlight: {
+    id: 'potatoEarlyBlight',
+    nameKey: 'diseaseEarlyBlight',
+    descKey: 'diseaseEarlyBlightDesc',
+    mitigationKeys: ['action1', 'action2', 'action3', 'action4'],
+    urgencyRank: 1,
+  },
+  potatoLateBlight: {
+    id: 'potatoLateBlight',
+    nameKey: 'diseaseLateBlight',
+    descKey: 'diseaseLateBlightDesc',
+    mitigationKeys: ['lateBlightAction1', 'lateBlightAction2', 'lateBlightAction3'],
+    urgencyRank: 1,
+  },
 
   // ---- Reference-only tomato diseases (not visually detectable yet) ----
   tomatoBacterialSpot: {
@@ -65,13 +96,6 @@ export const DISEASE_CATALOG = {
     nameKey: 'diseaseBacterialSpot',
     descKey: 'diseaseBacterialSpotDesc',
     mitigationKeys: ['bacterialSpotAction1', 'bacterialSpotAction2', 'bacterialSpotAction3'],
-    urgencyRank: 1,
-  },
-  tomatoLateBlight: {
-    id: 'tomatoLateBlight',
-    nameKey: 'diseaseLateBlight',
-    descKey: 'diseaseLateBlightDesc',
-    mitigationKeys: ['lateBlightAction1', 'lateBlightAction2', 'lateBlightAction3'],
     urgencyRank: 1,
   },
   tomatoSpiderMites: {

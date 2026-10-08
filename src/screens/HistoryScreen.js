@@ -342,7 +342,7 @@ function renderItem({ item, index }) {
           {!isSelectMode && <Ionicons name="chevron-forward" size={16} color={colors.textLight} />}
         </View>
       </TouchableOpacity>
-    );
+    );fscan
   }
 
   return (
@@ -516,8 +516,8 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 12,
-    padding: 14,
+    borderRadius: 12, //edge of the padding
+    padding: 14, //recent scans row padding
     marginBottom: 10,
   },
   selectedRow: {

@@ -12,13 +12,25 @@ import { decode } from 'base64-arraybuffer';
 import { supabase } from '../../supabaseClient';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
-import { analyzeLeaf } from '../services/aiEngineService';
+import {
+  DISEASE_IDS_BY_CROP,
+  loadCropModel,
+  preprocessImageForModel,
+  runCropInference,
+} from '../utils/aiService';
 import { enrichDiagnosis } from '../services/plantInfoLookupService';
 import { enhanceDiagnosisWithWebSearch } from '../services/onlineImageSearchService';
 import { getDueReminders, dismissReminder } from '../utils/reminderStorage';
 import { getValidUserSession } from '../utils/auth';
 import { useAppAlert } from '../context/AppAlertContext';
 import { glassPopupTheme } from '../theme/colors';
+
+const CROP_OPTIONS = [
+  { id: 'corn', labelKey: 'cropCorn', name: 'Corn' },
+  { id: 'pepper', labelKey: 'cropPepper', name: 'Pepper' },
+  { id: 'potato', labelKey: 'cropPotato', name: 'Potato' },
+  { id: 'tomato', labelKey: 'cropTomato', name: 'Tomato' },
+];
 
 export default function ScanScreen({ navigation }) {
   const { language, languageLabels, t } = useLanguage();
@@ -32,7 +44,7 @@ export default function ScanScreen({ navigation }) {
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [diagnosis, setDiagnosis] = useState(null);
-  const [notPlantWarning, setNotPlantWarning] = useState(false);
+  const [selectedCropType, setSelectedCropType] = useState(null);
   const cameraRef = useRef(null);
   const [dueReminders, setDueReminders] = useState([]);
 
@@ -51,6 +63,10 @@ export default function ScanScreen({ navigation }) {
   }
 
   async function handleTakePhoto() {
+    if (!selectedCropType) {
+      Alert.alert(t('cropTypes'), t('selectCropForScan'));
+      return;
+    }
     if (!permission?.granted) {
       const res = await requestPermission();
       if (!res.granted) {
@@ -61,18 +77,26 @@ export default function ScanScreen({ navigation }) {
     setShowCamera(true);
   }
 
-  async function runAnalysis(uri) {
+  async function runAnalysis(uri, cropType) {
     setAnalyzing(true);
     setDiagnosis(null);
-    setNotPlantWarning(false);
     try {
-      const result = await analyzeLeaf(uri);
-
-      if (result.isPlant === false) {
-        setNotPlantWarning(true);
-        setDiagnosis(null);
-        return result;
-      }
+      const model = await loadCropModel(cropType);
+      const inputTensor = await preprocessImageForModel(uri);
+      const prediction = await runCropInference(
+        model,
+        inputTensor,
+        cropType,
+        DISEASE_IDS_BY_CROP
+      );
+      const result = {
+        isPlant: true,
+        cropName: CROP_OPTIONS.find((crop) => crop.id === cropType)?.name || 'Crop',
+        diseaseId: prediction.diseaseId,
+        damagePercent: null,
+        severity: 'Unknown',
+        confidence: prediction.confidence,
+      };
 
       let enrichedResult = result;
       if (isOnline) {
@@ -90,6 +114,11 @@ export default function ScanScreen({ navigation }) {
     } catch (e) {
       console.warn('Analysis error:', e);
       setDiagnosis(null);
+      const isNativeRuntimeMissing = /TFLite is unavailable in Expo Go/i.test(e?.message || '');
+      Alert.alert(
+        isNativeRuntimeMissing ? t('customBuildRequiredTitle') : t('analysisUnavailableTitle'),
+        isNativeRuntimeMissing ? t('customBuildRequiredDesc') : t('analysisUnavailableDesc')
+      );
       return null;
     } finally {
       setAnalyzing(false);
@@ -171,11 +200,14 @@ export default function ScanScreen({ navigation }) {
   }
 
   async function handleImageReady(uri) {
+    if (!selectedCropType) {
+      Alert.alert(t('cropTypes'), t('selectCropForScan'));
+      return;
+    }
     setImageUri(uri);
-    const result = await runAnalysis(uri);
+    const result = await runAnalysis(uri, selectedCropType);
 
-    if (!result || result.isPlant === false) {
-      Alert.alert(t('notAPlantTitle'), t('notAPlantDesc'));
+    if (!result) {
       return;
     }
 
@@ -183,6 +215,10 @@ export default function ScanScreen({ navigation }) {
   }
 
   async function handleUploadPhoto() {
+    if (!selectedCropType) {
+      Alert.alert(t('cropTypes'), t('selectCropForScan'));
+      return;
+    }
     const res = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!res.granted) {
       Alert.alert(t('photoPermissionTitle'), t('photoPermissionDesc'));
@@ -204,16 +240,8 @@ export default function ScanScreen({ navigation }) {
       Alert.alert(t('noPhotoTitle'), t('noPhotoDesc'));
       return;
     }
-    if (!isOnline) {
-      Alert.alert(t('noInternet'), t('scanRequiresInternet'));
-      return;
-    }
     if (analyzing) {
       Alert.alert(t('analyzingTitle'), t('analyzingDesc'));
-      return;
-    }
-    if (notPlantWarning) {
-      Alert.alert(t('notAPlantTitle'), t('notAPlantDesc'));
       return;
     }
     if (!diagnosis) {
@@ -232,15 +260,14 @@ export default function ScanScreen({ navigation }) {
       Alert.alert(t('analyzingTitle'), t('analyzingDesc'));
       return;
     }
-    if (notPlantWarning) {
-      Alert.alert(t('notAPlantTitle'), t('notAPlantDesc'));
+    if (!selectedCropType) {
+      Alert.alert(t('cropTypes'), t('selectCropForScan'));
       return;
     }
 
-    const result = await runAnalysis(imageUri);
+    const result = await runAnalysis(imageUri, selectedCropType);
 
-    if (!result || result.isPlant === false) {
-      Alert.alert(t('notAPlantTitle'), t('notAPlantDesc'));
+    if (!result) {
       return;
     }
 
@@ -295,6 +322,38 @@ export default function ScanScreen({ navigation }) {
       </View>
 
       <ScrollView contentContainerStyle={styles.body}>
+        <View style={styles.cropSelectorWrap}>
+          <Text style={[styles.cropSelectorLabel, { color: colors.textDark }]}>{t('cropTypes')}</Text>
+          <View style={styles.cropSelector}>
+            {CROP_OPTIONS.map((crop) => {
+              const isSelected = selectedCropType === crop.id;
+              return (
+                <TouchableOpacity
+                  key={crop.id}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isSelected }}
+                  style={[
+                    styles.cropOption,
+                    {
+                      backgroundColor: isSelected ? colors.primary : colors.card,
+                      borderColor: isSelected ? colors.primary : colors.border,
+                    },
+                  ]}
+                  onPress={() => {
+                    setSelectedCropType(crop.id);
+                    setImageUri(null);
+                    setDiagnosis(null);
+                  }}
+                >
+                  <Text style={[styles.cropOptionText, { color: isSelected ? colors.white : colors.textDark }]}>
+                    {t(crop.labelKey)}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
         {dueReminders.map((reminder) => (
           <View key={reminder.id} style={styles.reminderBanner}>
             <Ionicons name="notifications" size={20} color={colors.warning} />
@@ -335,12 +394,6 @@ export default function ScanScreen({ navigation }) {
               <Text style={[styles.analyzingText, { color: colors.white }]}>{t('analyzingImage')}</Text>
             </View>
           )}
-          {!analyzing && notPlantWarning && (
-            <View style={styles.notPlantOverlay}>
-              <Ionicons name="alert-circle" size={18} color={colors.danger} />
-              <Text style={[styles.notPlantText, { color: glassPopupTheme.text }]}>{t('notAPlantBanner')}</Text>
-            </View>
-          )}
         </View>
 
         {/* UPLOAD & TAKE PHOTO BUTTONS */}
@@ -367,7 +420,7 @@ export default function ScanScreen({ navigation }) {
     </SafeAreaView>
   );
 }
-
+//homescreen area
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
@@ -386,6 +439,19 @@ const styles = StyleSheet.create({
   langPill: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20, borderWidth: 1 },
   langPillText: { fontWeight: '700', fontSize: 14 },
   body: { padding: 20, paddingBottom: 40 },
+  cropSelectorWrap: { marginBottom: 16 },
+  cropSelectorLabel: { fontSize: 14, fontWeight: '700', marginBottom: 8 },
+  cropSelector: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  cropOption: {
+    flexGrow: 1,
+    minWidth: '22%',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  cropOptionText: { fontSize: 14, fontWeight: '700' },
   reminderBanner: {
     backgroundColor: glassPopupTheme.surface,
     flexDirection: 'row',
@@ -449,27 +515,6 @@ const styles = StyleSheet.create({
     elevation: 12,
   },
   analyzingText: { fontSize: 14, fontWeight: '600' },
-  notPlantOverlay: {
-    position: 'absolute',
-    bottom: 16,
-    left: 16,
-    right: 16,
-    backgroundColor: glassPopupTheme.surface,
-    borderColor: glassPopupTheme.border,
-    borderWidth: 1,
-    borderRadius: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-    gap: 8,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.24,
-    shadowRadius: 16,
-    elevation: 12,
-  },
-  notPlantText: { fontSize: 14, fontWeight: '700' },
   cornerTL: { position: 'absolute', top: 20, left: 20, width: 26, height: 26, borderTopWidth: 0.4, borderLeftWidth: 0.4 }, //upper left corner
   cornerTR: { position: 'absolute', top: 20, right: 20, width: 26, height: 26, borderTopWidth: 0.4, borderRightWidth: 0.4 }, //upper right corner
   cornerBL: { position: 'absolute', bottom: 20, left: 20, width: 26, height: 26, borderBottomWidth: 0.4, borderLeftWidth: 0.4 }, //lower left corner

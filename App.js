@@ -216,15 +216,15 @@ function ThemedApp() {
       <ImageBackground
         source={require('./assets/leaf-glass-background.jpg')}
         style={{ flex: 1 }}
-        imageStyle={{ opacity: isDark ? 0.92 : 0.38 }}
-        blurRadius={isDark ? 2 : 8}
+        imageStyle={{ opacity: isDark ? 0.92 : 0.38 }} //background image opacity
+        blurRadius={isDark ? 2 : 8} //main background blur
         resizeMode="cover"
       >
         <View
           pointerEvents="none"
           style={[
             StyleSheet.absoluteFillObject,
-            { backgroundColor: isDark ? 'rgba(5, 31, 32, 0.3)' : 'rgba(218, 241, 222, 0.42)' },
+            { backgroundColor: isDark ? 'rgba(5, 32, 5, 0.30)' : 'rgba(218, 241, 222, 0.42)' },
           ]}
         />
         <NavigationContainer theme={navigationTheme}>

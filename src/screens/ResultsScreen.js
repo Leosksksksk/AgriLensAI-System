@@ -184,6 +184,7 @@ export default function ResultsScreen({ route, navigation }) {
 
   const profile = getDiseaseProfile(diagnosis.diseaseId);
   const isHealthyResult = diagnosis.diseaseId === 'healthy';
+  const hasDamageEstimate = Number.isFinite(diagnosis.damagePercent);
   const diseaseName = t(isHealthyResult ? 'conditionNormal' : profile.nameKey);
   const diseaseDesc = t(profile.descKey);
   const severityLabel = t(`severity${diagnosis.severity}`);
@@ -309,12 +310,14 @@ export default function ResultsScreen({ route, navigation }) {
 
         <ScrollView contentContainerStyle={styles.body}>
         <View style={[styles.card, styles.diagnosisCard, { backgroundColor: glass.surface, borderColor: glass.border }]}>
-          <SeverityRing
-            percent={diagnosis.damagePercent}
-            color={isHealthyResult ? colors.ok : colors.warning}
-            label={severityLabel}
-          />
-          {diagnosis.diseaseId !== 'healthy' && (
+          {hasDamageEstimate && (
+            <SeverityRing
+              percent={diagnosis.damagePercent}
+              color={isHealthyResult ? colors.ok : colors.warning}
+              label={severityLabel}
+            />
+          )}
+          {diagnosis.diseaseId !== 'healthy' && diagnosis.severity !== 'Unknown' && (
             <View style={styles.severityBadgeContainer}>
               <View style={[styles.severityBadge, { backgroundColor: getSeverityColor(diagnosis.severity) }]}>
                 <Text style={[styles.severityBadgeText, { color: colors.white }]}>
@@ -398,7 +401,7 @@ export default function ResultsScreen({ route, navigation }) {
           </View>
         )}
 
-        {diagnosis.diseaseId !== 'healthy' && (
+        {diagnosis.diseaseId !== 'healthy' && hasDamageEstimate && (
           <View style={[styles.card, { backgroundColor: glass.surface, borderColor: glass.border }]}>
             <Text style={[styles.sectionTitle, { color: colors.textDark }]}>{t('diseaseProgression')}</Text>
             {PROGRESSION_STAGES.slice().reverse().map((stage, i) => {
@@ -434,7 +437,7 @@ export default function ResultsScreen({ route, navigation }) {
             Speech.stop();
             navigation.navigate('TreatmentPlan', {
               diseaseId: diagnosis.diseaseId,
-              damagePercent: diagnosis.damagePercent,
+              damagePercent: hasDamageEstimate ? diagnosis.damagePercent : null,
             });
           }}
         >

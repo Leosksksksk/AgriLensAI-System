@@ -4,6 +4,12 @@ const DUCKDUCKGO_IMAGE_SEARCH = 'https://duckduckgo.com/';
 const GOOGLE_CUSTOM_SEARCH_API = 'https://www.googleapis.com/customsearch/v1';
 
 const DISEASE_SEARCH_TERMS = {
+  cornCommonRust: ['corn common rust Puccinia sorghi leaf symptoms', 'common rust on corn leaves'],
+  cornGrayLeafSpot: ['corn gray leaf spot Cercospora symptoms', 'gray leaf spot maize leaves'],
+  cornNorthernLeafBlight: ['northern corn leaf blight Exserohilum turcicum symptoms'],
+  pepperBacterialSpot: ['pepper bacterial spot Xanthomonas leaf symptoms'],
+  potatoEarlyBlight: ['potato early blight Alternaria solani leaf symptoms'],
+  potatoLateBlight: ['potato late blight Phytophthora infestans leaf symptoms'],
   tomatoEarlyBlight: ['tomato early blight Alternaria solani leaf symptoms', 'tomato early blight concentric rings'],
   tomatoSeptoriaLeafSpot: ['tomato Septoria leaf spot symptoms', 'Septoria lycopersici tomato leaves'],
   tomatoLeafMold: ['tomato leaf mold Passalora fulva', 'tomato leaf mold fuzzy underside'],

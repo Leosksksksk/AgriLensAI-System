@@ -17,7 +17,9 @@ export default function TreatmentPlanScreen({ route, navigation }) {
   const Alert = useAppAlert();
 
   const diseaseId = route?.params?.diseaseId ?? 'leafBlight';
-  const damagePercent = route?.params?.damagePercent ?? 0;
+  const damagePercent = Number.isFinite(route?.params?.damagePercent)
+    ? route.params.damagePercent
+    : null;
 
   const profile = getDiseaseProfile(diseaseId);
   const diseaseName = t(profile.nameKey);
@@ -83,10 +85,12 @@ export default function TreatmentPlanScreen({ route, navigation }) {
           </View>
           <View>
             <Text style={[styles.diseaseName, { color: colors.textDark }]}>{diseaseName}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 2 }}>
-              <View style={[styles.severityDot, { backgroundColor: severityColor('moderate') }]} />
-              <Text style={[styles.severityText, { color: colors.textMuted }]}>{damagePercent.toFixed(1)}% {t('leafTissueDamage')}</Text>
-            </View>
+            {damagePercent !== null && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 2 }}>
+                <View style={[styles.severityDot, { backgroundColor: severityColor('moderate') }]} />
+                <Text style={[styles.severityText, { color: colors.textMuted }]}>{damagePercent.toFixed(1)}% {t('leafTissueDamage')}</Text>
+              </View>
+            )}
           </View>
         </View>
 
